@@ -1,0 +1,60 @@
+{
+  "name": "indoorjs",
+  "version": "0.2.2",
+  "description": "Canvas based indoor maps",
+  "main": "gl.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode development --open",
+    "build": "webpack --mode production --module-bind js=babel-loader",
+    "lint": "eslint *.js --ignore-pattern test*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mudin/indoorjs.git"
+  },
+  "keywords": [
+    "indoorjs",
+    "maps",
+    "indoor-map",
+    "canvas",
+    "grid",
+    "axis",
+    "polar",
+    "cartesian"
+  ],
+  "author": "mudin <imudin07@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mudin/indoorjs/issues"
+  },
+  "homepage": "https://github.com/mudin/indoorjs#readme",
+  "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "acorn": "^6.1.1",
+    "babel-loader": "^8.0.5",
+    "css-loader": "^2.1.1",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^4.2.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-prettier": "^3.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.1",
+    "webpack-dev-server": "^3.3.1"
+  },
+  "dependencies": {
+    "canvas-loop": "^1.0.7",
+    "color-alpha": "^1.0.2",
+    "color-rgba": "^1.1.0",
+    "fabric": "^2.7.0",
+    "gl-util": "^1.1.6",
+    "impetus": "^0.8.8",
+    "just-pick": "^1.0.3",
+    "just-range": "^1.0.0",
+    "mouse-wheel": "^1.2.0",
+    "touch-pinch": "^1.0.1"
+  }
+}
