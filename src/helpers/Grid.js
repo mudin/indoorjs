@@ -1,35 +1,284 @@
-/**
- * @module  plot-grid/2d
- *
- * Canvas2D html grid renderer
- */
-'use strict';
 
-import BaseGrid from './BaseGrid';
-import {almost, len, clamp} from '../mumath';
+import alpha from 'color-alpha';
+import Base from '../components/Base';
+import { clamp, almost, len, parseUnit, toPx, isObj } from '../mumath';
+import gridStyle from '../gridStyle';
+import Axis from './Axis';
 
-class Grid extends BaseGrid {
-	constructor(opts) {
-		
-		opts = opts || {};
-		opts.context = '2d';
+//constructor
+class Grid extends Base{
+	constructor(canvas, opts) {
 		super(opts);
-
-		this.on('render', () => {
-			if (this.autostart)
-				this.clear();
-		});
+		this.canvas = canvas;
+		this.context = this.canvas.getContext('2d');
+		this.state = {};
+		this.setDefaults();
 		this.update(opts);
 	}
-
-	render(data) {
+	render() {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		this.draw(data);
+		this.draw();
+		return this;
+  }
+	//re-evaluate lines, calc options for renderer
+	update(opts) {
+		if (!opts) opts = {};
+		console.log(opts);
+		let shape = [this.canvas.width, this.canvas.height];
+	
+		//recalc state
+		this.state.x = this.calcCoordinate(this.axisX, shape, this);
+		this.state.y = this.calcCoordinate(this.axisY, shape, this);
+		this.state.x.opposite = this.state.y;
+		this.state.y.opposite = this.state.x;
+		this.emit('update', opts);
 		return this;
 	}
 
+	//re-evaluate lines, calc options for renderer
+	update2(center) {
+		if(!center) return;
+		let shape = [this.canvas.width, this.canvas.height];
+		Object.assign(this.center, center);
+		//recalc state
+		this.state.x = this.calcCoordinate(this.axisX, shape, this);
+		this.state.y = this.calcCoordinate(this.axisY, shape, this);
+		this.state.x.opposite = this.state.y;
+		this.state.y.opposite = this.state.x;
+		this.emit('update', center);
+
+		this.axisX.offset = center.x;
+		this.axisX.zoom = center.zoom;
+
+		this.axisY.offset = center.y;
+		this.axisY.zoom = center.zoom;
+		return this;
+	}
+	//get state object with calculated params, ready for rendering
+	calcCoordinate(coord, shape) {
+		let state = {
+			coordinate: coord,
+			shape: shape,
+			grid: this
+		};
+		//calculate real offset/range
+		state.range = coord.getRange(state);
+		state.offset = clamp(coord.offset - state.range * clamp(0.5, 0, 1), Math.max(coord.min, -Number.MAX_VALUE + 1), Math.min(coord.max, Number.MAX_VALUE) - state.range);
+		state.zoom = coord.zoom;
+		//calc style
+		state.axisColor = typeof coord.axisColor === 'number' ? alpha(coord.color, coord.axisColor) : coord.axisColor || coord.color;
+		state.axisWidth = coord.axisWidth || coord.lineWidth;
+		state.lineWidth = coord.lineWidth;
+		state.tickAlign = coord.tickAlign;
+		state.labelColor = state.color;
+		//get padding
+		if (typeof coord.padding === 'number') {
+			state.padding = Array(4).fill(coord.padding);
+		}
+		else if (coord.padding instanceof Function) {
+			state.padding = coord.padding(state);
+		}
+		else {
+			state.padding = coord.padding;
+		}
+		//calc font
+		if (typeof coord.fontSize === 'number') {
+			state.fontSize = coord.fontSize;
+		}
+		else {
+			let units = parseUnit(coord.fontSize);
+			state.fontSize = units[0] * toPx(units[1]);
+		}
+		state.fontFamily = coord.fontFamily || 'sans-serif';
+		//get lines stops, including joined list of values
+		let lines;
+		if (coord.lines instanceof Function) {
+			lines = coord.lines(state);
+		}
+		else {
+			lines = coord.lines || [];
+		}
+		state.lines = lines;
+		//calc colors
+		if (coord.lineColor instanceof Function) {
+			state.lineColors = coord.lineColor(state);
+		}
+		else if (Array.isArray(coord.lineColor)) {
+			state.lineColors = coord.lineColor;
+		}
+		else {
+			let color = typeof coord.lineColor === 'number' ? alpha(coord.color, coord.lineColor) : (coord.lineColor === false || coord.lineColor == null) ? null : coord.color;
+			state.lineColors = Array(lines.length).fill(color);
+		}
+		//calc ticks
+		let ticks;
+		if (coord.ticks instanceof Function) {
+			ticks = coord.ticks(state);
+		}
+		else if (Array.isArray(coord.ticks)) {
+			ticks = coord.ticks;
+		}
+		else {
+			let tick = (coord.ticks === true || coord.ticks === true) ? state.axisWidth * 2 : coord.ticks || 0;
+			ticks = Array(lines.length).fill(tick);
+		}
+		state.ticks = ticks;
+		//calc labels
+		let labels;
+		if (coord.labels === true)
+			labels = state.lines.concat(Array(sublines.length).fill(null));
+		else if (coord.labels instanceof Function) {
+			labels = coord.labels(state);
+		}
+		else if (Array.isArray(coord.labels)) {
+			labels = coord.labels;
+		}
+		else if (isObj(coord.labels)) {
+			labels = coord.labels;
+		}
+		else {
+			labels = Array(state.lines.length).fill(null);
+		}
+		state.labels = labels;
+		//convert hashmap ticks/labels to lines + colors
+		if (isObj(ticks)) {
+			state.ticks = Array(lines.length).fill(0);
+		}
+		if (isObj(labels)) {
+			state.labels = Array(lines.length).fill(null);
+		}
+		if (isObj(ticks)) {
+			for (let value in ticks) {
+				state.ticks.push(ticks[value]);
+				state.lines.push(parseFloat(value));
+				state.lineColors.push(null);
+				state.labels.push(null);
+			}
+		}
+		if (isObj(labels)) {
+			for (let value in labels) {
+				state.labels.push(labels[value]);
+				state.lines.push(parseFloat(value));
+				state.lineColors.push(null);
+				state.ticks.push(null);
+			}
+		}
+		return state;
+	}
+
+	setDefaults() {
+		this.pixelRatio = window.devicePixelRatio;
+		this.autostart = true;
+		this.interactions = true;
+
+		this.defaults = Object.assign({
+			type: 'linear',
+			name: '',
+			units: '',
+			state:{},
+		
+			//visible range params
+			minZoom:-Infinity,
+  		maxZoom:Infinity,
+			min: -Infinity,
+			max: Infinity,
+			offset: 0,
+			origin: .5,
+			center: {
+				x: 0,
+				y: 0,
+				zoom: 1
+			},
+			zoom:1,
+			zoomEnabled: true,
+			panEnabled: true,
+		
+			//labels
+			labels: true,
+			fontSize: '11pt',
+			fontFamily: 'sans-serif',
+			padding: 0,
+			color: 'rgb(0,0,0,1)',
+		
+			//lines params
+			lines: true,
+			tick: 8,
+			tickAlign: .5,
+			lineWidth: 1,
+			distance: 13,
+			style: 'lines',
+			lineColor: .4,
+		
+			//axis params
+			axis: true,
+			axisOrigin: 0,
+			axisWidth: 1.5,
+			axisColor: 0.8,
+		
+			//stub methods
+			//return coords for the values, redefined by axes
+			getCoords: (values, state) => [0,0,0,0],
+		
+			//return 0..1 ratio based on value/offset/range, redefined by axes
+			getRatio: (value, state) => 0,
+		
+			//default label formatter
+			format: v => v
+		}, gridStyle, this.options);
+
+		this.axisX = new Axis('x', this.defaults);
+		this.axisY = new Axis('y', this.defaults);
+
+		this.axisX = Object.assign({}, this.defaults, {
+			orientation: 'x',
+			getCoords: (values, state) => {
+				let coords = [];
+				if (!values) return coords;
+				for (let i = 0; i < values.length; i++) {
+					let t = state.coordinate.getRatio(values[i], state);
+					coords.push(t);
+					coords.push(0);
+					coords.push(t);
+					coords.push(1);
+				}
+				return coords;
+			},
+			getRange: state => {
+				return state.shape[0] * state.coordinate.zoom;
+			},
+			//FIXME: handle infinity case here
+			getRatio: (value, state) => {
+				return (value - state.offset) / state.range
+			}
+		});
+		this.axisY = Object.assign({}, this.defaults, {
+			orientation: 'y',
+			getCoords: (values, state) => {
+				let coords = [];
+				if (!values) return coords;
+				for (let i = 0; i < values.length; i++) {
+					let t = state.coordinate.getRatio(values[i], state);
+					coords.push(0);
+					coords.push(t);
+					coords.push(1);
+					coords.push(t);
+				}
+				return coords;
+			},
+			getRange: state => {
+				return state.shape[1] * state.coordinate.zoom;
+			},
+			getRatio: (value, state) => {
+				return 1 - (value - state.offset) / state.range
+			}
+		});
+
+		Object.assign(this, this.defaults);
+		Object.assign(this, this.options);
+	}
+
 	//draw grid to the canvas
-	draw(data) {
+	draw() {
 		this.drawLines(this.state.x);
 		this.drawLines(this.state.y);
 		return this;
@@ -38,7 +287,7 @@ class Grid extends BaseGrid {
 	drawLines(state) {
 		
 		//draw lines and sublines
-		if (!state || !state.coordinate || state.coordinate.disabled) return;
+		if (!state || !state.coordinate) return;
 
 		const ctx = this.context;
 		let [width, height] = state.shape;
@@ -73,7 +322,7 @@ class Grid extends BaseGrid {
 		}
 		//calc state.labels/tick coords
 		let tickCoords = [];
-		let labelCoords = [];
+		state.labelCoords = [];
 		let ticks = state.ticks;
 		for (let i = 0, j = 0, k = 0; i < normals.length; k++ , i += 2, j += 4) {
 			let x1 = coords[j], y1 = coords[j + 1], x2 = coords[j + 2], y2 = coords[j + 3];
@@ -83,8 +332,8 @@ class Grid extends BaseGrid {
 			tickCoords.push(normals[i + 1] * (yDif + tick[1] * state.tickAlign) + y1);
 			tickCoords.push(normals[i] * (xDif - tick[0] * (1 - state.tickAlign)) + x1);
 			tickCoords.push(normals[i + 1] * (yDif - tick[1] * (1 - state.tickAlign)) + y1);
-			labelCoords.push(normals[i] * xDif + x1);
-			labelCoords.push(normals[i + 1] * yDif + y1);
+			state.labelCoords.push(normals[i] * xDif + x1);
+			state.labelCoords.push(normals[i + 1] * yDif + y1);
 		}
 		//draw ticks
 		if (ticks.length) {
@@ -118,7 +367,15 @@ class Grid extends BaseGrid {
 			ctx.closePath();
 		}
 		//draw state.labels
+		this.drawLabels(state);
+	}
+
+	drawLabels(state) {
 		if (state.labels) {
+			const ctx = this.context;
+			let [width, height] = state.shape;
+			let [pt, pr, pb, pl] = state.padding;
+
 			ctx.font = '300 '+state.fontSize + 'px ' + state.fontFamily;
 			ctx.fillStyle = state.labelColor;
 			ctx.textBaseline = 'top';
@@ -134,15 +391,15 @@ class Grid extends BaseGrid {
 				
 				let textWidth = ctx.measureText(label).width;
 				
-				let textLeft = labelCoords[i * 2] * (width - pl - pr) + left + indent + pl;
+				let textLeft = state.labelCoords[i * 2] * (width - pl - pr)  + indent + pl;
 
 				if (state.coordinate.orientation === 'y') {
-					textLeft = clamp(textLeft, left + indent, left + width - textWidth - 1 - state.axisWidth);
+					textLeft = clamp(textLeft, indent, width - textWidth - 1 - state.axisWidth);
 				}
 				
-				let textTop = labelCoords[i * 2 + 1] * (height - pt - pb) + top + textOffset + pt;
+				let textTop = state.labelCoords[i * 2 + 1] * (height - pt - pb)  + textOffset + pt;
 				if (state.coordinate.orientation === 'x') {
-					textTop = clamp(textTop, top, top + height - textHeight - textOffset);
+					textTop = clamp(textTop, 0,  height - textHeight - textOffset);
 				}
 				ctx.fillText(label, textLeft, textTop);
 			}
