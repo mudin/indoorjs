@@ -1,4 +1,7 @@
 # IndoorJS [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges) ![gzip-size](https://img.shields.io/badge/size-18.4kb-brightgreen.svg)
+<a href="http://hits.dwyl.io/mudin/vue-vr">
+    <img src="http://hits.dwyl.io/mudin/vue-vr.svg" alt="HitCount">
+  </a>
 
 Indoor maps based on fabricjs with zooming, panning, grid system and anotations. 
 See [demo](https://mudin.github.io/indoorjs).
