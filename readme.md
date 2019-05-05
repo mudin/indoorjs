@@ -1,4 +1,4 @@
-# plot-grid [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges) ![gzip-size](https://img.shields.io/badge/size-18.4kb-brightgreen.svg)
+# IndoorJS [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges) ![gzip-size](https://img.shields.io/badge/size-18.4kb-brightgreen.svg)
 
 Indoor maps based on fabricjs with zooming, panning, grid system and anotations. 
 See [demo](https://mudin.github.io/indoorjs).
