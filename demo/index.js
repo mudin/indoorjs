@@ -19,12 +19,13 @@ let map = new Map(mapEl, {
 
 let addMarkers = () => {
   for (let i=0;i<4;i++) {
-    const x = Math.random()*map.width - map.width/2.;
-    const y = Math.random()*map.height - map.width/2.;
+    const x = Math.random()*400 - 200;
+    const y = Math.random()*400 - 200;
     let marker = new Marker([x,y],{
+      text:(i+1)+'',
       draggable:true
     });
-    map.add(marker);
+    marker.addTo(map);
   }
 }
 

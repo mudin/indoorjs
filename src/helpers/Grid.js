@@ -16,14 +16,26 @@ class Grid extends Base{
 		this.update(opts);
 	}
 	render() {
-		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.draw();
 		return this;
-  }
+	}
+	
+	getCenterCoords() {
+		let state = this.state.x;
+		let [width, height] = state.shape;
+		let [pt, pr, pb, pl] = state.padding;
+		let axisCoords = state.opposite.coordinate.getCoords([state.coordinate.axisOrigin], state.opposite);
+		let y = pt + axisCoords[1] * (height - pt - pb);
+		state = this.state.y;
+		[width, height] = state.shape;
+		[pt, pr, pb, pl] = state.padding;
+		axisCoords = state.opposite.coordinate.getCoords([state.coordinate.axisOrigin], state.opposite);
+		let x = pl + axisCoords[0] * (width - pr - pl);
+		return {x,y}
+	}
 	//re-evaluate lines, calc options for renderer
 	update(opts) {
 		if (!opts) opts = {};
-		console.log(opts);
 		let shape = [this.canvas.width, this.canvas.height];
 	
 		//recalc state
@@ -279,6 +291,7 @@ class Grid extends Base{
 
 	//draw grid to the canvas
 	draw() {
+		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.drawLines(this.state.x);
 		this.drawLines(this.state.y);
 		return this;
@@ -305,8 +318,10 @@ class Grid extends Base{
 			if (!color) continue;
 			ctx.strokeStyle = color;
 			ctx.beginPath();
-			let x1 = left + pl + coords[i] * (width - pr - pl), y1 = top + pt + coords[i + 1] * (height - pb - pt);
-			let x2 = left + pl + coords[i + 2] * (width - pr - pl), y2 = top + pt + coords[i + 3] * (height - pb - pt);
+			let x1 = left + pl + coords[i] * (width - pr - pl);
+			let y1 = top + pt + coords[i + 1] * (height - pb - pt);
+			let x2 = left + pl + coords[i + 2] * (width - pr - pl);
+			let y2 = top + pt + coords[i + 3] * (height - pb - pt);
 			ctx.moveTo(x1, y1);
 			ctx.lineTo(x2, y2);
 			ctx.stroke();
@@ -342,8 +357,10 @@ class Grid extends Base{
 			for (let i = 0, j = 0; i < tickCoords.length; i += 4, j++) {
 				if (almost(state.lines[j], state.opposite.coordinate.axisOrigin))
 					continue;
-				let x1 = left + pl + tickCoords[i] * (width - pl - pr), y1 = top + pt + tickCoords[i + 1] * (height - pt - pb);
-				let x2 = left + pl + tickCoords[i + 2] * (width - pl - pr), y2 = top + pt + tickCoords[i + 3] * (height - pt - pb);
+				let x1 = left + pl + tickCoords[i] * (width - pl - pr);
+				let y1 = top + pt + tickCoords[i + 1] * (height - pt - pb);
+				let x2 = left + pl + tickCoords[i + 2] * (width - pl - pr);
+				let y2 = top + pt + tickCoords[i + 3] * (height - pt - pb);
 				ctx.moveTo(x1, y1);
 				ctx.lineTo(x2, y2);
 			}

@@ -28,7 +28,9 @@ class Map extends Base {
     canvas.width = this.width || this.container.clientWidth;
     canvas.height = this.height || this.container.clientHeight;
 
-    this.canvas = new fabric.Canvas(canvas);
+    this.canvas = new fabric.Canvas(canvas,{
+      preserveObjectStacking:true
+    });
     this.context = this.canvas.getContext('2d');
 
     this.canPan = false;
@@ -55,16 +57,18 @@ class Map extends Base {
 
     }
     this.addGrid();
-		// this.update();
-
-    this.emit('ready', this);
-
+    // this.update();
+    
     const vm = this;
     panzoom(this.container, (e)=>{
       vm.panzoom(e);
     });
 
     this.registerListeners();
+
+    setTimeout(() => {
+      this.emit('ready', this);  
+    }, 100);
   }
 
   addFloorPlan() {
@@ -79,44 +83,71 @@ class Map extends Base {
     
   }
 
+  addLayer(layer) {
+    layer.shape.left+=this.canvas.width/2;
+    layer.shape.top+=this.canvas.height/2;
+    this.canvas.add(layer.shape);
+  }
+
   addGrid() {
-    this.gridCanvas = document.createElement('canvas');
-    this.gridCanvas.width = this.canvas.width;
-    this.gridCanvas.height = this.canvas.height;
-    this.canvas.wrapperEl.appendChild(this.gridCanvas);
+    this.gridCanvas = this.cloneCanvas();
     this.gridCanvas.setAttribute('id','indoors-grid-canvas');
-    this.gridCanvas.style.position = 'absolute';
-    this.gridCanvas.style.pointerEvents = 'none';
     this.grid = new Grid(this.gridCanvas, this);
+    this.grid.draw();
+  }
+
+  cloneCanvas(canvas) {
+    canvas = canvas || this.canvas;
+    let clone = document.createElement('canvas');
+    clone.width = canvas.width;
+    clone.height = canvas.height;
+    canvas.wrapperEl.appendChild(clone);
+    clone.style.position = 'absolute';
+    clone.style.pointerEvents = 'none';
+    return clone;
   }
 
   render() {
-		// this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		this.grid.render();
+		// this.grid.render();
 		return this;
   }
   
   update() {
+    let canvas = this.canvas;
+    
+    // canvas.zoomToPoint({
+    //   x:this.x0,
+    //   y:this.y0
+    // },this.zoom);
+
+    // if(this.canPan && this.isDragging) {
+    //   canvas.viewportTransform[4] += this.x - this.lastX;//e.clientX - this.lastPosX;
+    //   canvas.viewportTransform[5] += this.y - this.lastY;//e.clientY - this.lastPosY;
+    //   canvas.renderAll();
+    //   this.lastX = this.x;
+    //   this.lastY = this.y;
+    // }
+    let center = this.grid.getCenterCoords();
+    console.log(center);
+    this.floorplan.image.left = center.x;
+    this.floorplan.image.top = center.y;
+
+    let width = this.floorplan.width * this.zoom;
+    this.floorplan.image.scaleToWidth(width);
+
+    // this.floorplan.image.top = this.floorplan.position.x - this.ca
+
+
+    canvas.renderAll();
+
     this.grid.update2({
       x:this.center.x,
       y:this.center.y,
       zoom:1./this.zoom
     });
-    this.canvas.zoomToPoint({
-      x:this.x0,
-      y:this.y0
-    },this.zoom);
-
-    if(this.canPan && this.isDragging) {
-      console.log(this.x - this.x0);
-      this.canvas.viewportTransform[4] += this.x - this.lastX;//e.clientX - this.lastPosX;
-      this.canvas.viewportTransform[5] += this.y - this.lastY;//e.clientY - this.lastPosY;
-      this.canvas.renderAll();
-      this.lastX = this.x;
-      this.lastY = this.y;
-    }
 
     this.emit('update', this);
+    this.grid.render();
   }
 
   panzoom(e) {
@@ -150,13 +181,6 @@ class Map extends Base {
     this.zoom = 1./curZoom;
     this.x0 = e.x0;
     this.y0 = e.y0;
-    // if(this.lastX==undefined) this.lastX = e.x0;
-    // if(this.lastY==undefined) this.lastY = e.y0;
-    // this.x = e.x;
-    // this.y = e.y;
-    // this.dx = prevZoom * e.dx;
-    // this.dy = prevZoom * e.dy;
-    console.log(e.x, e.y, e.x0, e.y0);
     this.update();
   }
 

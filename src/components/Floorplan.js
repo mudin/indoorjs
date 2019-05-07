@@ -26,10 +26,9 @@ class Floorplan extends Base {
       image.originalWidth  = image.width;
       image.originalHeight  = image.height;
       vm.image = image.scaleToWidth(vm.width);
-      // vm.image.set({
-      //   left: vm.position.x - vm.image.getScaledWidth()/2.,
-      //   top: vm.position.y - vm.image.getScaledHeight()/2.
-      // });
+      
+      vm.scaleX = image.scaleX+0;
+      vm.scaleY = image.scaleY+0;
       vm.emit('load', vm.image);
     }, {
       selectable:false,
