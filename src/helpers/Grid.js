@@ -341,7 +341,8 @@ class Grid extends Base{
 		let ticks = state.ticks;
 		for (let i = 0, j = 0, k = 0; i < normals.length; k++ , i += 2, j += 4) {
 			let x1 = coords[j], y1 = coords[j + 1], x2 = coords[j + 2], y2 = coords[j + 3];
-			let xDif = (x2 - x1) * axisRatio, yDif = (y2 - y1) * axisRatio;
+			let xDif = (x2 - x1) * axisRatio;
+			let yDif = (y2 - y1) * axisRatio;
 			let tick = [normals[i] * ticks[k] / (width - pl - pr), normals[i + 1] * ticks[k] / (height - pt - pb)];
 			tickCoords.push(normals[i] * (xDif + tick[0] * state.tickAlign) + x1);
 			tickCoords.push(normals[i + 1] * (yDif + tick[1] * state.tickAlign) + y1);
@@ -412,6 +413,7 @@ class Grid extends Base{
 
 				if (state.coordinate.orientation === 'y') {
 					textLeft = clamp(textLeft, indent, width - textWidth - 1 - state.axisWidth);
+					label*=-1;
 				}
 				
 				let textTop = state.labelCoords[i * 2 + 1] * (height - pt - pb)  + textOffset + pt;

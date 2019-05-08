@@ -9,16 +9,14 @@ class Polyline extends Layer {
     this.lines = []
     
     this.lineOptions = {
-      strokeWidth:2,
+      strokeWidth: 2,
       stroke: this.color || 'grey',
       fill: this.fill || false
     }
 
     this.shape = new fabric.Group([], {
       selectable: false,
-      hasControls: false,
-      originX:'center',
-      originY:'center'
+      hasControls: false
     });
     
     this.setPoints(this._points);

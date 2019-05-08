@@ -23,3 +23,6 @@ export const ICON = {
   size: [128, 128],
   anchor: [64, 64]
 }
+
+fabric.Object.prototype.originX = 'center'; 
+fabric.Object.prototype.originY = 'center'; 

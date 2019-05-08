@@ -2,7 +2,7 @@ class Point {
   constructor(...params) {
     if (params.length > 1) {
       [this.x, this.y] = params;
-    } else if (params.length === 0) {
+    } else if (params.length === 0 || !params[0]) {
       [this.x, this.y] = [0, 0];
     } else if (Object.prototype.hasOwnProperty.call(params[0], 'x')) {
       this.x = params[0].x;

@@ -32,8 +32,8 @@ class Floorplan extends Base {
       vm.emit('load', vm.image);
     }, {
       selectable:false,
-      originX: 'center',
-      originY: 'center'
+      left:this.position.x,
+      top:this.position.y
     });
   }
 }

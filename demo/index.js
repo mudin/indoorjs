@@ -7,7 +7,6 @@ let map, polyline, markers;
 map = new Map(mapEl, {
   floorplan:new Floorplan({
     url:'./fp.jpeg',
-    position: [0,0],
     width: 400,
     zIndex:1
   }),
@@ -59,11 +58,13 @@ map.on('ready', ()=>{
 map.on('markerdrag', (e)=>{
   console.log('markerdrag',e);
   let id = e.target.id;
-  console.log(id);
   for (let i = 0; i < markers.length; i++) {
     const marker = markers[i];
     if(marker.id===e.target.id) {
-      marker.position = [e.target.left - map.canvas.width/2., e.target.top - map.canvas.height/2.];
+      var matrix = e.target.calcTransformMatrix();
+      let x = matrix[4] // translation in X
+      let y = matrix[5] 
+      marker.position = [x,y];
     }
   }
   updatePolyline();

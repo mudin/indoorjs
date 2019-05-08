@@ -50,6 +50,11 @@ class Map extends Base {
 				this.clear();
     });
 
+    this.originX = -this.canvas.width/2.;
+    this.originY = -this.canvas.height/2.;
+
+    this.canvas.absolutePan({x:this.originX, y:this.originY});
+
     try {
       this.addFloorPlan();
     }
@@ -75,8 +80,6 @@ class Map extends Base {
     if(!this.floorplan) return;
 
     this.floorplan.on('load',(img)=>{
-      img.left+=this.canvas.width/2;
-      img.top+=this.canvas.height/2;
       this.canvas.add(img);
       this.canvas.renderAll();
     });
@@ -84,10 +87,6 @@ class Map extends Base {
   }
 
   addLayer(layer) {
-    console.log(layer.shape.left);
-    console.log(this.canvas.width);
-    layer.shape.left+=this.canvas.width/2;
-    layer.shape.top+=this.canvas.height/2;
     this.canvas.add(layer.shape);
     this.canvas.renderAll();
     this.moveTo(layer);
@@ -130,28 +129,26 @@ class Map extends Base {
   update() {
     let canvas = this.canvas;
     
-    // canvas.zoomToPoint({
-    //   x:this.x0,
-    //   y:this.y0
-    // },this.zoom);
-
-    // if(this.canPan && this.isDragging) {
-    //   canvas.viewportTransform[4] += this.x - this.lastX;//e.clientX - this.lastPosX;
-    //   canvas.viewportTransform[5] += this.y - this.lastY;//e.clientY - this.lastPosY;
-    //   canvas.renderAll();
-    //   this.lastX = this.x;
-    //   this.lastY = this.y;
-    // }
+    canvas.zoomToPoint({
+      x:this.x0,
+      y:this.y0
+    },this.zoom);
+    
     let center = this.grid.getCenterCoords();
-    console.log(center);
-    this.floorplan.image.left = center.x;
-    this.floorplan.image.top = center.y;
+    // if(this.canPan && this.isDragging) {
+      canvas.viewportTransform[4] = center.x;// + this.originX;//this.x - this.lastX;//e.clientX - this.lastPosX;
+      canvas.viewportTransform[5] = center.y;// + this.originY;//this.y - this.lastY;//e.clientY - this.lastPosY;
+      canvas.renderAll();
+      this.lastX = this.x;
+      this.lastY = this.y;
+    // }
+    // let center = this.grid.getCenterCoords();
+    // console.log(center);
+    // this.floorplan.image.left = center.x + this.originX + this.floorplan.position.x;
+    // this.floorplan.image.top = center.y  + this.originY + this.floorplan.position.y;
 
-    let width = this.floorplan.width * this.zoom;
-    this.floorplan.image.scaleToWidth(width);
-
-    // this.floorplan.image.top = this.floorplan.position.x - this.ca
-
+    // let width = this.floorplan.width * this.zoom;
+    // this.floorplan.image.scaleToWidth(width);
 
     canvas.renderAll();
 
@@ -230,8 +227,17 @@ class Map extends Base {
     });
 
     this.canvas.on('object:moving', (e) => {
+      console.log(e);
       if(e.target.class) {
         vm.emit(e.target.class+'drag', e);
+        return;
+      }
+
+      let objects = e.target.getObjects();
+      for (let i = 0; i < objects.length; i++) {
+        const object = objects[i];
+        e.target = object;
+        vm.emit(object.class+'drag', e);
       }
     });
 
