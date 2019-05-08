@@ -1,9 +1,11 @@
 import Layer from "./Layer";
+import Point from "./Point";
 
 class Marker extends Layer {
   constructor(position, options) {
-    options.position = position;
+    options.position = new Point(position);
     super(options);
+    this.class = 'marker';
     this.text = this.text || "";
     this.textObj = new fabric.Text(this.text,{
       fontSize:18,
@@ -20,10 +22,13 @@ class Marker extends Layer {
     });
     this.shape = new fabric.Group([this.circle, this.textObj], {
       hasControls: false,
+      zIndex:this.zIndex,
       left:this.position.x,
       top:this.position.y,
       originX:'center',
-      originY:'center'
+      originY:'center',
+      class:this.class,
+      id:this.id
     });
   }
 }

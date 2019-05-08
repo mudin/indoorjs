@@ -1,12 +1,11 @@
 import Base from './Base';
-import Point from './Point';
 
 class Layer extends Base {
   constructor(options) {
     super(options);
-    this.position = new Point(this.position);
     this.label = this.label!=undefined ? this.label : null;
     this.draggable = this.draggable || false;
+    this.zIndex = this.zIndex || 0;
   }
 
   addTo(map) {

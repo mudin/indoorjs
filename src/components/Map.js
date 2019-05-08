@@ -68,7 +68,7 @@ class Map extends Base {
 
     setTimeout(() => {
       this.emit('ready', this);  
-    }, 100);
+    }, 300);
   }
 
   addFloorPlan() {
@@ -84,9 +84,17 @@ class Map extends Base {
   }
 
   addLayer(layer) {
+    console.log(layer.shape.left);
+    console.log(this.canvas.width);
     layer.shape.left+=this.canvas.width/2;
     layer.shape.top+=this.canvas.height/2;
     this.canvas.add(layer.shape);
+    this.canvas.renderAll();
+    this.moveTo(layer);
+  }
+
+  removeLayer(layer) {
+    this.canvas.remove(layer.shape);
   }
 
   addGrid() {
@@ -96,14 +104,21 @@ class Map extends Base {
     this.grid.draw();
   }
 
+  moveTo(obj, index) {
+    if(index!=undefined) {
+      obj.zIndex = index;
+    }
+    this.canvas.moveTo(obj.shape, obj.zIndex);
+  }
+
   cloneCanvas(canvas) {
     canvas = canvas || this.canvas;
     let clone = document.createElement('canvas');
     clone.width = canvas.width;
     clone.height = canvas.height;
     canvas.wrapperEl.appendChild(clone);
-    clone.style.position = 'absolute';
-    clone.style.pointerEvents = 'none';
+    // clone.style.position = 'absolute';
+    // clone.style.pointerEvents = 'none';
     return clone;
   }
 
@@ -212,6 +227,18 @@ class Map extends Base {
         // delete this.lastX;
         // delete this.lastY;
       // }
+    });
+
+    this.canvas.on('object:moving', (e) => {
+      if(e.target.class) {
+        vm.emit(e.target.class+'drag', e);
+      }
+    });
+
+    this.canvas.on('object:moved', (e) => {
+      if(e.target.class) {
+        vm.emit(e.target.class+'dragend', e);
+      }
     });
 
     document.addEventListener('keyup',(evt)=>{

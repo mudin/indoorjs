@@ -23,6 +23,10 @@ class Point {
   setY(y) {
     this.y = y || 0;
   }
+
+  getArray() {
+    return [this.x, this.y];
+  }
 }
 
 export default Point;
