@@ -227,7 +227,7 @@ class Grid extends Base {
         format: v => v
       },
       gridStyle,
-      this.options
+      this._options
     );
 
     this.axisX = new Axis('x', this.defaults);
@@ -278,7 +278,7 @@ class Grid extends Base {
     });
 
     Object.assign(this, this.defaults);
-    Object.assign(this, this.options);
+    Object.assign(this, this._options);
   }
 
   //draw grid to the canvas

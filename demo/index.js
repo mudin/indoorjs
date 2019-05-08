@@ -21,7 +21,7 @@ map = new Map(mapEl, {
 
 let addMarkers = () => {
   markers = [];
-  for (let i=0;i<4;i++) {
+  for (let i=0;i<10;i++) {
     const x = Math.random()*400 - 200;
     const y = Math.random()*400 - 200;
     let marker = new Marker([x,y],{

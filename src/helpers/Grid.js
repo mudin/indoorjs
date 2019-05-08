@@ -4,6 +4,7 @@ import Base from '../components/Base';
 import { clamp, almost, len, parseUnit, toPx, isObj } from '../mumath';
 import gridStyle from '../gridStyle';
 import Axis from './Axis';
+import Point from '../components/Point';
 
 //constructor
 class Grid extends Base{
@@ -36,6 +37,7 @@ class Grid extends Base{
 	//re-evaluate lines, calc options for renderer
 	update(opts) {
 		if (!opts) opts = {};
+		console.log(opts);
 		let shape = [this.canvas.width, this.canvas.height];
 	
 		//recalc state
@@ -179,6 +181,7 @@ class Grid extends Base{
 	}
 
 	setDefaults() {
+		console.log(this.options);
 		this.pixelRatio = window.devicePixelRatio;
 		this.autostart = true;
 		this.interactions = true;
@@ -236,13 +239,14 @@ class Grid extends Base{
 		
 			//default label formatter
 			format: v => v
-		}, gridStyle, this.options);
+		}, gridStyle, this._options);
 
 		this.axisX = new Axis('x', this.defaults);
 		this.axisY = new Axis('y', this.defaults);
 
 		this.axisX = Object.assign({}, this.defaults, {
 			orientation: 'x',
+			offset:this.center.x,
 			getCoords: (values, state) => {
 				let coords = [];
 				if (!values) return coords;
@@ -265,6 +269,7 @@ class Grid extends Base{
 		});
 		this.axisY = Object.assign({}, this.defaults, {
 			orientation: 'y',
+			offset:this.center.y,
 			getCoords: (values, state) => {
 				let coords = [];
 				if (!values) return coords;
@@ -286,7 +291,9 @@ class Grid extends Base{
 		});
 
 		Object.assign(this, this.defaults);
-		Object.assign(this, this.options);
+		Object.assign(this, this._options);
+
+		this.center = new Point(this.center);
 	}
 
 	//draw grid to the canvas

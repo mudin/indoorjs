@@ -6,6 +6,7 @@ import { fabric } from 'fabric';
 import Base from './Base';
 import { MAP } from '../Constants.js';
 import Grid from '../helpers/Grid';
+import Point from './Point';
 
 class Map extends Base {
   constructor(container, options) {
@@ -17,7 +18,9 @@ class Map extends Base {
     Object.assign(this, this.defaults);
 
     //overwrite options
-    Object.assign(this, this.options);
+    Object.assign(this, this._options);
+
+    this.center = new Point(this.center);
 
     this.container = container || document.body;
     
@@ -50,8 +53,8 @@ class Map extends Base {
 				this.clear();
     });
 
-    this.originX = -this.canvas.width/2.;
-    this.originY = -this.canvas.height/2.;
+    this.originX = -this.canvas.width/2. + this._options.center.x;
+    this.originY = -this.canvas.height/2. + this._options.center.y;
 
     this.canvas.absolutePan({x:this.originX, y:this.originY});
 
@@ -133,23 +136,11 @@ class Map extends Base {
       x:this.x0,
       y:this.y0
     },this.zoom);
+    this.grid.render();
     
     let center = this.grid.getCenterCoords();
-    // if(this.canPan && this.isDragging) {
-      canvas.viewportTransform[4] = center.x;// + this.originX;//this.x - this.lastX;//e.clientX - this.lastPosX;
-      canvas.viewportTransform[5] = center.y;// + this.originY;//this.y - this.lastY;//e.clientY - this.lastPosY;
-      canvas.renderAll();
-      this.lastX = this.x;
-      this.lastY = this.y;
-    // }
-    // let center = this.grid.getCenterCoords();
-    // console.log(center);
-    // this.floorplan.image.left = center.x + this.originX + this.floorplan.position.x;
-    // this.floorplan.image.top = center.y  + this.originY + this.floorplan.position.y;
-
-    // let width = this.floorplan.width * this.zoom;
-    // this.floorplan.image.scaleToWidth(width);
-
+    canvas.viewportTransform[4] = center.x;// + this.originX;//this.x - this.lastX;//e.clientX - this.lastPosX;
+    canvas.viewportTransform[5] = center.y;// + this.originY;//this.y - this.lastY;//e.clientY - this.lastPosY;
     canvas.renderAll();
 
     this.grid.update2({
@@ -193,41 +184,15 @@ class Map extends Base {
     this.zoom = 1./curZoom;
     this.x0 = e.x0;
     this.y0 = e.y0;
+    this.x = e.x;
+    this.y = e.y;
     this.update();
   }
 
   registerListeners() {
     const vm = this;
 
-    this.canvas.on('mouse:down', (opt) => {
-      var evt = opt.e;
-      this.isDragging = vm.canPan;
-      // if (vm.canPan) {
-        this.lastX = evt.clientX;
-        this.lastY = evt.clientY;
-      // }
-    });
-    this.canvas.on('mouse:move', (opt) => {
-      var evt = opt.e;
-      if (vm.isDragging) {
-        this.x = evt.clientX;
-        this.y = evt.clientY;
-      }
-    });
-    this.canvas.on('mouse:up', (opt) => {
-      var evt = opt.e;
-      this.isDragging = false;
-      // if(vm.canPan) {
-
-      // }
-      // if (evt.altKey === true) {
-        // delete this.lastX;
-        // delete this.lastY;
-      // }
-    });
-
     this.canvas.on('object:moving', (e) => {
-      console.log(e);
       if(e.target.class) {
         vm.emit(e.target.class+'drag', e);
         return;
@@ -248,12 +213,8 @@ class Map extends Base {
     });
 
     document.addEventListener('keyup',(evt)=>{
-      // if (evt.altKey === true) {
-        delete this.lastX;
-        delete this.lastY;
         vm.canPan = false;
         vm.canvas.selection = true;
-      // }
     });
 
     document.addEventListener('keydown',(evt)=>{
@@ -265,12 +226,9 @@ class Map extends Base {
   }
 
   unregisterListeners() {
-    this.canvas.off('mouse:down');
-    this.canvas.off('mouse:move');
-    this.canvas.off('mouse:up');
+    this.canvas.off('object:moving');
+    this.canvas.off('object:moved');
   }
-
-  
 }
 
 export default Map;

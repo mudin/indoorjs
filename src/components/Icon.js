@@ -6,7 +6,7 @@ class Icon extends Base {
     super(options);
     this.defaults = Object.assign({}, ICON);
     Object.assign({}, this.defaults);
-    Object.assign({}, this.options);
+    Object.assign({}, this._options);
   }
 }
 export default Icon;
