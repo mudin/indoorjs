@@ -1,6 +1,6 @@
 {
   "name": "indoorjs",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Canvas based indoor maps",
   "main": "gl.js",
   "scripts": {
