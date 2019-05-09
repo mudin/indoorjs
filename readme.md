@@ -8,6 +8,7 @@
 Indoor maps based on fabricjs with zooming, panning, grid system and anotations. 
 See [demo](https://mudin.github.io/indoorjs).
 
+![Markers and Connections demo](https://mudin.github.io/indoorjs/indoorjs.gif?raw=true)
 
 ## Usage
 
