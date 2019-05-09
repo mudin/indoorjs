@@ -197,13 +197,45 @@ class Map extends Base {
         vm.emit(e.target.class+'drag', e);
         return;
       }
+      vm.emit('object:drag', e);
+    });
 
-      let objects = e.target.getObjects();
+    this.canvas.on('object:scaling', (e) => {
+      if(e.target.class) {
+        vm.emit(e.target.class+'modify', e);
+        return;
+      }
+      let group = e.target;
+      let objects = group.getObjects();
       for (let i = 0; i < objects.length; i++) {
         const object = objects[i];
-        e.target = object;
-        vm.emit(object.class+'drag', e);
+        if(object.class) {
+          object._set('scaleX',1./group.scaleX);
+          object._set('scaleY',1./group.scaleY);
+          vm.emit(object.class+'scaling', object);
+        }
       }
+
+      vm.emit('object:scaling', e);
+    });
+
+    this.canvas.on('object:rotating', (e) => {
+      if(e.target.class) {
+        vm.emit(e.target.class+'rotate', e);
+        return;
+      }
+      let group = e.target;
+      let objects = group.getObjects();
+      for (let i = 0; i < objects.length; i++) {
+        const object = objects[i];
+        if(object.class) {
+          object._set('angle', -group.angle);
+          vm.emit(object.class+'rotate', object);
+        }
+      }
+
+      vm.emit('object:rotate', e);
+
     });
 
     this.canvas.on('object:moved', (e) => {

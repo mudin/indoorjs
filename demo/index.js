@@ -57,15 +57,48 @@ map.on('ready', ()=>{
 
 map.on('markerdrag', (e)=>{
   console.log('markerdrag',e);
-  let id = e.target.id;
+  updateMarkers(e.target);
+  updatePolyline();
+});
+
+let updateMarkers = (obj) => {
   for (let i = 0; i < markers.length; i++) {
     const marker = markers[i];
-    if(marker.id===e.target.id) {
-      var matrix = e.target.calcTransformMatrix();
+    if(marker.id=== obj.id) {
+      var matrix = obj.calcTransformMatrix();
       let x = matrix[4] // translation in X
       let y = matrix[5] 
       marker.position = [x,y];
     }
+  }
+}
+
+map.on('object:drag', (e)=>{
+  console.log('object:drag',e);
+  let obj = e.target;
+  let objects = obj.getObjects();
+  for (let j in objects) {
+    updateMarkers(objects[j]);
+  }
+  updatePolyline();
+});
+
+map.on('object:scaling', (e)=>{
+  console.log('object:scaling',e);
+  let obj = e.target;
+  let objects = obj.getObjects();
+  for (let j in objects) {
+    updateMarkers(objects[j]);
+  }
+  updatePolyline();
+});
+
+map.on('object:rotate', (e)=>{
+  console.log('object:rotate',e);
+  let obj = e.target;
+  let objects = obj.getObjects();
+  for (let j in objects) {
+    updateMarkers(objects[j]);
   }
   updatePolyline();
 });
