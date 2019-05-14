@@ -6,17 +6,21 @@ class Polyline extends Layer {
     options = options || {};
     options.points = _points || [];
     super(options);
-    this.lines = []
+    this.lines = [];
+    this.class = 'polyline';
+    this.strokeWidth = 1;
     
     this.lineOptions = {
-      strokeWidth: 2,
+      strokeWidth: this.strokeWidth,
       stroke: this.color || 'grey',
       fill: this.fill || false
     }
 
     this.shape = new fabric.Group([], {
       selectable: false,
-      hasControls: false
+      hasControls: false,
+      class:this.class,
+      parent:this
     });
     
     this.setPoints(this._points);
@@ -34,6 +38,12 @@ class Polyline extends Layer {
       this.lines.push(line);
       this.shape.addWithUpdate(line);
     }
+  }
+
+  setStrokeWidth(strokeWidth) {
+    this.lines.forEach(line => {
+      line.setStrokeWidth(strokeWidth);
+    });
   }
 
   setPoints(points = []) {

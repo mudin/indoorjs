@@ -5,7 +5,20 @@ class Layer extends Base {
     super(options);
     this.label = this.label!=undefined ? this.label : null;
     this.draggable = this.draggable || false;
-    this.zIndex = this.zIndex || 0;
+    this.zIndex = this.zIndex || 1;
+    this.keepOnZoom = this.keepOnZoom || false;
+
+    this.class = this.class || this.constructor.name.toLowerCase();
+
+    this.style = {
+      zIndex: this.zIndex,
+      class:this.class,
+      parent:this,
+      keepOnZoom:this.keepOnZoom,
+      id:this.id,
+      hasControls: false,
+      hasBorders:false
+    }
   }
 
   addTo(map) {

@@ -26,3 +26,25 @@ export const ICON = {
 
 fabric.Object.prototype.originX = 'center'; 
 fabric.Object.prototype.originY = 'center'; 
+
+fabric.Object.prototype.lockUniScaling = true;
+fabric.Object.prototype.lockScalingFlip = true;
+fabric.Object.prototype.transparentCorners = false;
+fabric.Object.prototype.centeredScaling = true;
+fabric.Object.prototype.cornerStyle = 'circle';
+fabric.Object.prototype.cornerColor = 'blue';
+fabric.Object.prototype.borderColor = 'blue';
+fabric.Object.prototype.borderOpacity = 0.7;
+fabric.Object.prototype.cornerOpacity = 0.7;
+fabric.Object.prototype.cornerStrokeColor = 'blue';
+
+fabric.Object.prototype.borderColor = '#2dcfab';
+fabric.Object.prototype.cornerColor = '#2dcfab';
+fabric.Object.prototype.cornerStrokeColor = '#176957';
+
+fabric.Object.prototype.objectCaching = false;
+fabric.Group.prototype.objectCaching = true;
+
+fabric.Object.prototype.selectionBackgroundColor = 'rgba(45,207,171,0.25)';
+
+fabric.Object.prototype.padding = 5;

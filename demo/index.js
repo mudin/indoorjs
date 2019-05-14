@@ -1,8 +1,8 @@
-import { Map, Floorplan, Marker, Polyline }  from '../src/index.js';
+import { Map, Floorplan, Marker }  from '../src/index.js';
 import './index.css';
 let mapEl = document.querySelector('.my-map');
 
-let map, polyline, markers;
+let map, markers;
 
 map = new Map(mapEl, {
   floorplan:new Floorplan({
@@ -21,33 +21,27 @@ map = new Map(mapEl, {
 
 let addMarkers = () => {
   markers = [];
-  for (let i=0;i<10;i++) {
+  for (let i=0;i<20;i++) {
     const x = Math.random()*400 - 200;
     const y = Math.random()*400 - 200;
     let marker = new Marker([x,y],{
       text:(i+1)+'',
       draggable:true,
-      zIndex:3,
+      zIndex:100,
       id:i
     });
-    console.log('marker ',i);
     marker.addTo(map);
     markers.push(marker);
   }
-  updatePolyline();
+  addLinks();
 }
 
-let updatePolyline = () => {
-  if(polyline) {
-    map.removeLayer(polyline);
+let addLinks = () => {
+  for (let i=1;i<markers.length;i++) {
+    markers[i].setLinks(
+      [markers[i-1]]
+    )
   }
-  polyline = new Polyline([],{
-    zIndex:2
-  });
-  for (let i=0;i<markers.length;i++) {
-    polyline.addPoint(markers[i].position);
-  }
-  polyline.addTo(map);
 }
 
 map.on('ready', ()=>{
@@ -57,50 +51,18 @@ map.on('ready', ()=>{
 
 map.on('markerdrag', (e)=>{
   console.log('markerdrag',e);
-  updateMarkers(e.target);
-  updatePolyline();
 });
-
-let updateMarkers = (obj) => {
-  for (let i = 0; i < markers.length; i++) {
-    const marker = markers[i];
-    if(marker.id=== obj.id) {
-      var matrix = obj.calcTransformMatrix();
-      let x = matrix[4] // translation in X
-      let y = matrix[5] 
-      marker.position = [x,y];
-    }
-  }
-}
 
 map.on('object:drag', (e)=>{
   console.log('object:drag',e);
-  let obj = e.target;
-  let objects = obj.getObjects();
-  for (let j in objects) {
-    updateMarkers(objects[j]);
-  }
-  updatePolyline();
 });
 
 map.on('object:scaling', (e)=>{
-  console.log('object:scaling',e);
-  let obj = e.target;
-  let objects = obj.getObjects();
-  for (let j in objects) {
-    updateMarkers(objects[j]);
-  }
-  updatePolyline();
+  console.log('object:scaling', e);
 });
 
 map.on('object:rotate', (e)=>{
-  console.log('object:rotate',e);
-  let obj = e.target;
-  let objects = obj.getObjects();
-  for (let j in objects) {
-    updateMarkers(objects[j]);
-  }
-  updatePolyline();
+  console.log('object:rotate', e);
 });
 
 window.map = map;

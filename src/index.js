@@ -5,3 +5,4 @@ export { default as Layer } from './components/Layer';
 export { default as Icon } from './components/Icon';
 export { default as Marker } from './components/Marker';
 export { default as Polyline } from './components/Polyline';
+export { default as Connector } from './components/Connector';

@@ -23,76 +23,65 @@ class Map extends Base {
     this.center = new Point(this.center);
 
     this.container = container || document.body;
-    
+
     let canvas = document.createElement('canvas');
     this.container.appendChild(canvas);
-    canvas.setAttribute('id','indoors-map-canvas')
-  
+    canvas.setAttribute('id', 'indoors-map-canvas');
+
     canvas.width = this.width || this.container.clientWidth;
     canvas.height = this.height || this.container.clientHeight;
 
-    this.canvas = new fabric.Canvas(canvas,{
+    this.canvas = new fabric.Canvas(canvas, {
       preserveObjectStacking:true
     });
     this.context = this.canvas.getContext('2d');
 
     this.canPan = false;
 
-    this.loop = createLoop(canvas, { parent: this.container, zoom: this.pixelRatio });
-		this.loop.on('tick', () => {
-			this.render && this.render();
-		});
-		this.loop.on('resize', () => {
-			this.update && this.update();
-		});
-    
-    this.loop.start();
-
-		this.on('render', () => {
-			if (this.autostart)
-				this.clear();
+    this.on('render', () => {
+      if (this.autostart) this.clear();
     });
 
-    this.originX = -this.canvas.width/2. + this._options.center.x;
-    this.originY = -this.canvas.height/2. + this._options.center.y;
+    this.originX = -this.canvas.width / 2 + this._options.center.x;
+    this.originY = -this.canvas.height / 2 + this._options.center.y;
 
-    this.canvas.absolutePan({x:this.originX, y:this.originY});
+    this.canvas.absolutePan({
+      x: this.originX,
+      y: this.originY
+    });
 
     try {
       this.addFloorPlan();
-    }
-    catch(e){
-
-    }
+    } catch (e) {}
     this.addGrid();
     // this.update();
-    
+
     const vm = this;
-    panzoom(this.container, (e)=>{
+    panzoom(this.container, e => {
       vm.panzoom(e);
     });
 
     this.registerListeners();
 
     setTimeout(() => {
-      this.emit('ready', this);  
+      this.emit('ready', this);
     }, 300);
   }
 
   addFloorPlan() {
-    if(!this.floorplan) return;
-
-    this.floorplan.on('load',(img)=>{
-      this.canvas.add(img);
-      this.canvas.renderAll();
+    if (!this.floorplan) return;
+    const vm = this;
+    this.floorplan.on('load', img => {
+      vm.addLayer(img);
     });
-    
   }
 
-  addLayer(layer) {
+  addLayer(layer) {    
     this.canvas.add(layer.shape);
+    this.canvas._objects.sort((o1,o2)=>{
+      return o1.zIndex - o2.zIndex;
+    });
     this.canvas.renderAll();
-    this.moveTo(layer);
   }
 
   removeLayer(layer) {
@@ -101,13 +90,13 @@ class Map extends Base {
 
   addGrid() {
     this.gridCanvas = this.cloneCanvas();
-    this.gridCanvas.setAttribute('id','indoors-grid-canvas');
+    this.gridCanvas.setAttribute('id', 'indoors-grid-canvas');
     this.grid = new Grid(this.gridCanvas, this);
     this.grid.draw();
   }
 
   moveTo(obj, index) {
-    if(index!=undefined) {
+    if (index != undefined) {
       obj.zIndex = index;
     }
     this.canvas.moveTo(obj.shape, obj.zIndex);
@@ -119,51 +108,55 @@ class Map extends Base {
     clone.width = canvas.width;
     clone.height = canvas.height;
     canvas.wrapperEl.appendChild(clone);
-    // clone.style.position = 'absolute';
-    // clone.style.pointerEvents = 'none';
     return clone;
   }
 
-  render() {
-		// this.grid.render();
-		return this;
-  }
-  
   update() {
     let canvas = this.canvas;
-    
-    canvas.zoomToPoint({
-      x:this.x0,
-      y:this.y0
-    },this.zoom);
-    this.grid.render();
-    
-    let center = this.grid.getCenterCoords();
-    canvas.viewportTransform[4] = center.x;// + this.originX;//this.x - this.lastX;//e.clientX - this.lastPosX;
-    canvas.viewportTransform[5] = center.y;// + this.originY;//this.y - this.lastY;//e.clientY - this.lastPosY;
-    canvas.renderAll();
 
     this.grid.update2({
-      x:this.center.x,
-      y:this.center.y,
-      zoom:1./this.zoom
+      x: this.center.x,
+      y: this.center.y,
+      zoom: this.zoom
     });
 
     this.emit('update', this);
     this.grid.render();
+
+    let center = this.grid.getCenterCoords();
+    canvas.viewportTransform[4] = center.x;
+    canvas.viewportTransform[5] = center.y;
+
+    canvas.zoomToPoint(
+      {
+        x: this.x0,
+        y: this.y0
+      },
+      this.zoom
+    );
+
+    let objects = canvas.getObjects();
+    for (let i = 0; i < objects.length; i++) {
+      const object = objects[i];
+      if (object.keepOnZoom) {
+        object._set('scaleX', 1 / this.zoom);
+        object._set('scaleY', 1 / this.zoom);
+        this.emit(object.class + 'scaling', object);
+      }
+    }
   }
 
   panzoom(e) {
     //enable interactions
     let { width, height } = this.canvas;
     //shift start
-    let zoom = clamp(-e.dz, -height * .75, height * .75) / height;
-    
-    let prevZoom = 1./this.zoom;
+    let zoom = clamp(-e.dz, -height * 0.75, height * 0.75) / height;
+
+    let prevZoom = 1 / this.zoom;
     let curZoom = prevZoom * (1 - zoom);
     curZoom = clamp(curZoom, this.minZoom, this.maxZoom);
 
-    let {x,y} = this.center; 
+    let { x, y } = this.center;
 
     //pan
     let oX = 0.5;
@@ -174,14 +167,14 @@ class Map extends Base {
     }
 
     if (this.zoomEnabled) {
-      let tx = (e.x) / width - oX;
+      let tx = e.x / width - oX;
       x -= width * (curZoom - prevZoom) * tx;
-      let ty = oY - (e.y) / height;
+      let ty = oY - e.y / height;
       y -= height * (curZoom - prevZoom) * ty;
     }
     this.center.setX(x);
     this.center.setY(y);
-    this.zoom = 1./curZoom;
+    this.zoom = 1 / curZoom;
     this.x0 = e.x0;
     this.y0 = e.y0;
     this.x = e.x;
@@ -192,65 +185,92 @@ class Map extends Base {
   registerListeners() {
     const vm = this;
 
-    this.canvas.on('object:moving', (e) => {
-      if(e.target.class) {
-        vm.emit(e.target.class+'drag', e);
+    this.canvas.on('object:scaling', e => {
+      if (e.target.class) {
+        vm.emit(e.target.class + 'modify', e);
         return;
       }
-      vm.emit('object:drag', e);
+      let group = e.target;
+      let objects = group.getObjects();
+      group.removeWithUpdate();
+      for (let i = 0; i < objects.length; i++) {
+        const object = objects[i];
+        object.fire('moving');
+      }
+      vm.update();
+      vm.canvas.renderAll();
     });
 
-    this.canvas.on('object:scaling', (e) => {
-      if(e.target.class) {
-        vm.emit(e.target.class+'modify', e);
+    this.canvas.on('object:rotating', e => {
+      if (e.target.class) {
+        vm.emit(e.target.class + 'rotate', e);
         return;
       }
       let group = e.target;
       let objects = group.getObjects();
       for (let i = 0; i < objects.length; i++) {
         const object = objects[i];
-        if(object.class) {
-          object._set('scaleX',1./group.scaleX);
-          object._set('scaleY',1./group.scaleY);
-          vm.emit(object.class+'scaling', object);
-        }
-      }
-
-      vm.emit('object:scaling', e);
-    });
-
-    this.canvas.on('object:rotating', (e) => {
-      if(e.target.class) {
-        vm.emit(e.target.class+'rotate', e);
-        return;
-      }
-      let group = e.target;
-      let objects = group.getObjects();
-      for (let i = 0; i < objects.length; i++) {
-        const object = objects[i];
-        if(object.class) {
+        if (object.class) {
           object._set('angle', -group.angle);
-          vm.emit(object.class+'rotate', object);
+          object.fire('moving');
         }
       }
 
       vm.emit('object:rotate', e);
-
+      this.update();
     });
 
-    this.canvas.on('object:moved', (e) => {
-      if(e.target.class) {
-        vm.emit(e.target.class+'dragend', e);
+    this.canvas.on('object:moving',e => {
+      if (e.target.class) {
+        vm.emit(e.target.class + 'moving', e);
+        return;
+      }
+      let group = e.target;
+      let objects = group.getObjects();
+      for (let i = 0; i < objects.length; i++) {
+        const object = objects[i];
+        if (object.class) {
+          object.fire('moving');
+        }
+      }
+      vm.emit('object:rotate', e);
+      this.update();
+    });
+
+    this.canvas.on('object:moved', e => {
+      if (e.target.class) {
+        vm.emit(e.target.class + 'dragend', e);
+      }
+      this.update();
+    });
+
+    this.canvas.on('selection:created', e => {
+      console.log(e);
+      const group = e.target;
+      group.zoom = 1./vm.zoom+0;
+    });
+
+    this.canvas.on('selection:cleared', e => {
+      console.log(e);
+      let objects = e.deselected;
+      for (let i = 0; i < objects.length; i++) {
+        const object = objects[i];
+        if (object.class) {
+          object._set('angle', 0);
+          object._set('scaleX', 1./vm.zoom);
+          object._set('scaleY', 1./vm.zoom);
+          object.fire('moving');
+        }
       }
     });
 
-    document.addEventListener('keyup',(evt)=>{
-        vm.canPan = false;
-        vm.canvas.selection = true;
+    document.addEventListener('keyup', evt => {
+      vm.canPan = false;
+      vm.canvas.selection = true;
     });
 
-    document.addEventListener('keydown',(evt)=>{
-      if (evt.shiftKey === true) {
+    document.addEventListener('keydown', evt => {
+      if (evt.altKey === true) {
         vm.canPan = true;
         vm.canvas.selection = false;
       }

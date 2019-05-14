@@ -62,10 +62,10 @@ class Grid extends Base{
 		this.emit('update', center);
 
 		this.axisX.offset = center.x;
-		this.axisX.zoom = center.zoom;
+		this.axisX.zoom = 1./center.zoom;
 
 		this.axisY.offset = center.y;
-		this.axisY.zoom = center.zoom;
+		this.axisY.zoom = 1./center.zoom;
 		return this;
 	}
 	//get state object with calculated params, ready for rendering
