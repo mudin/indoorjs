@@ -5,7 +5,9 @@ module.exports = {
     parser: 'babel-eslint'
   },
   globals: {
-    document: true
+    document: true,
+    window: true,
+    fabric: true
   },
   plugins: [
     'prettier'
@@ -32,6 +34,8 @@ module.exports = {
       }
     ],
     'arrow-parens': 'off',
+    'no-underscore-dangle':'off',
+    'no-param-reassign':'off',
     'function-paren-newline': 'off',
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
@@ -39,13 +43,11 @@ module.exports = {
       ignoreWhenBindingPresent: false
     },
     'no-console': 'off',
+    'no-continue':'off',
     'max-len': ['error', {
       code: 100,
       ignoreUrls: true,
       ignoreStrings: true
-    }],
-    'no-param-reassign': [2, {
-      props: false
     }]
   }
 };

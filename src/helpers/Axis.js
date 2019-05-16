@@ -5,17 +5,17 @@ class Axis {
   }
 
   getCoords (values) {
-    let coords = [];
+    const coords = [];
     if (!values) return coords;
-    for (let i = 0; i < values.length; i++) {
-      let t = this.getRatio(values[i]);
+    for (let i = 0; i < values.length; i+=1) {
+      const t = this.getRatio(values[i]);
       coords.push(t);
       coords.push(0);
       coords.push(t);
       coords.push(1);
     }
     return coords;
-  }
+  } 
 
   getRange() {
     let len = this.width;

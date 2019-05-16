@@ -7,4 +7,4 @@ class Base extends Emitter {
     Object.assign(this, options);
   }
 }
-export default Base;
+export default Base; 

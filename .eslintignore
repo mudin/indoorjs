@@ -3,3 +3,5 @@ dist/
 node_modules
 node_modules/
 src/index.html
+src/lib
+src/lib/

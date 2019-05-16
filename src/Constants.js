@@ -1,5 +1,10 @@
 import Point from './components/Point';
-import Icon from './components/Icon';
+
+export const Modes = {
+  SELECT:'SELECT',
+  GRAB:'GRAB',
+  DRAW:'DRAW'
+}
 
 export const MAP = {
   center: new Point(),
@@ -8,14 +13,14 @@ export const MAP = {
   maxZoom:20,
   gridEnabled: true,
   zoomEnabled: true,
-  panEnabled: true
+  selectEnabled: true,
+  mode: Modes.SELECT
 }
 
 export const MARKER = {
   position: new Point(),
   minZoom:1,
-  maxZoom:20,
-  icon: new Icon()
+  maxZoom:20
 }
 
 export const ICON = {
@@ -25,7 +30,7 @@ export const ICON = {
 }
 
 fabric.Object.prototype.originX = 'center'; 
-fabric.Object.prototype.originY = 'center'; 
+fabric.Object.prototype.originY = 'center';
 
 fabric.Object.prototype.lockUniScaling = true;
 fabric.Object.prototype.lockScalingFlip = true;
@@ -45,6 +50,8 @@ fabric.Object.prototype.cornerStrokeColor = '#176957';
 fabric.Object.prototype.objectCaching = false;
 fabric.Group.prototype.objectCaching = true;
 
-fabric.Object.prototype.selectionBackgroundColor = 'rgba(45,207,171,0.25)';
+fabric.Group.prototype.selectionBackgroundColor = 'rgba(45,207,171,0.25)';
+
+fabric.Object.prototype.borderDashArray = [3, 3];
 
 fabric.Object.prototype.padding = 5;

@@ -4,13 +4,14 @@
  * Events for pan and zoom
  */
 
-var Impetus = require('impetus')
-var wheel = require('mouse-wheel')
-var touchPinch = require('touch-pinch')
-var raf = require('raf')
 import  evPos from './ev-pos';
 
-export default (target, cb) => {
+const Impetus = require('impetus')
+const wheel = require('mouse-wheel')
+const touchPinch = require('touch-pinch')
+const raf = require('raf')
+ 
+export default (target, cb) =>  {
 	if (target instanceof Function) {
 		cb = target
 		target = document.documentElement || document.body
@@ -18,20 +19,20 @@ export default (target, cb) => {
 
 	if (typeof target === 'string') target = document.querySelector(target)
 
-	var cursor = {
+	let cursor = {
 		x:0,
 		y:0
 	}
 
-	var hasPassive = () => {
-		var supported = false
+	const hasPassive = () => {
+		let supported = false
 
 		try {
-			var opts = Object.defineProperty({}, 'passive', {
-				get: function() {
+			const opts = Object.defineProperty({}, 'passive', {
+				get() {
 					supported = true;
 				}
-			});
+			}); 
 
 			window.addEventListener('test', null, opts);
 			window.removeEventListener('test', null, opts);
@@ -42,10 +43,10 @@ export default (target, cb) => {
 		return supported;
 	}
 
-	var impetus;
+	let impetus;
 
-	var initX = 0, initY = 0, init = true
-	var initFn = function (e) { init = true }
+	let initX = 0; let initY = 0; let init = true
+	const initFn = function (e) { init = true }
 	target.addEventListener('mousedown', initFn)
 	target.addEventListener('mousemove', (e)=> {
 		cursor = evPos(e);
@@ -58,18 +59,18 @@ export default (target, cb) => {
 	});
 	target.addEventListener('touchstart', initFn, hasPassive() ? { passive: true } : false)
 
-	var lastY = 0, lastX = 0
+	let lastY = 0; let lastX = 0
 	impetus = new Impetus({
 		source: target,
-		update: function (x, y) {
+		update (x, y) {
 			if (init) {
 				init = false
 				initX = cursor.x
 				initY = cursor.y
 			}
 
-			var e = {
-				target: target,
+			const e = {
+				target,
 				type: 'mouse',
 				dx: x - lastX, dy: y - lastY, dz: 0,
 				x: cursor.x,
@@ -86,11 +87,11 @@ export default (target, cb) => {
 		friction: .75
 	})
 
-	//enable zooming
-	var wheelListener = wheel(target, function (dx, dy, dz, e) {
+	// enable zooming
+	const wheelListener = wheel(target, function (dx, dy, dz, e) {
 		e.preventDefault();
 		schedule({
-			target: target,
+			target,
 			type: 'mouse',
 			dx: 0, dy: 0, dz: dy,
 			x: cursor.x,
@@ -100,14 +101,14 @@ export default (target, cb) => {
 		})
 	})
 
-	//mobile pinch zoom
-	var pinch = touchPinch(target)
-	var mult = 2
-	var initialCoords
+	// mobile pinch zoom
+	const pinch = touchPinch(target)
+	const mult = 2
+	let initialCoords
 
 	pinch.on('start', function (curr) {
-		var f1 = pinch.fingers[0];
-		var f2 = pinch.fingers[1];
+		const f1 = pinch.fingers[0];
+		const f2 = pinch.fingers[1];
 
 		initialCoords = [
 			f2.position[0] * .5 + f1.position[0] * .5,
@@ -127,7 +128,7 @@ export default (target, cb) => {
 		if (!pinch.pinching || !initialCoords) return
 
 		schedule({
-			target: target,
+			target,
 			type: 'touch',
 			dx: 0, dy: 0, dz: - (curr - prev) * mult,
 			x: initialCoords[0], y: initialCoords[1],
@@ -137,7 +138,7 @@ export default (target, cb) => {
 
 
 	// schedule function to current or next frame
-	var planned, frameId
+	let planned; let frameId
 	function schedule (ev) {
 		if (frameId != null) {
 			if (!planned) planned = ev
@@ -161,7 +162,7 @@ export default (target, cb) => {
 			cb(ev)
 			frameId = null
 			if (planned) {
-				var arg = planned
+				const arg = planned
 				planned = null
 				schedule(arg)
 			}

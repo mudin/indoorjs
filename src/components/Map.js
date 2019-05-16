@@ -1,30 +1,31 @@
-import panzoom from '../panzoom';
-import createLoop from 'canvas-loop';
-import { clamp } from '../mumath';
-import { fabric } from 'fabric';
+import panzoom from '../lib/panzoom';
+import { clamp } from '../lib/mumath';
 
 import Base from './Base';
-import { MAP } from '../Constants.js';
+import { MAP, Modes } from '../Constants.js';
 import Grid from '../helpers/Grid';
 import Point from './Point';
+import ModesMixin from './ModesMixin';
+import { mix } from '../lib/mix';
 
-class Map extends Base {
+class Map extends mix(Base).with(ModesMixin) {
   constructor(container, options) {
     super(options);
 
+    console.log(this);
     this.defaults = Object.assign({}, MAP);
 
-    //set defaults
+    // set defaults
     Object.assign(this, this.defaults);
 
-    //overwrite options
+    // overwrite options
     Object.assign(this, this._options);
 
     this.center = new Point(this.center);
 
     this.container = container || document.body;
 
-    let canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     this.container.appendChild(canvas);
     canvas.setAttribute('id', 'indoors-map-canvas');
 
@@ -32,11 +33,9 @@ class Map extends Base {
     canvas.height = this.height || this.container.clientHeight;
 
     this.canvas = new fabric.Canvas(canvas, {
-      preserveObjectStacking:true
+      preserveObjectStacking: true
     });
     this.context = this.canvas.getContext('2d');
-
-    this.canPan = false;
 
     this.on('render', () => {
       if (this.autostart) this.clear();
@@ -52,9 +51,12 @@ class Map extends Base {
 
     try {
       this.addFloorPlan();
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
     this.addGrid();
-    // this.update();
+
+    this.setMode(this.mode || Modes.GRAB);
 
     const vm = this;
     panzoom(this.container, e => {
@@ -76,12 +78,19 @@ class Map extends Base {
     });
   }
 
-  addLayer(layer) {    
+  addLayer(layer) {
     this.canvas.add(layer.shape);
-    this.canvas._objects.sort((o1,o2)=>{
+    this.canvas._objects.sort((o1, o2) => {
       return o1.zIndex - o2.zIndex;
     });
-    this.canvas.renderAll();
+
+    if (layer.shape.keepOnZoom) {
+      layer.shape._set('scaleX', 1 / this.zoom);
+      layer.shape._set('scaleY', 1 / this.zoom);
+      this.emit(`${layer.class}scaling`, layer);
+    }
+    // this.update();
+    // this.canvas.renderAll();
   }
 
   removeLayer(layer) {
@@ -96,7 +105,7 @@ class Map extends Base {
   }
 
   moveTo(obj, index) {
-    if (index != undefined) {
+    if (index !== undefined) {
       obj.zIndex = index;
     }
     this.canvas.moveTo(obj.shape, obj.zIndex);
@@ -104,7 +113,7 @@ class Map extends Base {
 
   cloneCanvas(canvas) {
     canvas = canvas || this.canvas;
-    let clone = document.createElement('canvas');
+    const clone = document.createElement('canvas');
     clone.width = canvas.width;
     clone.height = canvas.height;
     canvas.wrapperEl.appendChild(clone);
@@ -112,7 +121,7 @@ class Map extends Base {
   }
 
   update() {
-    let canvas = this.canvas;
+    const canvas = this.canvas;
 
     this.grid.update2({
       x: this.center.x,
@@ -123,62 +132,57 @@ class Map extends Base {
     this.emit('update', this);
     this.grid.render();
 
-    let center = this.grid.getCenterCoords();
-    canvas.viewportTransform[4] = center.x;
-    canvas.viewportTransform[5] = center.y;
+    if (this.isGrabMode()) {
+      canvas.relativePan(new Point(this.dx, this.dy));
+      this.emit('panning');
+    }
 
-    canvas.zoomToPoint(
-      {
-        x: this.x0,
-        y: this.y0
-      },
-      this.zoom
-    );
+    canvas.zoomToPoint(new Point(this.x, this.y), this.zoom);
 
-    let objects = canvas.getObjects();
-    for (let i = 0; i < objects.length; i++) {
+    const objects = canvas.getObjects();
+    for (let i = 0; i < objects.length; i += 1) {
       const object = objects[i];
       if (object.keepOnZoom) {
         object._set('scaleX', 1 / this.zoom);
         object._set('scaleY', 1 / this.zoom);
-        this.emit(object.class + 'scaling', object);
+        this.emit(`${object.class}scaling`, object);
       }
     }
   }
 
   panzoom(e) {
-    //enable interactions
-    let { width, height } = this.canvas;
-    //shift start
-    let zoom = clamp(-e.dz, -height * 0.75, height * 0.75) / height;
+    // enable interactions
+    const { width, height } = this.canvas;
+    // shift start
+    const zoom = clamp(-e.dz, -height * 0.75, height * 0.75) / height;
 
-    let prevZoom = 1 / this.zoom;
+    const prevZoom = 1 / this.zoom;
     let curZoom = prevZoom * (1 - zoom);
     curZoom = clamp(curZoom, this.minZoom, this.maxZoom);
 
     let { x, y } = this.center;
 
-    //pan
-    let oX = 0.5;
-    let oY = 0.5;
-    if (this.panEnabled && this.canPan) {
+    // pan
+    const oX = 0.5;
+    const oY = 0.5;
+    if (this.isGrabMode()) {
       x -= prevZoom * e.dx;
       y += prevZoom * e.dy;
     }
 
     if (this.zoomEnabled) {
-      let tx = e.x / width - oX;
+      const tx = e.x / width - oX;
       x -= width * (curZoom - prevZoom) * tx;
-      let ty = oY - e.y / height;
+      const ty = oY - e.y / height;
       y -= height * (curZoom - prevZoom) * ty;
     }
     this.center.setX(x);
     this.center.setY(y);
     this.zoom = 1 / curZoom;
-    this.x0 = e.x0;
-    this.y0 = e.y0;
-    this.x = e.x;
-    this.y = e.y;
+    this.dx = e.dx;
+    this.dy = e.dy;
+    this.x = e.x0;
+    this.y = e.y0;
     this.update();
   }
 
@@ -187,15 +191,18 @@ class Map extends Base {
 
     this.canvas.on('object:scaling', e => {
       if (e.target.class) {
-        vm.emit(e.target.class + 'modify', e);
+        vm.emit(`${e.target.class}:scaling`, e.target.parent);
         return;
       }
-      let group = e.target;
-      let objects = group.getObjects();
+      const group = e.target;
+      if(!group.getObjects) return;
+
+      const objects = group.getObjects();
       group.removeWithUpdate();
-      for (let i = 0; i < objects.length; i++) {
+      for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
         object.fire('moving');
+        vm.emit(`${object.class}:moving`, object.parent);
       }
       vm.update();
       vm.canvas.renderAll();
@@ -203,76 +210,100 @@ class Map extends Base {
 
     this.canvas.on('object:rotating', e => {
       if (e.target.class) {
-        vm.emit(e.target.class + 'rotate', e);
+        vm.emit(`${e.target.class}:rotating`, e.target.parent);
         return;
       }
-      let group = e.target;
-      let objects = group.getObjects();
-      for (let i = 0; i < objects.length; i++) {
+      const group = e.target;
+      if(!group.getObjects) return;
+      const objects = group.getObjects();
+      for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
         if (object.class) {
           object._set('angle', -group.angle);
           object.fire('moving');
+          vm.emit(`${object.class}:moving`, object.parent);
         }
       }
-
-      vm.emit('object:rotate', e);
       this.update();
     });
 
-    this.canvas.on('object:moving',e => {
+    this.canvas.on('object:moving', e => {
       if (e.target.class) {
-        vm.emit(e.target.class + 'moving', e);
+        vm.emit(`${e.target.class}:moving`, e.target.parent);
         return;
       }
-      let group = e.target;
-      let objects = group.getObjects();
-      for (let i = 0; i < objects.length; i++) {
+      const group = e.target;
+      if(!group.getObjects) return;
+      const objects = group.getObjects();
+      for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
         if (object.class) {
           object.fire('moving');
+          vm.emit(`${object.class}:moving`, object.parent);
         }
       }
-      vm.emit('object:rotate', e);
       this.update();
     });
 
     this.canvas.on('object:moved', e => {
       if (e.target.class) {
-        vm.emit(e.target.class + 'dragend', e);
+        vm.emit(`${e.target.class}dragend`, e);
       }
       this.update();
     });
 
-    this.canvas.on('selection:created', e => {
-      console.log(e);
-      const group = e.target;
-      group.zoom = 1./vm.zoom+0;
-    });
-
     this.canvas.on('selection:cleared', e => {
-      console.log(e);
-      let objects = e.deselected;
-      for (let i = 0; i < objects.length; i++) {
+      const objects = e.deselected;
+      for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
         if (object.class) {
           object._set('angle', 0);
-          object._set('scaleX', 1./vm.zoom);
-          object._set('scaleY', 1./vm.zoom);
+          object._set('scaleX', 1 / vm.zoom);
+          object._set('scaleY', 1 / vm.zoom);
           object.fire('moving');
         }
       }
     });
 
-    document.addEventListener('keyup', evt => {
-      vm.canPan = false;
-      vm.canvas.selection = true;
+    this.canvas.on('mouse:down', e => {
+      vm.dragObject = e.target;
+    });
+
+    this.canvas.on('mouse:move', e => {
+      if (vm.dragObject && vm.dragObject.clickable) {
+        if (vm.dragObject == e.target) {
+          vm.dragObject.dragging = true;
+        } else {
+          vm.dragObject.dragging = false;
+        }
+      }
+    });
+
+    this.canvas.on('mouse:up', e => {
+      if (vm.dragObject && vm.dragObject.clickable) {
+        if(vm.dragObject!=e.target) return;
+        if (!vm.dragObject.dragging && !vm.modeToggleByKey) {
+          console.log('click');
+          vm.emit(vm.dragObject.class + ':click', vm.dragObject.parent);
+        }
+        vm.dragObject.dragging = false;
+      }
+      vm.dragObject = null;
+    });
+
+    document.addEventListener('keyup', () => {
+      if (this.modeToggleByKey && this.isGrabMode()) {
+        this.setModeAsSelect();
+        this.modeToggleByKey = false;
+      }
     });
 
     document.addEventListener('keydown', evt => {
-      if (evt.altKey === true) {
-        vm.canPan = true;
-        vm.canvas.selection = false;
+      if (event.ctrlKey || event.metaKey) {
+        if (this.isSelectMode()) {
+          this.setModeAsGrab();
+        }
+        this.modeToggleByKey = true;
       }
     });
   }

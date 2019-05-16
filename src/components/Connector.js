@@ -26,17 +26,17 @@ class Connector extends Layer {
 
     this.registerListeners();
   }
+
   registerListeners() {
     const vm = this;
-    this.start.on('moving', ()=>{
+    this.start.on('update:links', ()=>{
       vm.shape.set({
         x1:vm.start.position.x,
         y1:vm.start.position.y
       });
     });
 
-    this.end.on('moving', ()=>{
-      console.log('moving');
+    this.end.on('update:links', ()=>{
       vm.shape.set({
         x2:vm.end.position.x,
         y2:vm.end.position.y
