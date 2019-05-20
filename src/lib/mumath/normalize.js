@@ -5,14 +5,14 @@
  */
 'use strict';
 
-var almost = require('almost-equal');
+import { FLT_EPSILON } from './almost';
 
-module.exports = function(value, eps) {
+export default function(value, eps) {
 	//ignore ints
 	var rem = value%1;
 	if (!rem) return value;
 
-	if (eps == null) eps = Number.EPSILON || almost.FLT_EPSILON;
+	if (eps == null) eps = Number.EPSILON || FLT_EPSILON;
 
 	//pick number’s neighbour, which is way shorter, like 0.4999999999999998 → 0.5
 	//O(20)

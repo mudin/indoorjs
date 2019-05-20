@@ -5,9 +5,9 @@
  */
 'use strict';
 
-var lg = require('./log10');
+import lg from './log10';
 
-module.exports = function (minStep, srcSteps) {
+export default function (minStep, srcSteps) {
 	var power = Math.floor(lg(minStep));
 
 	var order = Math.pow(10, power);

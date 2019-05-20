@@ -1,16 +1,16 @@
-/**
- * MIT: https://github.com/scijs/almost-equal
- */
 
-"use strict"
+// Type definitions for almost-equal 1.1
+// Project: https://github.com/mikolalysenko/almost-equal#readme
+// Definitions by: Curtis Maddalozzo <https://github.com/cmaddalozzo>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
-var abs = Math.abs
-  , min = Math.min
+var abs = Math.abs;
+var min = Math.min;
 
-function almost(a, b, absoluteError, relativeError) {
+function almostEqual(a, b, absoluteError, relativeError) {
   var d = abs(a - b)
   
-  if (absoluteError == null) absoluteError = almost.DBL_EPSILON;
+  if (absoluteError == null) absoluteError = almostEqual.DBL_EPSILON;
   if (relativeError == null) relativeError = absoluteError;
   
   if(d <= absoluteError) {
@@ -22,7 +22,10 @@ function almost(a, b, absoluteError, relativeError) {
   return a === b
 }
 
-almost.FLT_EPSILON = 1.19209290e-7
-almost.DBL_EPSILON = 2.2204460492503131e-16
+export const FLT_EPSILON = 1.19209290e-7
+export const DBL_EPSILON = 2.2204460492503131e-16
 
-export default almost;
+almostEqual.FLT_EPSILON = FLT_EPSILON;
+almostEqual.DBL_EPSILON = DBL_EPSILON;
+
+export default almostEqual;

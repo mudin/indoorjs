@@ -5,3 +5,9 @@ node_modules/
 src/index.html
 src/lib
 src/lib/
+build
+build/
+lib
+lib/
+demo/index.html
+dev/index.html

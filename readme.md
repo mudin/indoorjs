@@ -15,19 +15,24 @@ See [demo](https://mudin.github.io/indoorjs).
 [![npm install indoorjs](https://nodei.co/npm/indoorjs.png?mini=true)](https://npmjs.org/package/indoorjs/)
 
 ```js
-import { Map } from 'indoorjs';
+const mapEl = document.querySelector('.my-map');
 
-let imgUrl = 'path/to/floorplan image';
-let mapEl = document.querySelector('.my-map');
-let map = new Map(mapEl, {
-  minZoom:0.01,
-  maxZoom:10
-});
+let radar; let
+  markers;
 
-map.on('ready', ()=>{
-	console.log('map is ready');
-	map.setFloorPlan(imgUrl, {
-		opacity:0.7
-	});
+const map = new Indoor.Map(mapEl, {
+  floorplan: new Indoor.Floorplan({
+    url: './fp.jpeg',
+    opacity: 0.4,
+    width: 400,
+    zIndex: 1
+  }),
+  minZoom: 0.001,
+  maxZoom: 10,
+  center: {
+    x: 0,
+    y: 0,
+    zoom: 1
+  }
 });
 ```

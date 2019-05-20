@@ -1,17 +1,13 @@
-/**
- * @module  pan-zoom
- *
- * Events for pan and zoom
- */
+import evPos from './ev-pos';
+import Impetus from './impetus';
+import wheel  from './mouse-wheel';
+import touchPinch  from './touch-pinch';
+import raf from './raf';
 
-import  evPos from './ev-pos';
+console.log('touchPinch = ', touchPinch);
+console.log('raf = ', raf);
 
-const Impetus = require('impetus')
-const wheel = require('mouse-wheel')
-const touchPinch = require('touch-pinch')
-const raf = require('raf')
- 
-export default (target, cb) =>  {
+const panzoom = (target, cb) =>  {
 	if (target instanceof Function) {
 		cb = target
 		target = document.documentElement || document.body
@@ -184,3 +180,5 @@ export default (target, cb) =>  {
 		raf.cancel(frameId)
 	}
 }
+
+export default panzoom;

@@ -1,17 +1,16 @@
 module.exports = {
   root: true,
-  "extends": ["airbnb", "prettier"],
+  extends: ['airbnb-base'],
   parserOptions: {
     parser: 'babel-eslint'
   },
   globals: {
     document: true,
     window: true,
-    fabric: true
+    fabric: true,
+    panzoom: true
   },
-  plugins: [
-    'prettier'
-  ],
+  plugins: ['prettier'],
   rules: {
     'comma-dangle': [
       'error',
@@ -34,8 +33,8 @@ module.exports = {
       }
     ],
     'arrow-parens': 'off',
-    'no-underscore-dangle':'off',
-    'no-param-reassign':'off',
+    'no-underscore-dangle': 'off',
+    'no-param-reassign': 'off',
     'function-paren-newline': 'off',
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
@@ -43,11 +42,14 @@ module.exports = {
       ignoreWhenBindingPresent: false
     },
     'no-console': 'off',
-    'no-continue':'off',
-    'max-len': ['error', {
-      code: 100,
-      ignoreUrls: true,
-      ignoreStrings: true
-    }]
+    'no-continue': 'off',
+    'max-len': [
+      'error',
+      {
+        code: 100,
+        ignoreUrls: true,
+        ignoreStrings: true
+      }
+    ]
   }
 };

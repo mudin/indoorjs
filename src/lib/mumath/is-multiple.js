@@ -4,7 +4,7 @@
  * @module  mumath/is-multiple
  */
 
-import almost from 'almost-equal';
+import almost from './almost';
 
 export default function isMultiple(a, b, eps) {
 	var remainder = a % b;

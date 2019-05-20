@@ -12,10 +12,10 @@
  */
 'use strict';
 
-var almost = require('almost-equal');
-var norm = require('./normalize');
+import almost from './almost';
+import norm from './normalize';
 
-module.exports = function (n, eps) {
+export default function (n, eps) {
 	n = norm(n);
 
 	var str = n + '';

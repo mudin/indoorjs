@@ -6,11 +6,10 @@
  */
 'use strict';
 
-var precision = require('./precision');
-var almost = require('almost-equal');
-var normalize = require('./normalize');
+import precision from './precision';
+import almost from './almost';
 
-module.exports = function (v, prec) {
+export default function (v, prec) {
 	if (almost(v, 0)) return '0';
 
 	if (prec == null) {
