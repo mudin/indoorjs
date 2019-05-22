@@ -1,11 +1,11 @@
 /* @preserve
- * IndoorJS 0.2.10+master.34cbfdf, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.10+master.ab7c34e, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
-import fabric$1 from 'fabric';
+import { fabric as fabric$1 } from 'fabric';
 
-var version = "0.2.10+master.34cbfdf";
+var version = "0.2.10+master.ab7c34e";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -1701,9 +1701,6 @@ raf.cancel = function (id) {
   }
 };
 
-console.log('touchPinch = ', touchPinch);
-console.log('raf = ', raf);
-
 var panzoom = function panzoom(target, cb) {
   if (target instanceof Function) {
     cb = target;
@@ -2161,6 +2158,13 @@ fabric.Group.prototype.selectionBackgroundColor = 'rgba(45,207,171,0.25)';
 fabric.Object.prototype.borderDashArray = [3, 3];
 fabric.Object.prototype.padding = 5;
 
+fabric.Object.prototype.getBounds = function getBounds() {
+  var coords = [];
+  coords.push(new Point(this.left - this.width / 2.0, this.top - this.height / 2.0));
+  coords.push(new Point(this.left + this.width / 2.0, this.top + this.height / 2.0));
+  return coords;
+};
+
 function alpha(color, value) {
   var obj = color.replace(/[^\d,]/g, '').split(',');
   if (value == null) value = obj[3] || 1;
@@ -2342,13 +2346,28 @@ function (_Base) {
         x: x,
         y: y
       };
+    }
+  }, {
+    key: "setSize",
+    value: function setSize(width, height) {
+      this.setWidth(width);
+      this.setHeight(height);
+    }
+  }, {
+    key: "setWidth",
+    value: function setWidth(width) {
+      this.canvas.width = width;
+    }
+  }, {
+    key: "setHeight",
+    value: function setHeight(height) {
+      this.canvas.height = height;
     } // re-evaluate lines, calc options for renderer
 
   }, {
     key: "update",
     value: function update(opts) {
       if (!opts) opts = {};
-      console.log(opts);
       var shape = [this.canvas.width, this.canvas.height]; // recalc state
 
       this.state.x = this.calcCoordinate(this.axisX, shape, this);
@@ -2362,7 +2381,6 @@ function (_Base) {
   }, {
     key: "update2",
     value: function update2(center) {
-      if (!center) return;
       var shape = [this.canvas.width, this.canvas.height];
       Object.assign(this.center, center); // recalc state
 
@@ -2496,7 +2514,6 @@ function (_Base) {
   }, {
     key: "setDefaults",
     value: function setDefaults() {
-      console.log(this.options);
       this.pixelRatio = window.devicePixelRatio;
       this.autostart = true;
       this.interactions = true;
@@ -2809,7 +2826,7 @@ var ModesMixin = function ModesMixin(superclass) {
         _classCallCheck(this, _class);
 
         _this = _possibleConstructorReturn(this, _getPrototypeOf(_class).call(this, options));
-        console.log(options);
+        console.log('modesMixin');
         return _this;
       }
       /**
@@ -2966,7 +2983,6 @@ function (_mix$with) {
     _classCallCheck(this, Map);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Map).call(this, options));
-    console.log(_assertThisInitialized(_this));
     _this.defaults = Object.assign({}, MAP); // set defaults
 
     Object.assign(_assertThisInitialized(_this), _this.defaults); // overwrite options
@@ -2996,7 +3012,16 @@ function (_mix$with) {
     _this.canvas.absolutePan({
       x: _this.originX,
       y: _this.originY
-    });
+    }); // this.center = {
+    //   x: this.canvas.width / 2.0,
+    //   y: this.canvas.height / 2.0
+    // };
+
+
+    _this.x = _this.center.x;
+    _this.y = _this.center.y;
+    _this.dx = 0;
+    _this.dy = 0;
 
     try {
       _this.addFloorPlan();
@@ -3101,6 +3126,112 @@ function (_mix$with) {
       });
     }
   }, {
+    key: "getBounds",
+    value: function getBounds() {
+      var minX = Infinity;
+      var maxX = -Infinity;
+      var minY = Infinity;
+      var maxY = -Infinity;
+      this.canvas.forEachObject(function (obj) {
+        var coords = obj.getBounds();
+        coords.forEach(function (point) {
+          minX = Math.min(minX, point.x);
+          maxX = Math.max(maxX, point.x);
+          minY = Math.min(minY, point.y);
+          maxY = Math.max(maxY, point.y);
+        });
+      });
+      return [new Point(minX, minY), new Point(maxX, maxY)];
+    }
+  }, {
+    key: "fitBounds",
+    value: function fitBounds() {
+      this.onResize();
+      var bounds = this.getBounds();
+      var _this$canvas2 = this.canvas,
+          width = _this$canvas2.width,
+          height = _this$canvas2.height;
+      this.center.x = (bounds[0].x + bounds[1].x) / 2.0;
+      this.center.y = -(bounds[0].y + bounds[1].y) / 2.0;
+      var boundWidth = Math.abs(bounds[0].x - bounds[1].x);
+      var boundHeight = Math.abs(bounds[0].y - bounds[1].y);
+      var scaleX = width / boundWidth;
+      var scaleY = height / boundHeight;
+      this.zoom = Math.min(scaleX, scaleY);
+      this.dx = 0;
+      this.dy = 0;
+      this.x = this.center.x;
+      this.y = this.center.y;
+      this.update();
+    }
+  }, {
+    key: "fitFloor",
+    value: function fitFloor() {
+      this.onResize();
+      var bounds = [this.floorplan.width, this.floorplan.height];
+      var _this$canvas3 = this.canvas,
+          width = _this$canvas3.width,
+          height = _this$canvas3.height;
+      this.center.x = (bounds[0].x + bounds[1].x) / 2.0;
+      this.center.y = (bounds[0].y + bounds[1].y) / 2.0;
+      var boundWidth = Math.abs(bounds[0].x - bounds[1].x);
+      var boundHeight = Math.abs(bounds[0].y - bounds[1].y);
+      var scaleX = width / boundWidth;
+      var scaleY = height / boundHeight;
+      this.zoom = Math.min(scaleX, scaleY);
+      this.dx = 0;
+      this.dy = 0;
+      this.x = width / 2.0;
+      this.y = height / 2.0;
+      this.update();
+    }
+  }, {
+    key: "reset",
+    value: function reset() {
+      var _this3 = this;
+
+      var _this$canvas4 = this.canvas,
+          width = _this$canvas4.width,
+          height = _this$canvas4.height;
+      this.zoom = this._options.zoom || 1;
+      this.center = new Point(this._options.center);
+      this.originX = -this.canvas.width / 2 + this._options.center.x;
+      this.originY = -this.canvas.height / 2 + this._options.center.y;
+      this.canvas.absolutePan({
+        x: this.originX,
+        y: this.originY
+      });
+      this.dx = 0;
+      this.dy = 0;
+      this.x = width / 2.0;
+      this.y = height / 2.0;
+      this.update();
+      nextTick(function () {
+        _this3.update();
+      });
+    }
+  }, {
+    key: "onResize",
+    value: function onResize(width, height) {
+      width = width || this.container.clientWidth;
+      height = height || this.container.clientHeight;
+      this.canvas.setWidth(width);
+      this.canvas.setHeight(height);
+      this.originX = -this.canvas.width / 2 + this._options.center.x + this.center.x;
+      this.originY = -this.canvas.height / 2 + this._options.center.y - this.center.y; // this.zoom = clamp(this.zoom, this.minZoom, this.maxZoom);
+
+      this.dx = 0;
+      this.dy = 0;
+      this.x = width / 2.0;
+      this.y = height / 2.0;
+      this.canvas.absolutePan({
+        x: this.originX,
+        y: this.originY
+      });
+      this.grid.setSize(width, height);
+      this.update();
+    }
+  }, {
     key: "update",
     value: function update() {
       var canvas = this.canvas;
@@ -3136,9 +3267,9 @@ function (_mix$with) {
     key: "panzoom",
     value: function panzoom(e) {
       // enable interactions
-      var _this$canvas2 = this.canvas,
-          width = _this$canvas2.width,
-          height = _this$canvas2.height; // shift start
+      var _this$canvas5 = this.canvas,
+          width = _this$canvas5.width,
+          height = _this$canvas5.height; // shift start
 
       var zoom = clamp(-e.dz, -height * 0.75, height * 0.75) / height;
       var prevZoom = 1 / this.zoom;
@@ -3175,9 +3306,29 @@ function (_mix$with) {
   }, {
     key: "registerListeners",
     value: function registerListeners() {
-      var _this3 = this;
+      var _this4 = this;
 
       var vm = this;
+      this.canvas.on('object:scaling', function (e) {
+        if (e.target["class"]) {
+          vm.emit("".concat(e.target["class"], ":scaling"), e.target.parent);
+          return;
+        }
+
+        var group = e.target;
+        if (!group.getObjects) return;
+        var objects = group.getObjects();
+        group.removeWithUpdate();
+
+        for (var i = 0; i < objects.length; i += 1) {
+          var object = objects[i];
+          object.fire('moving');
+          vm.emit("".concat(object["class"], ":moving"), object.parent);
+        }
+
+        vm.update();
+        vm.canvas.renderAll();
+      });
       this.canvas.on('object:scaling', function (e) {
         if (e.target["class"]) {
           vm.emit("".concat(e.target["class"], ":scaling"), e.target.parent);
@@ -3219,7 +3370,7 @@ function (_mix$with) {
           }
         }
 
-        _this3.update();
+        _this4.update();
       });
       this.canvas.on('object:moving', function (e) {
         if (e.target["class"]) {
@@ -3240,14 +3391,14 @@ function (_mix$with) {
           }
         }
 
-        _this3.update();
+        _this4.update();
       });
       this.canvas.on('object:moved', function (e) {
         if (e.target["class"]) {
           vm.emit("".concat(e.target["class"], "dragend"), e);
         }
 
-        _this3.update();
+        _this4.update();
       });
       this.canvas.on('selection:cleared', function (e) {
         var objects = e.deselected;
@@ -3292,20 +3443,23 @@ function (_mix$with) {
 
         vm.dragObject = null;
       });
+      window.addEventListener('resize', function () {
+        vm.fitBounds();
+      });
       document.addEventListener('keyup', function () {
-        if (_this3.modeToggleByKey && _this3.isGrabMode()) {
-          _this3.setModeAsSelect();
+        if (_this4.modeToggleByKey && _this4.isGrabMode()) {
+          _this4.setModeAsSelect();
 
-          _this3.modeToggleByKey = false;
+          _this4.modeToggleByKey = false;
         }
       });
       document.addEventListener('keydown', function (event) {
         if (event.ctrlKey || event.metaKey) {
-          if (_this3.isSelectMode()) {
-            _this3.setModeAsGrab();
+          if (_this4.isSelectMode()) {
+            _this4.setModeAsGrab();
           }
 
-          _this3.modeToggleByKey = true;
+          _this4.modeToggleByKey = true;
         }
       });
     }
@@ -3334,6 +3488,16 @@ function (_fabric$Group) {
     options = options || {};
     return _possibleConstructorReturn(this, _getPrototypeOf(Group).call(this, objects, options));
   }
+
+  _createClass(Group, [{
+    key: "getBounds",
+    value: function getBounds() {
+      var coords = [];
+      coords.push(new Point(this.left - this.width / 2.0, this.top - this.height / 2.0));
+      coords.push(new Point(this.left + this.width / 2.0, this.top + this.height / 2.0));
+      return coords;
+    }
+  }]);
 
   return Group;
 }(fabric.Group);
@@ -3422,7 +3586,6 @@ function (_Layer) {
     var vm = _assertThisInitialized(_this);
 
     fabric.Image.fromURL(_this.url, function (image) {
-      console.log(image);
       var ratio = image.width / image.height;
 
       if (vm.width === -1 && vm.height === -1) {
@@ -3620,7 +3783,6 @@ function (_Layer) {
 
     if (_this.icon) {
       fabric.Image.fromURL(_this.icon.url, function (image) {
-        console.log(image);
         vm.image = image.scaleToWidth(100);
 
         _this.init(); // vm.shape.removeWithUpdate();
@@ -3864,7 +4026,7 @@ function (_Layer) {
       stroke: _this.color || 'grey',
       fill: _this.fill || false
     };
-    _this.shape = new fabric.Group([], {
+    _this.shape = new Group([], {
       selectable: false,
       hasControls: false,
       "class": _this["class"],
@@ -3950,6 +4112,7 @@ var circle = function circle(options) {
 };
 
 console.log('fabricJS ', fabric$1.version);
+console.log('IndoorJS ', version);
 
 export { Circle, Connector, Floor, Group, Icon, Layer, Line, Map, Marker, MarkerGroup, Point, Polyline, circle, connector, floorplan, group, icon, layer, line, map, marker, markerGroup, point, polyline, version };
 //# sourceMappingURL=indoor.esm.js.map

@@ -16,12 +16,7 @@ const map = new Indoor.Map(mapEl, {
     zIndex: 1
   }),
   minZoom: 0.001,
-  maxZoom: 10,
-  center: {
-    x: 0,
-    y: 0,
-    zoom: 1
-  }
+  maxZoom: 10
 });
 
 const addLinks = () => {
@@ -35,8 +30,8 @@ const addLinks = () => {
 const addMarkers = () => {
   markers = [];
   for (let i = 0; i < 20; i += 1) {
-    const x = Math.random() * 400 - 200;
-    const y = Math.random() * 400 - 200;
+    const x = Math.random() * 400;
+    const y = Math.random() * 800 - 200;
     const marker = new Indoor.Marker([x, y], {
       text: `${i + 1}`,
       draggable: true,

@@ -40,13 +40,23 @@ export class Map extends mix(Base).with(ModesMixin) {
       if (this.autostart) this.clear();
     });
 
-    this.originX = -this.canvas.width / 2 + this._options.center.x;
-    this.originY = -this.canvas.height / 2 + this._options.center.y;
+    this.originX = -this.canvas.width / 2;
+    this.originY = -this.canvas.height / 2;
 
     this.canvas.absolutePan({
       x: this.originX,
       y: this.originY
     });
+
+    // this.center = {
+    //   x: this.canvas.width / 2.0,
+    //   y: this.canvas.height / 2.0
+    // };
+
+    this.x = this.center.x;
+    this.y = this.center.y;
+    this.dx = 0;
+    this.dy = 0;
 
     try {
       this.addFloorPlan();
@@ -153,9 +163,12 @@ export class Map extends mix(Base).with(ModesMixin) {
   fitBounds() {
     this.onResize();
 
-    const bounds = this.getBounds();
-
     const { width, height } = this.canvas;
+
+    this.originX = -this.canvas.width / 2;
+    this.originY = -this.canvas.height / 2;
+
+    const bounds = this.getBounds();
 
     this.center.x = (bounds[0].x + bounds[1].x) / 2.0;
     this.center.y = -(bounds[0].y + bounds[1].y) / 2.0;
@@ -164,56 +177,35 @@ export class Map extends mix(Base).with(ModesMixin) {
     const boundHeight = Math.abs(bounds[0].y - bounds[1].y);
     const scaleX = width / boundWidth;
     const scaleY = height / boundHeight;
+
     this.zoom = Math.min(scaleX, scaleY);
 
-    this.dx = 0;
-    this.dy = 0;
+    // this.x = width / 2 - this.center.x;
+    // this.y = height / 2 - this.center.y;
 
-    this.x = this.center.x;
-    this.y = this.center.y;
+    this.canvas.setZoom(this.zoom);
 
-    this.update();
-  }
-
-  fitFloor() {
-    this.onResize();
-
-    const bounds = [this.floorplan.width, this.floorplan.height];
-
-    const { width, height } = this.canvas;
-
-    this.center.x = (bounds[0].x + bounds[1].x) / 2.0;
-    this.center.y = (bounds[0].y + bounds[1].y) / 2.0;
-
-    const boundWidth = Math.abs(bounds[0].x - bounds[1].x);
-    const boundHeight = Math.abs(bounds[0].y - bounds[1].y);
-    const scaleX = width / boundWidth;
-    const scaleY = height / boundHeight;
-    this.zoom = Math.min(scaleX, scaleY);
-
-    this.dx = 0;
-    this.dy = 0;
-
-    this.x = width / 2.0;
-    this.y = height / 2.0;
-
+    this.canvas.absolutePan({
+      x: this.originX + this.center.x * this.zoom,
+      y: this.originY - this.center.y * this.zoom
+    });
 
     this.update();
+    process.nextTick(() => {
+      this.update();
+    });
   }
 
   reset() {
     const { width, height } = this.canvas;
     this.zoom = this._options.zoom || 1;
-    this.center = new Point(this._options.center);
-    this.originX = -this.canvas.width / 2 + this._options.center.x;
-    this.originY = -this.canvas.height / 2 + this._options.center.y;
+    this.center = new Point();
+    this.originX = -this.canvas.width / 2;
+    this.originY = -this.canvas.height / 2;
     this.canvas.absolutePan({
       x: this.originX,
       y: this.originY
     });
-
-    this.dx = 0;
-    this.dy = 0;
     this.x = width / 2.0;
     this.y = height / 2.0;
     this.update();
@@ -225,16 +217,12 @@ export class Map extends mix(Base).with(ModesMixin) {
   onResize(width, height) {
     width = width || this.container.clientWidth;
     height = height || this.container.clientHeight;
-
     this.canvas.setWidth(width);
     this.canvas.setHeight(height);
 
-    this.originX = -this.canvas.width / 2 + this._options.center.x + this.center.x;
-    this.originY = -this.canvas.height / 2 + this._options.center.y - this.center.y;
+    this.originX = -this.canvas.width / 2;
+    this.originY = -this.canvas.height / 2;
 
-    // this.zoom = clamp(this.zoom, this.minZoom, this.maxZoom);
-    this.dx = 0;
-    this.dy = 0;
     this.x = width / 2.0;
     this.y = height / 2.0;
 
@@ -260,12 +248,12 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.emit('update', this);
     this.grid.render();
 
+    canvas.zoomToPoint(new Point(this.x, this.y), this.zoom);
+
     if (this.isGrabMode()) {
       canvas.relativePan(new Point(this.dx, this.dy));
       this.emit('panning');
     }
-
-    canvas.zoomToPoint(new Point(this.x, this.y), this.zoom);
 
     const objects = canvas.getObjects();
     for (let i = 0; i < objects.length; i += 1) {
