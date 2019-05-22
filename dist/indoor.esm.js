@@ -1,11 +1,11 @@
 /* @preserve
- * IndoorJS 0.2.10+master.ab7c34e, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.10+master.2401fa2, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import { fabric as fabric$1 } from 'fabric';
 
-var version = "0.2.10+master.ab7c34e";
+var version = "0.2.10+master.2401fa2";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3006,8 +3006,8 @@ function (_mix$with) {
       if (_this.autostart) _this.clear();
     });
 
-    _this.originX = -_this.canvas.width / 2 + _this._options.center.x;
-    _this.originY = -_this.canvas.height / 2 + _this._options.center.y;
+    _this.originX = -_this.canvas.width / 2;
+    _this.originY = -_this.canvas.height / 2;
 
     _this.canvas.absolutePan({
       x: _this.originX,
@@ -3146,11 +3146,15 @@ function (_mix$with) {
   }, {
     key: "fitBounds",
     value: function fitBounds() {
+      var _this3 = this;
+
       this.onResize();
-      var bounds = this.getBounds();
       var _this$canvas2 = this.canvas,
           width = _this$canvas2.width,
           height = _this$canvas2.height;
+      this.originX = -this.canvas.width / 2;
+      this.originY = -this.canvas.height / 2;
+      var bounds = this.getBounds();
       this.center.x = (bounds[0].x + bounds[1].x) / 2.0;
       this.center.y = -(bounds[0].y + bounds[1].y) / 2.0;
       var boundWidth = Math.abs(bounds[0].x - bounds[1].x);
@@ -3158,77 +3162,55 @@ function (_mix$with) {
       var scaleX = width / boundWidth;
       var scaleY = height / boundHeight;
       this.zoom = Math.min(scaleX, scaleY);
-      this.dx = 0;
-      this.dy = 0;
-      this.x = this.center.x;
-      this.y = this.center.y;
-      this.update();
-    }
-  }, {
-    key: "fitFloor",
-    value: function fitFloor() {
-      this.onResize();
-      var bounds = [this.floorplan.width, this.floorplan.height];
-      var _this$canvas3 = this.canvas,
-          width = _this$canvas3.width,
-          height = _this$canvas3.height;
-      this.center.x = (bounds[0].x + bounds[1].x) / 2.0;
-      this.center.y = (bounds[0].y + bounds[1].y) / 2.0;
-      var boundWidth = Math.abs(bounds[0].x - bounds[1].x);
-      var boundHeight = Math.abs(bounds[0].y - bounds[1].y);
-      var scaleX = width / boundWidth;
-      var scaleY = height / boundHeight;
-      this.zoom = Math.min(scaleX, scaleY);
-      this.dx = 0;
-      this.dy = 0;
-      this.x = width / 2.0;
-      this.y = height / 2.0;
-      this.update();
-    }
-  }, {
-    key: "reset",
-    value: function reset() {
-      var _this3 = this;
-
-      var _this$canvas4 = this.canvas,
-          width = _this$canvas4.width,
-          height = _this$canvas4.height;
-      this.zoom = this._options.zoom || 1;
-      this.center = new Point(this._options.center);
-      this.originX = -this.canvas.width / 2 + this._options.center.x;
-      this.originY = -this.canvas.height / 2 + this._options.center.y;
+      this.canvas.setZoom(this.zoom);
       this.canvas.absolutePan({
-        x: this.originX,
-        y: this.originY
+        x: this.originX + this.center.x * this.zoom,
+        y: this.originY - this.center.y * this.zoom
       });
-      this.dx = 0;
-      this.dy = 0;
-      this.x = width / 2.0;
-      this.y = height / 2.0;
       this.update();
       nextTick(function () {
         _this3.update();
       });
     }
   }, {
-    key: "onResize",
-    value: function onResize(width, height) {
-      width = width || this.container.clientWidth;
-      height = height || this.container.clientHeight;
-      this.canvas.setWidth(width);
-      this.canvas.setHeight(height);
-      this.originX = -this.canvas.width / 2 + this._options.center.x + this.center.x;
-      this.originY = -this.canvas.height / 2 + this._options.center.y - this.center.y; // this.zoom = clamp(this.zoom, this.minZoom, this.maxZoom);
+    key: "reset",
+    value: function reset() {
+      var _this4 = this;
 
-      this.dx = 0;
-      this.dy = 0;
-      this.x = width / 2.0;
-      this.y = height / 2.0;
+      var _this$canvas3 = this.canvas,
+          width = _this$canvas3.width,
+          height = _this$canvas3.height;
+      this.zoom = this._options.zoom || 1;
+      this.center = new Point();
+      this.originX = -this.canvas.width / 2;
+      this.originY = -this.canvas.height / 2;
       this.canvas.absolutePan({
         x: this.originX,
         y: this.originY
       });
+      this.x = width / 2.0;
+      this.y = height / 2.0;
+      this.update();
+      nextTick(function () {
+        _this4.update();
+      });
+    }
+  }, {
+    key: "onResize",
+    value: function onResize(width, height) {
+      var oldWidth = this.canvas.width;
+      var oldHeight = this.canvas.height;
+      width = width || this.container.clientWidth;
+      height = height || this.container.clientHeight;
+      this.canvas.setWidth(width);
+      this.canvas.setHeight(height);
       this.grid.setSize(width, height);
+      var dx = width / 2.0 - oldWidth / 2.0;
+      var dy = height / 2.0 - oldHeight / 2.0;
+      this.canvas.relativePan({
+        x: dx,
+        y: dy
+      });
       this.update();
     }
   }, {
@@ -3242,13 +3224,13 @@ function (_mix$with) {
       });
       this.emit('update', this);
       this.grid.render();
+      canvas.zoomToPoint(new Point(this.x, this.y), this.zoom);
 
       if (this.isGrabMode()) {
         canvas.relativePan(new Point(this.dx, this.dy));
         this.emit('panning');
       }
 
-      canvas.zoomToPoint(new Point(this.x, this.y), this.zoom);
       var objects = canvas.getObjects();
 
       for (var i = 0; i < objects.length; i += 1) {
@@ -3267,9 +3249,9 @@ function (_mix$with) {
     key: "panzoom",
     value: function panzoom(e) {
       // enable interactions
-      var _this$canvas5 = this.canvas,
-          width = _this$canvas5.width,
-          height = _this$canvas5.height; // shift start
+      var _this$canvas4 = this.canvas,
+          width = _this$canvas4.width,
+          height = _this$canvas4.height; // shift start
 
       var zoom = clamp(-e.dz, -height * 0.75, height * 0.75) / height;
       var prevZoom = 1 / this.zoom;
@@ -3306,7 +3288,7 @@ function (_mix$with) {
   }, {
     key: "registerListeners",
     value: function registerListeners() {
-      var _this4 = this;
+      var _this5 = this;
 
       var vm = this;
       this.canvas.on('object:scaling', function (e) {
@@ -3370,7 +3352,7 @@ function (_mix$with) {
           }
         }
 
-        _this4.update();
+        _this5.update();
       });
       this.canvas.on('object:moving', function (e) {
         if (e.target["class"]) {
@@ -3391,14 +3373,14 @@ function (_mix$with) {
           }
         }
 
-        _this4.update();
+        _this5.update();
       });
       this.canvas.on('object:moved', function (e) {
         if (e.target["class"]) {
           vm.emit("".concat(e.target["class"], "dragend"), e);
         }
 
-        _this4.update();
+        _this5.update();
       });
       this.canvas.on('selection:cleared', function (e) {
         var objects = e.deselected;
@@ -3444,22 +3426,22 @@ function (_mix$with) {
         vm.dragObject = null;
       });
       window.addEventListener('resize', function () {
-        vm.fitBounds();
+        vm.onResize();
       });
       document.addEventListener('keyup', function () {
-        if (_this4.modeToggleByKey && _this4.isGrabMode()) {
-          _this4.setModeAsSelect();
+        if (_this5.modeToggleByKey && _this5.isGrabMode()) {
+          _this5.setModeAsSelect();
 
-          _this4.modeToggleByKey = false;
+          _this5.modeToggleByKey = false;
         }
       });
       document.addEventListener('keydown', function (event) {
         if (event.ctrlKey || event.metaKey) {
-          if (_this4.isSelectMode()) {
-            _this4.setModeAsGrab();
+          if (_this5.isSelectMode()) {
+            _this5.setModeAsGrab();
           }
 
-          _this4.modeToggleByKey = true;
+          _this5.modeToggleByKey = true;
         }
       });
     }

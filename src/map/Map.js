@@ -180,9 +180,6 @@ export class Map extends mix(Base).with(ModesMixin) {
 
     this.zoom = Math.min(scaleX, scaleY);
 
-    // this.x = width / 2 - this.center.x;
-    // this.y = height / 2 - this.center.y;
-
     this.canvas.setZoom(this.zoom);
 
     this.canvas.absolutePan({
@@ -215,23 +212,24 @@ export class Map extends mix(Base).with(ModesMixin) {
   }
 
   onResize(width, height) {
+    const oldWidth = this.canvas.width;
+    const oldHeight = this.canvas.height;
+
     width = width || this.container.clientWidth;
     height = height || this.container.clientHeight;
+
     this.canvas.setWidth(width);
     this.canvas.setHeight(height);
 
-    this.originX = -this.canvas.width / 2;
-    this.originY = -this.canvas.height / 2;
-
-    this.x = width / 2.0;
-    this.y = height / 2.0;
-
-    this.canvas.absolutePan({
-      x: this.originX,
-      y: this.originY
-    });
-
     this.grid.setSize(width, height);
+
+    const dx = width / 2.0 - oldWidth / 2.0;
+    const dy = height / 2.0 - oldHeight / 2.0;
+
+    this.canvas.relativePan({
+      x: dx,
+      y: dy
+    });
 
     this.update();
   }
@@ -427,7 +425,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     });
 
     window.addEventListener('resize', () => {
-      vm.fitBounds();
+      vm.onResize();
     });
 
     document.addEventListener('keyup', () => {
