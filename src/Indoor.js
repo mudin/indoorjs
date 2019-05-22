@@ -1,8 +1,9 @@
-import fabric from 'fabric';
+import { fabric } from 'fabric';
 
 import { version } from '../package.json';
 
 console.log('fabricJS ', fabric.version);
+console.log('IndoorJS ', version);
 
 export { version };
 

@@ -3,15 +3,13 @@ import * as Indoor from '../src/Indoor.js';
 
 import './index.css';
 
-console.log('Indoor', Indoor);
-
 const mapEl = document.querySelector('.my-map');
 
 let radar; let
   markers;
 
 const map = new Indoor.Map(mapEl, {
-  floorplan: new Indoor.Floorplan({
+  floorplan: new Indoor.Floor({
     url: './fp.jpeg',
     opacity: 0.4,
     width: 400,
@@ -89,7 +87,7 @@ map.on('marker:click', (e) => {
 map.on('marker:moving', (e) => {
   // console.log('marker:moving', e);
   if (radar && e.id === radar.id) {
-    console.log(e);
+    // console.log(e);
     radar.setPosition(e.position);
   }
 });

@@ -7,7 +7,7 @@ let radar; let
   markers;
 
 const map = new Indoor.Map(mapEl, {
-  floorplan: new Indoor.Floorplan({
+  floorplan: new Indoor.Floor({
     url: './fp.jpeg',
     opacity: 0.4,
     width: 400,

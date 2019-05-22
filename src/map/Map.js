@@ -12,7 +12,6 @@ export class Map extends mix(Base).with(ModesMixin) {
   constructor(container, options) {
     super(options);
 
-    console.log(this);
     this.defaults = Object.assign({}, MAP);
 
     // set defaults
@@ -118,6 +117,137 @@ export class Map extends mix(Base).with(ModesMixin) {
     return clone;
   }
 
+  setZoom(zoom) {
+    const { width, height } = this.canvas;
+    this.zoom = clamp(zoom, this.minZoom, this.maxZoom);
+    this.dx = 0;
+    this.dy = 0;
+    this.x = width / 2.0;
+    this.y = height / 2.0;
+    this.update();
+    process.nextTick(() => {
+      this.update();
+    });
+  }
+
+  getBounds() {
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+
+    this.canvas.forEachObject((obj) => {
+      const coords = obj.getBounds();
+
+      coords.forEach((point) => {
+        minX = Math.min(minX, point.x);
+        maxX = Math.max(maxX, point.x);
+        minY = Math.min(minY, point.y);
+        maxY = Math.max(maxY, point.y);
+      });
+    });
+
+    return [new Point(minX, minY), new Point(maxX, maxY)];
+  }
+
+  fitBounds() {
+    this.onResize();
+
+    const bounds = this.getBounds();
+
+    const { width, height } = this.canvas;
+
+    this.center.x = (bounds[0].x + bounds[1].x) / 2.0;
+    this.center.y = -(bounds[0].y + bounds[1].y) / 2.0;
+
+    const boundWidth = Math.abs(bounds[0].x - bounds[1].x);
+    const boundHeight = Math.abs(bounds[0].y - bounds[1].y);
+    const scaleX = width / boundWidth;
+    const scaleY = height / boundHeight;
+    this.zoom = Math.min(scaleX, scaleY);
+
+    this.dx = 0;
+    this.dy = 0;
+
+    this.x = this.center.x;
+    this.y = this.center.y;
+
+    this.update();
+  }
+
+  fitFloor() {
+    this.onResize();
+
+    const bounds = [this.floorplan.width, this.floorplan.height];
+
+    const { width, height } = this.canvas;
+
+    this.center.x = (bounds[0].x + bounds[1].x) / 2.0;
+    this.center.y = (bounds[0].y + bounds[1].y) / 2.0;
+
+    const boundWidth = Math.abs(bounds[0].x - bounds[1].x);
+    const boundHeight = Math.abs(bounds[0].y - bounds[1].y);
+    const scaleX = width / boundWidth;
+    const scaleY = height / boundHeight;
+    this.zoom = Math.min(scaleX, scaleY);
+
+    this.dx = 0;
+    this.dy = 0;
+
+    this.x = width / 2.0;
+    this.y = height / 2.0;
+
+
+    this.update();
+  }
+
+  reset() {
+    const { width, height } = this.canvas;
+    this.zoom = this._options.zoom || 1;
+    this.center = new Point(this._options.center);
+    this.originX = -this.canvas.width / 2 + this._options.center.x;
+    this.originY = -this.canvas.height / 2 + this._options.center.y;
+    this.canvas.absolutePan({
+      x: this.originX,
+      y: this.originY
+    });
+
+    this.dx = 0;
+    this.dy = 0;
+    this.x = width / 2.0;
+    this.y = height / 2.0;
+    this.update();
+    process.nextTick(() => {
+      this.update();
+    });
+  }
+
+  onResize(width, height) {
+    width = width || this.container.clientWidth;
+    height = height || this.container.clientHeight;
+
+    this.canvas.setWidth(width);
+    this.canvas.setHeight(height);
+
+    this.originX = -this.canvas.width / 2 + this._options.center.x + this.center.x;
+    this.originY = -this.canvas.height / 2 + this._options.center.y - this.center.y;
+
+    // this.zoom = clamp(this.zoom, this.minZoom, this.maxZoom);
+    this.dx = 0;
+    this.dy = 0;
+    this.x = width / 2.0;
+    this.y = height / 2.0;
+
+    this.canvas.absolutePan({
+      x: this.originX,
+      y: this.originY
+    });
+
+    this.grid.setSize(width, height);
+
+    this.update();
+  }
+
   update() {
     const canvas = this.canvas;
 
@@ -186,6 +316,25 @@ export class Map extends mix(Base).with(ModesMixin) {
 
   registerListeners() {
     const vm = this;
+
+    this.canvas.on('object:scaling', e => {
+      if (e.target.class) {
+        vm.emit(`${e.target.class}:scaling`, e.target.parent);
+        return;
+      }
+      const group = e.target;
+      if (!group.getObjects) return;
+
+      const objects = group.getObjects();
+      group.removeWithUpdate();
+      for (let i = 0; i < objects.length; i += 1) {
+        const object = objects[i];
+        object.fire('moving');
+        vm.emit(`${object.class}:moving`, object.parent);
+      }
+      vm.update();
+      vm.canvas.renderAll();
+    });
 
     this.canvas.on('object:scaling', e => {
       if (e.target.class) {
@@ -287,6 +436,10 @@ export class Map extends mix(Base).with(ModesMixin) {
         vm.dragObject.dragging = false;
       }
       vm.dragObject = null;
+    });
+
+    window.addEventListener('resize', () => {
+      vm.fitBounds();
     });
 
     document.addEventListener('keyup', () => {

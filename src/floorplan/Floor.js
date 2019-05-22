@@ -2,12 +2,12 @@ import { Point } from '../geometry/Point';
 import { Group } from '../layer/Group';
 import { Layer } from '../layer/Layer';
 
-export class Floorplan extends Layer {
+export class Floor extends Layer {
   constructor(options) {
     super(options);
 
-    this.width = this.width || 'auto';
-    this.height = this.height || 'auto';
+    this.width = this.width || -1;
+    this.height = this.height || -1;
 
     this.position = new Point(this.position);
 
@@ -17,14 +17,13 @@ export class Floorplan extends Layer {
     fabric.Image.fromURL(
       this.url,
       image => {
-        console.log(image);
         const ratio = image.width / image.height;
-        if (vm.width === 'auto' && vm.height === 'auto') {
+        if (vm.width === -1 && vm.height === -1) {
           vm.width = image.width;
           vm.height = image.height;
-        } else if (vm.width === 'auto') {
+        } else if (vm.width === -1) {
           vm.width = vm.height / ratio;
-        } else if (vm.height === 'auto') {
+        } else if (vm.height === -1) {
           vm.height = vm.width * ratio;
         }
         image.originalWidth = image.width;
@@ -68,4 +67,4 @@ export class Floorplan extends Layer {
   }
 }
 
-export const floorplan = (options) => new Floorplan(options);
+export const floorplan = (options) => new Floor(options);

@@ -55,3 +55,11 @@ fabric.Group.prototype.selectionBackgroundColor = 'rgba(45,207,171,0.25)';
 fabric.Object.prototype.borderDashArray = [3, 3];
 
 fabric.Object.prototype.padding = 5;
+
+
+fabric.Object.prototype.getBounds = function getBounds() {
+  const coords = [];
+  coords.push(new Point(this.left - this.width / 2.0, this.top - this.height / 2.0));
+  coords.push(new Point(this.left + this.width / 2.0, this.top + this.height / 2.0));
+  return coords;
+};

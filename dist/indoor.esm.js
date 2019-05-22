@@ -1,11 +1,11 @@
 /* @preserve
- * IndoorJS 0.2.9+master.ba2307d, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.10+master.34cbfdf, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 
-var version = "0.2.9+master.ba2307d";
+var version = "0.2.10+master.34cbfdf";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -236,6 +236,154 @@ var point = function point() {
 
   return _construct(Point, params);
 };
+
+var global$1 = (typeof global !== "undefined" ? global :
+            typeof self !== "undefined" ? self :
+            typeof window !== "undefined" ? window : {});
+
+// shim for using process in browser
+// based off https://github.com/defunctzombie/node-process/blob/master/browser.js
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+var cachedSetTimeout = defaultSetTimout;
+var cachedClearTimeout = defaultClearTimeout;
+if (typeof global$1.setTimeout === 'function') {
+    cachedSetTimeout = setTimeout;
+}
+if (typeof global$1.clearTimeout === 'function') {
+    cachedClearTimeout = clearTimeout;
+}
+
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+function nextTick(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+
+// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
+var performance = global$1.performance || {};
+var performanceNow =
+  performance.now        ||
+  performance.mozNow     ||
+  performance.msNow      ||
+  performance.oNow       ||
+  performance.webkitNow  ||
+  function(){ return (new Date()).getTime() };
 
 var isNum = function isNum(val) {
   return typeof val === 'number' && !isNaN(val);
@@ -2935,6 +3083,24 @@ function (_mix$with) {
       return clone;
     }
   }, {
+    key: "setZoom",
+    value: function setZoom(zoom) {
+      var _this2 = this;
+
+      var _this$canvas = this.canvas,
+          width = _this$canvas.width,
+          height = _this$canvas.height;
+      this.zoom = clamp(zoom, this.minZoom, this.maxZoom);
+      this.dx = 0;
+      this.dy = 0;
+      this.x = width / 2.0;
+      this.y = height / 2.0;
+      this.update();
+      nextTick(function () {
+        _this2.update();
+      });
+    }
+  }, {
     key: "update",
     value: function update() {
       var canvas = this.canvas;
@@ -2970,9 +3136,9 @@ function (_mix$with) {
     key: "panzoom",
     value: function panzoom(e) {
       // enable interactions
-      var _this$canvas = this.canvas,
-          width = _this$canvas.width,
-          height = _this$canvas.height; // shift start
+      var _this$canvas2 = this.canvas,
+          width = _this$canvas2.width,
+          height = _this$canvas2.height; // shift start
 
       var zoom = clamp(-e.dz, -height * 0.75, height * 0.75) / height;
       var prevZoom = 1 / this.zoom;
@@ -3009,7 +3175,7 @@ function (_mix$with) {
   }, {
     key: "registerListeners",
     value: function registerListeners() {
-      var _this2 = this;
+      var _this3 = this;
 
       var vm = this;
       this.canvas.on('object:scaling', function (e) {
@@ -3053,7 +3219,7 @@ function (_mix$with) {
           }
         }
 
-        _this2.update();
+        _this3.update();
       });
       this.canvas.on('object:moving', function (e) {
         if (e.target["class"]) {
@@ -3074,14 +3240,14 @@ function (_mix$with) {
           }
         }
 
-        _this2.update();
+        _this3.update();
       });
       this.canvas.on('object:moved', function (e) {
         if (e.target["class"]) {
           vm.emit("".concat(e.target["class"], "dragend"), e);
         }
 
-        _this2.update();
+        _this3.update();
       });
       this.canvas.on('selection:cleared', function (e) {
         var objects = e.deselected;
@@ -3127,19 +3293,19 @@ function (_mix$with) {
         vm.dragObject = null;
       });
       document.addEventListener('keyup', function () {
-        if (_this2.modeToggleByKey && _this2.isGrabMode()) {
-          _this2.setModeAsSelect();
+        if (_this3.modeToggleByKey && _this3.isGrabMode()) {
+          _this3.setModeAsSelect();
 
-          _this2.modeToggleByKey = false;
+          _this3.modeToggleByKey = false;
         }
       });
       document.addEventListener('keydown', function (event) {
         if (event.ctrlKey || event.metaKey) {
-          if (_this2.isSelectMode()) {
-            _this2.setModeAsGrab();
+          if (_this3.isSelectMode()) {
+            _this3.setModeAsGrab();
           }
 
-          _this2.modeToggleByKey = true;
+          _this3.modeToggleByKey = true;
         }
       });
     }
@@ -3237,19 +3403,19 @@ var layer = function layer(options) {
   return new Layer(options);
 };
 
-var Floorplan =
+var Floor =
 /*#__PURE__*/
 function (_Layer) {
-  _inherits(Floorplan, _Layer);
+  _inherits(Floor, _Layer);
 
-  function Floorplan(options) {
+  function Floor(options) {
     var _this;
 
-    _classCallCheck(this, Floorplan);
+    _classCallCheck(this, Floor);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Floorplan).call(this, options));
-    _this.width = _this.width || 'auto';
-    _this.height = _this.height || 'auto';
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Floor).call(this, options));
+    _this.width = _this.width || -1;
+    _this.height = _this.height || -1;
     _this.position = new Point(_this.position);
     _this["class"] = 'floorplan';
 
@@ -3259,12 +3425,12 @@ function (_Layer) {
       console.log(image);
       var ratio = image.width / image.height;
 
-      if (vm.width === 'auto' && vm.height === 'auto') {
+      if (vm.width === -1 && vm.height === -1) {
         vm.width = image.width;
         vm.height = image.height;
-      } else if (vm.width === 'auto') {
+      } else if (vm.width === -1) {
         vm.width = vm.height / ratio;
-      } else if (vm.height === 'auto') {
+      } else if (vm.height === -1) {
         vm.height = vm.width * ratio;
       }
 
@@ -3303,10 +3469,10 @@ function (_Layer) {
     return _this;
   }
 
-  return Floorplan;
+  return Floor;
 }(Layer);
 var floorplan = function floorplan(options) {
-  return new Floorplan(options);
+  return new Floor(options);
 };
 
 var Line =
@@ -3416,154 +3582,6 @@ function (_Layer) {
 var connector = function connector(start, end, options) {
   return new Connector(start, end, options);
 };
-
-var global$1 = (typeof global !== "undefined" ? global :
-            typeof self !== "undefined" ? self :
-            typeof window !== "undefined" ? window : {});
-
-// shim for using process in browser
-// based off https://github.com/defunctzombie/node-process/blob/master/browser.js
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-var cachedSetTimeout = defaultSetTimout;
-var cachedClearTimeout = defaultClearTimeout;
-if (typeof global$1.setTimeout === 'function') {
-    cachedSetTimeout = setTimeout;
-}
-if (typeof global$1.clearTimeout === 'function') {
-    cachedClearTimeout = clearTimeout;
-}
-
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-function nextTick(fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-}
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-
-// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
-var performance = global$1.performance || {};
-var performanceNow =
-  performance.now        ||
-  performance.mozNow     ||
-  performance.msNow      ||
-  performance.oNow       ||
-  performance.webkitNow  ||
-  function(){ return (new Date()).getTime() };
 
 var Marker =
 /*#__PURE__*/
@@ -3933,5 +3951,5 @@ var circle = function circle(options) {
 
 console.log('fabricJS ', fabric$1.version);
 
-export { Circle, Connector, Floorplan, Group, Icon, Layer, Line, Map, Marker, MarkerGroup, Point, Polyline, circle, connector, floorplan, group, icon, layer, line, map, marker, markerGroup, point, polyline, version };
+export { Circle, Connector, Floor, Group, Icon, Layer, Line, Map, Marker, MarkerGroup, Point, Polyline, circle, connector, floorplan, group, icon, layer, line, map, marker, markerGroup, point, polyline, version };
 //# sourceMappingURL=indoor.esm.js.map

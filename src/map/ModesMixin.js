@@ -3,7 +3,7 @@ import { Modes } from '../core/Constants';
 const ModesMixin = (superclass) => class extends superclass {
   constructor(options) {
     super(options);
-    console.log(options);
+    console.log('modesMixin');
   }
 
   /**

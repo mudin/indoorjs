@@ -4,9 +4,6 @@ import wheel  from './mouse-wheel';
 import touchPinch  from './touch-pinch';
 import raf from './raf';
 
-console.log('touchPinch = ', touchPinch);
-console.log('raf = ', raf);
-
 const panzoom = (target, cb) =>  {
 	if (target instanceof Function) {
 		cb = target

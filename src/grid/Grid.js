@@ -40,10 +40,22 @@ class Grid extends Base {
     return { x, y };
   }
 
+  setSize(width, height) {
+    this.setWidth(width);
+    this.setHeight(height);
+  }
+
+  setWidth(width) {
+    this.canvas.width = width;
+  }
+
+  setHeight(height) {
+    this.canvas.height = height;
+  }
+
   // re-evaluate lines, calc options for renderer
   update(opts) {
     if (!opts) opts = {};
-    console.log(opts);
     const shape = [this.canvas.width, this.canvas.height];
 
     // recalc state
@@ -57,7 +69,6 @@ class Grid extends Base {
 
   // re-evaluate lines, calc options for renderer
   update2(center) {
-    if (!center) return;
     const shape = [this.canvas.width, this.canvas.height];
     Object.assign(this.center, center);
     // recalc state
@@ -190,7 +201,6 @@ class Grid extends Base {
   }
 
   setDefaults() {
-    console.log(this.options);
     this.pixelRatio = window.devicePixelRatio;
     this.autostart = true;
     this.interactions = true;

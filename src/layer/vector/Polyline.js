@@ -1,5 +1,6 @@
 import { Layer } from '../Layer';
 import { Point } from '../../geometry/Point';
+import { Group } from '../Group';
 
 export class Polyline extends Layer {
   constructor(_points, options) {
@@ -16,7 +17,7 @@ export class Polyline extends Layer {
       fill: this.fill || false
     };
 
-    this.shape = new fabric.Group([], {
+    this.shape = new Group([], {
       selectable: false,
       hasControls: false,
       class: this.class,
