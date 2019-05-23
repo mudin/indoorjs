@@ -62,6 +62,16 @@ export class Connector extends Layer {
       y2: this.end.position.y
     });
   }
+
+  setStart(start) {
+    this.start = start;
+    this.redraw();
+  }
+
+  setEnd(end) {
+    this.end = end;
+    this.redraw();
+  }
 }
 
 export const connector = (start, end, options) => new Connector(start, end, options);

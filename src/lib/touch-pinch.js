@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import EventEmitter from 'eventemitter2';
 import eventOffset from './mouse-event-offset';
 
 function distance(a, b) {

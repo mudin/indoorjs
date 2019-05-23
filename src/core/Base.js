@@ -1,4 +1,4 @@
-import Emitter from 'events';
+import Emitter from 'eventemitter2';
 
 class Base extends Emitter {
   constructor(options) {

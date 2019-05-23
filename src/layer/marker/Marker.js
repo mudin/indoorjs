@@ -146,6 +146,7 @@ export class Marker extends Layer {
     const [,,,, x, y] = matrix;
     this.position = new Point(x, y);
     this.emit('update:links');
+    this.emit('moving');
   }
 
   onShapeMouseDown(e) {
@@ -153,25 +154,25 @@ export class Marker extends Layer {
     this.dragStart = e;
   }
 
-  onShapeMouseMove(e) {
+  onShapeMouseMove() {
     if (this.dragStart) {
-      this.emit('dragstart', this.dragStart);
+      this.emit('dragstart');
       this.dragging = true;
       this.dragStart = null;
     }
 
     if (this.dragging) {
-      this.emit('drag', e);
+      this.emit('drag');
     } else {
-      this.emit('hover', e);
+      this.emit('hover');
     }
   }
 
-  onShapeMouseUp(e) {
+  onShapeMouseUp() {
     if (!this.dragging) {
-      this.emit('click', e);
+      this.emit('click');
     } else {
-      this.emit('dragend', e);
+      this.emit('moved');
     }
     this.dragStart = null;
     this.dragging = false;

@@ -88,6 +88,10 @@ export class Map extends mix(Base).with(ModesMixin) {
   }
 
   addLayer(layer) {
+    if (!layer.shape) {
+      console.error('shape is undefined');
+      return;
+    }
     this.canvas.add(layer.shape);
     this.canvas._objects.sort((o1, o2) => o1.zIndex - o2.zIndex);
 
@@ -160,7 +164,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     return [new Point(minX, minY), new Point(maxX, maxY)];
   }
 
-  fitBounds() {
+  fitBounds(padding = 100) {
     this.onResize();
 
     const { width, height } = this.canvas;
@@ -173,8 +177,8 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.center.x = (bounds[0].x + bounds[1].x) / 2.0;
     this.center.y = -(bounds[0].y + bounds[1].y) / 2.0;
 
-    const boundWidth = Math.abs(bounds[0].x - bounds[1].x);
-    const boundHeight = Math.abs(bounds[0].y - bounds[1].y);
+    const boundWidth = Math.abs(bounds[0].x - bounds[1].x) + padding;
+    const boundHeight = Math.abs(bounds[0].y - bounds[1].y) + padding;
     const scaleX = width / boundWidth;
     const scaleY = height / boundHeight;
 
@@ -303,6 +307,25 @@ export class Map extends mix(Base).with(ModesMixin) {
   registerListeners() {
     const vm = this;
 
+    // this.canvas.on('object:scaling', e => {
+    //   if (e.target.class) {
+    //     vm.emit(`${e.target.class}:scaling`, e.target.parent);
+    //     return;
+    //   }
+    //   const group = e.target;
+    //   if (!group.getObjects) return;
+
+    //   const objects = group.getObjects();
+    //   group.removeWithUpdate();
+    //   for (let i = 0; i < objects.length; i += 1) {
+    //     const object = objects[i];
+    //     object.parent.fire('moving', object.parent);
+    //     vm.emit(`${object.class}:moving`, object.parent);
+    //   }
+    //   vm.update();
+    //   vm.canvas.renderAll();
+    // });
+
     this.canvas.on('object:scaling', e => {
       if (e.target.class) {
         vm.emit(`${e.target.class}:scaling`, e.target.parent);
@@ -315,26 +338,7 @@ export class Map extends mix(Base).with(ModesMixin) {
       group.removeWithUpdate();
       for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
-        object.fire('moving');
-        vm.emit(`${object.class}:moving`, object.parent);
-      }
-      vm.update();
-      vm.canvas.renderAll();
-    });
-
-    this.canvas.on('object:scaling', e => {
-      if (e.target.class) {
-        vm.emit(`${e.target.class}:scaling`, e.target.parent);
-        return;
-      }
-      const group = e.target;
-      if (!group.getObjects) return;
-
-      const objects = group.getObjects();
-      group.removeWithUpdate();
-      for (let i = 0; i < objects.length; i += 1) {
-        const object = objects[i];
-        object.fire('moving');
+        object.fire('moving', object.parent);
         vm.emit(`${object.class}:moving`, object.parent);
       }
       vm.update();
@@ -353,7 +357,7 @@ export class Map extends mix(Base).with(ModesMixin) {
         const object = objects[i];
         if (object.class) {
           object._set('angle', -group.angle);
-          object.fire('moving');
+          object.fire('moving', object.parent);
           vm.emit(`${object.class}:moving`, object.parent);
         }
       }
@@ -371,7 +375,7 @@ export class Map extends mix(Base).with(ModesMixin) {
       for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
         if (object.class) {
-          object.fire('moving');
+          object.fire('moving', object.parent);
           vm.emit(`${object.class}:moving`, object.parent);
         }
       }
@@ -387,13 +391,28 @@ export class Map extends mix(Base).with(ModesMixin) {
 
     this.canvas.on('selection:cleared', e => {
       const objects = e.deselected;
+      if (!objects || !objects.length) return;
       for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
         if (object.class) {
           object._set('angle', 0);
           object._set('scaleX', 1 / vm.zoom);
           object._set('scaleY', 1 / vm.zoom);
-          object.fire('moving');
+          if (object.parent) {
+            object.parent.selected = false;
+          }
+          object.fire('moving', object.parent);
+        }
+      }
+    });
+    this.canvas.on('selection:created', e => {
+      console.log(e);
+      const objects = e.selected;
+      if (!objects || !objects.length) return;
+      for (let i = 0; i < objects.length; i += 1) {
+        const object = objects[i];
+        if (object.class && object.parent) {
+          object.parent.selected = true;
         }
       }
     });
@@ -448,6 +467,29 @@ export class Map extends mix(Base).with(ModesMixin) {
   unregisterListeners() {
     this.canvas.off('object:moving');
     this.canvas.off('object:moved');
+  }
+
+  getMarkerById(id) {
+    const objects = this.canvas.getObjects();
+    for (let i = 0; i < objects.length; i += 1) {
+      const obj = objects[i];
+      if (obj.class === 'marker' && obj.id === id) {
+        return obj.parent;
+      }
+    }
+    return null;
+  }
+
+  getMarkers() {
+    const list = [];
+    const objects = this.canvas.getObjects();
+    for (let i = 0; i < objects.length; i += 1) {
+      const obj = objects[i];
+      if (obj.class === 'marker') {
+        list.push(obj.parent);
+      }
+    }
+    return list;
   }
 }
 

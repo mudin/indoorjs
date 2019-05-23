@@ -1,15 +1,17 @@
 /* @preserve
- * IndoorJS 0.2.10+master.2401fa2, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.10+master.1b66ce5, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('fabric')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'fabric'], factory) :
-  (global = global || self, factory(global.Indoor = {}, global.fabric));
-}(this, function (exports, fabric$1) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('fabric'), require('eventemitter2')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'fabric', 'eventemitter2'], factory) :
+  (global = global || self, factory(global.Indoor = {}, global.fabric, global.EventEmitter));
+}(this, function (exports, fabric$1, EventEmitter) { 'use strict';
 
-  var version = "0.2.10+master.2401fa2";
+  EventEmitter = EventEmitter && EventEmitter.hasOwnProperty('default') ? EventEmitter['default'] : EventEmitter;
+
+  var version = "0.2.10+master.1b66ce5";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -1017,472 +1019,6 @@
 
     element.addEventListener('wheel', listener);
     return listener;
-  }
-
-  var domain;
-
-  // This constructor is used to store event handlers. Instantiating this is
-  // faster than explicitly calling `Object.create(null)` to get a "clean" empty
-  // object (tested with v8 v4.9).
-  function EventHandlers() {}
-  EventHandlers.prototype = Object.create(null);
-
-  function EventEmitter() {
-    EventEmitter.init.call(this);
-  }
-
-  // nodejs oddity
-  // require('events') === require('events').EventEmitter
-  EventEmitter.EventEmitter = EventEmitter;
-
-  EventEmitter.usingDomains = false;
-
-  EventEmitter.prototype.domain = undefined;
-  EventEmitter.prototype._events = undefined;
-  EventEmitter.prototype._maxListeners = undefined;
-
-  // By default EventEmitters will print a warning if more than 10 listeners are
-  // added to it. This is a useful default which helps finding memory leaks.
-  EventEmitter.defaultMaxListeners = 10;
-
-  EventEmitter.init = function() {
-    this.domain = null;
-    if (EventEmitter.usingDomains) {
-      // if there is an active domain, then attach to it.
-      if (domain.active && !(this instanceof domain.Domain)) ;
-    }
-
-    if (!this._events || this._events === Object.getPrototypeOf(this)._events) {
-      this._events = new EventHandlers();
-      this._eventsCount = 0;
-    }
-
-    this._maxListeners = this._maxListeners || undefined;
-  };
-
-  // Obviously not all Emitters should be limited to 10. This function allows
-  // that to be increased. Set to zero for unlimited.
-  EventEmitter.prototype.setMaxListeners = function setMaxListeners(n) {
-    if (typeof n !== 'number' || n < 0 || isNaN(n))
-      throw new TypeError('"n" argument must be a positive number');
-    this._maxListeners = n;
-    return this;
-  };
-
-  function $getMaxListeners(that) {
-    if (that._maxListeners === undefined)
-      return EventEmitter.defaultMaxListeners;
-    return that._maxListeners;
-  }
-
-  EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
-    return $getMaxListeners(this);
-  };
-
-  // These standalone emit* functions are used to optimize calling of event
-  // handlers for fast cases because emit() itself often has a variable number of
-  // arguments and can be deoptimized because of that. These functions always have
-  // the same number of arguments and thus do not get deoptimized, so the code
-  // inside them can execute faster.
-  function emitNone(handler, isFn, self) {
-    if (isFn)
-      handler.call(self);
-    else {
-      var len = handler.length;
-      var listeners = arrayClone(handler, len);
-      for (var i = 0; i < len; ++i)
-        listeners[i].call(self);
-    }
-  }
-  function emitOne(handler, isFn, self, arg1) {
-    if (isFn)
-      handler.call(self, arg1);
-    else {
-      var len = handler.length;
-      var listeners = arrayClone(handler, len);
-      for (var i = 0; i < len; ++i)
-        listeners[i].call(self, arg1);
-    }
-  }
-  function emitTwo(handler, isFn, self, arg1, arg2) {
-    if (isFn)
-      handler.call(self, arg1, arg2);
-    else {
-      var len = handler.length;
-      var listeners = arrayClone(handler, len);
-      for (var i = 0; i < len; ++i)
-        listeners[i].call(self, arg1, arg2);
-    }
-  }
-  function emitThree(handler, isFn, self, arg1, arg2, arg3) {
-    if (isFn)
-      handler.call(self, arg1, arg2, arg3);
-    else {
-      var len = handler.length;
-      var listeners = arrayClone(handler, len);
-      for (var i = 0; i < len; ++i)
-        listeners[i].call(self, arg1, arg2, arg3);
-    }
-  }
-
-  function emitMany(handler, isFn, self, args) {
-    if (isFn)
-      handler.apply(self, args);
-    else {
-      var len = handler.length;
-      var listeners = arrayClone(handler, len);
-      for (var i = 0; i < len; ++i)
-        listeners[i].apply(self, args);
-    }
-  }
-
-  EventEmitter.prototype.emit = function emit(type) {
-    var er, handler, len, args, i, events, domain;
-    var doError = (type === 'error');
-
-    events = this._events;
-    if (events)
-      doError = (doError && events.error == null);
-    else if (!doError)
-      return false;
-
-    domain = this.domain;
-
-    // If there is no 'error' event listener then throw.
-    if (doError) {
-      er = arguments[1];
-      if (domain) {
-        if (!er)
-          er = new Error('Uncaught, unspecified "error" event');
-        er.domainEmitter = this;
-        er.domain = domain;
-        er.domainThrown = false;
-        domain.emit('error', er);
-      } else if (er instanceof Error) {
-        throw er; // Unhandled 'error' event
-      } else {
-        // At least give some kind of context to the user
-        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
-        err.context = er;
-        throw err;
-      }
-      return false;
-    }
-
-    handler = events[type];
-
-    if (!handler)
-      return false;
-
-    var isFn = typeof handler === 'function';
-    len = arguments.length;
-    switch (len) {
-      // fast cases
-      case 1:
-        emitNone(handler, isFn, this);
-        break;
-      case 2:
-        emitOne(handler, isFn, this, arguments[1]);
-        break;
-      case 3:
-        emitTwo(handler, isFn, this, arguments[1], arguments[2]);
-        break;
-      case 4:
-        emitThree(handler, isFn, this, arguments[1], arguments[2], arguments[3]);
-        break;
-      // slower
-      default:
-        args = new Array(len - 1);
-        for (i = 1; i < len; i++)
-          args[i - 1] = arguments[i];
-        emitMany(handler, isFn, this, args);
-    }
-
-    return true;
-  };
-
-  function _addListener(target, type, listener, prepend) {
-    var m;
-    var events;
-    var existing;
-
-    if (typeof listener !== 'function')
-      throw new TypeError('"listener" argument must be a function');
-
-    events = target._events;
-    if (!events) {
-      events = target._events = new EventHandlers();
-      target._eventsCount = 0;
-    } else {
-      // To avoid recursion in the case that type === "newListener"! Before
-      // adding it to the listeners, first emit "newListener".
-      if (events.newListener) {
-        target.emit('newListener', type,
-                    listener.listener ? listener.listener : listener);
-
-        // Re-assign `events` because a newListener handler could have caused the
-        // this._events to be assigned to a new object
-        events = target._events;
-      }
-      existing = events[type];
-    }
-
-    if (!existing) {
-      // Optimize the case of one listener. Don't need the extra array object.
-      existing = events[type] = listener;
-      ++target._eventsCount;
-    } else {
-      if (typeof existing === 'function') {
-        // Adding the second element, need to change to array.
-        existing = events[type] = prepend ? [listener, existing] :
-                                            [existing, listener];
-      } else {
-        // If we've already got an array, just append.
-        if (prepend) {
-          existing.unshift(listener);
-        } else {
-          existing.push(listener);
-        }
-      }
-
-      // Check for listener leak
-      if (!existing.warned) {
-        m = $getMaxListeners(target);
-        if (m && m > 0 && existing.length > m) {
-          existing.warned = true;
-          var w = new Error('Possible EventEmitter memory leak detected. ' +
-                              existing.length + ' ' + type + ' listeners added. ' +
-                              'Use emitter.setMaxListeners() to increase limit');
-          w.name = 'MaxListenersExceededWarning';
-          w.emitter = target;
-          w.type = type;
-          w.count = existing.length;
-          emitWarning(w);
-        }
-      }
-    }
-
-    return target;
-  }
-  function emitWarning(e) {
-    typeof console.warn === 'function' ? console.warn(e) : console.log(e);
-  }
-  EventEmitter.prototype.addListener = function addListener(type, listener) {
-    return _addListener(this, type, listener, false);
-  };
-
-  EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-
-  EventEmitter.prototype.prependListener =
-      function prependListener(type, listener) {
-        return _addListener(this, type, listener, true);
-      };
-
-  function _onceWrap(target, type, listener) {
-    var fired = false;
-    function g() {
-      target.removeListener(type, g);
-      if (!fired) {
-        fired = true;
-        listener.apply(target, arguments);
-      }
-    }
-    g.listener = listener;
-    return g;
-  }
-
-  EventEmitter.prototype.once = function once(type, listener) {
-    if (typeof listener !== 'function')
-      throw new TypeError('"listener" argument must be a function');
-    this.on(type, _onceWrap(this, type, listener));
-    return this;
-  };
-
-  EventEmitter.prototype.prependOnceListener =
-      function prependOnceListener(type, listener) {
-        if (typeof listener !== 'function')
-          throw new TypeError('"listener" argument must be a function');
-        this.prependListener(type, _onceWrap(this, type, listener));
-        return this;
-      };
-
-  // emits a 'removeListener' event iff the listener was removed
-  EventEmitter.prototype.removeListener =
-      function removeListener(type, listener) {
-        var list, events, position, i, originalListener;
-
-        if (typeof listener !== 'function')
-          throw new TypeError('"listener" argument must be a function');
-
-        events = this._events;
-        if (!events)
-          return this;
-
-        list = events[type];
-        if (!list)
-          return this;
-
-        if (list === listener || (list.listener && list.listener === listener)) {
-          if (--this._eventsCount === 0)
-            this._events = new EventHandlers();
-          else {
-            delete events[type];
-            if (events.removeListener)
-              this.emit('removeListener', type, list.listener || listener);
-          }
-        } else if (typeof list !== 'function') {
-          position = -1;
-
-          for (i = list.length; i-- > 0;) {
-            if (list[i] === listener ||
-                (list[i].listener && list[i].listener === listener)) {
-              originalListener = list[i].listener;
-              position = i;
-              break;
-            }
-          }
-
-          if (position < 0)
-            return this;
-
-          if (list.length === 1) {
-            list[0] = undefined;
-            if (--this._eventsCount === 0) {
-              this._events = new EventHandlers();
-              return this;
-            } else {
-              delete events[type];
-            }
-          } else {
-            spliceOne(list, position);
-          }
-
-          if (events.removeListener)
-            this.emit('removeListener', type, originalListener || listener);
-        }
-
-        return this;
-      };
-
-  EventEmitter.prototype.removeAllListeners =
-      function removeAllListeners(type) {
-        var listeners, events;
-
-        events = this._events;
-        if (!events)
-          return this;
-
-        // not listening for removeListener, no need to emit
-        if (!events.removeListener) {
-          if (arguments.length === 0) {
-            this._events = new EventHandlers();
-            this._eventsCount = 0;
-          } else if (events[type]) {
-            if (--this._eventsCount === 0)
-              this._events = new EventHandlers();
-            else
-              delete events[type];
-          }
-          return this;
-        }
-
-        // emit removeListener for all listeners on all events
-        if (arguments.length === 0) {
-          var keys = Object.keys(events);
-          for (var i = 0, key; i < keys.length; ++i) {
-            key = keys[i];
-            if (key === 'removeListener') continue;
-            this.removeAllListeners(key);
-          }
-          this.removeAllListeners('removeListener');
-          this._events = new EventHandlers();
-          this._eventsCount = 0;
-          return this;
-        }
-
-        listeners = events[type];
-
-        if (typeof listeners === 'function') {
-          this.removeListener(type, listeners);
-        } else if (listeners) {
-          // LIFO order
-          do {
-            this.removeListener(type, listeners[listeners.length - 1]);
-          } while (listeners[0]);
-        }
-
-        return this;
-      };
-
-  EventEmitter.prototype.listeners = function listeners(type) {
-    var evlistener;
-    var ret;
-    var events = this._events;
-
-    if (!events)
-      ret = [];
-    else {
-      evlistener = events[type];
-      if (!evlistener)
-        ret = [];
-      else if (typeof evlistener === 'function')
-        ret = [evlistener.listener || evlistener];
-      else
-        ret = unwrapListeners(evlistener);
-    }
-
-    return ret;
-  };
-
-  EventEmitter.listenerCount = function(emitter, type) {
-    if (typeof emitter.listenerCount === 'function') {
-      return emitter.listenerCount(type);
-    } else {
-      return listenerCount.call(emitter, type);
-    }
-  };
-
-  EventEmitter.prototype.listenerCount = listenerCount;
-  function listenerCount(type) {
-    var events = this._events;
-
-    if (events) {
-      var evlistener = events[type];
-
-      if (typeof evlistener === 'function') {
-        return 1;
-      } else if (evlistener) {
-        return evlistener.length;
-      }
-    }
-
-    return 0;
-  }
-
-  EventEmitter.prototype.eventNames = function eventNames() {
-    return this._eventsCount > 0 ? Reflect.ownKeys(this._events) : [];
-  };
-
-  // About 1.5x faster than the two-arg version of Array#splice().
-  function spliceOne(list, index) {
-    for (var i = index, k = i + 1, n = list.length; k < n; i += 1, k += 1)
-      list[i] = list[k];
-    list.pop();
-  }
-
-  function arrayClone(arr, i) {
-    var copy = new Array(i);
-    while (i--)
-      copy[i] = arr[i];
-    return copy;
-  }
-
-  function unwrapListeners(arr) {
-    var ret = new Array(arr.length);
-    for (var i = 0; i < ret.length; ++i) {
-      ret[i] = arr[i].listener || arr[i];
-    }
-    return ret;
   }
 
   var rootPosition = {
@@ -3063,6 +2599,11 @@
     }, {
       key: "addLayer",
       value: function addLayer(layer) {
+        if (!layer.shape) {
+          console.error('shape is undefined');
+          return;
+        }
+
         this.canvas.add(layer.shape);
 
         this.canvas._objects.sort(function (o1, o2) {
@@ -3152,6 +2693,7 @@
       value: function fitBounds() {
         var _this3 = this;
 
+        var padding = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
         this.onResize();
         var _this$canvas2 = this.canvas,
             width = _this$canvas2.width,
@@ -3161,8 +2703,8 @@
         var bounds = this.getBounds();
         this.center.x = (bounds[0].x + bounds[1].x) / 2.0;
         this.center.y = -(bounds[0].y + bounds[1].y) / 2.0;
-        var boundWidth = Math.abs(bounds[0].x - bounds[1].x);
-        var boundHeight = Math.abs(bounds[0].y - bounds[1].y);
+        var boundWidth = Math.abs(bounds[0].x - bounds[1].x) + padding;
+        var boundHeight = Math.abs(bounds[0].y - bounds[1].y) + padding;
         var scaleX = width / boundWidth;
         var scaleY = height / boundHeight;
         this.zoom = Math.min(scaleX, scaleY);
@@ -3294,7 +2836,24 @@
       value: function registerListeners() {
         var _this5 = this;
 
-        var vm = this;
+        var vm = this; // this.canvas.on('object:scaling', e => {
+        //   if (e.target.class) {
+        //     vm.emit(`${e.target.class}:scaling`, e.target.parent);
+        //     return;
+        //   }
+        //   const group = e.target;
+        //   if (!group.getObjects) return;
+        //   const objects = group.getObjects();
+        //   group.removeWithUpdate();
+        //   for (let i = 0; i < objects.length; i += 1) {
+        //     const object = objects[i];
+        //     object.parent.fire('moving', object.parent);
+        //     vm.emit(`${object.class}:moving`, object.parent);
+        //   }
+        //   vm.update();
+        //   vm.canvas.renderAll();
+        // });
+
         this.canvas.on('object:scaling', function (e) {
           if (e.target["class"]) {
             vm.emit("".concat(e.target["class"], ":scaling"), e.target.parent);
@@ -3308,27 +2867,7 @@
 
           for (var i = 0; i < objects.length; i += 1) {
             var object = objects[i];
-            object.fire('moving');
-            vm.emit("".concat(object["class"], ":moving"), object.parent);
-          }
-
-          vm.update();
-          vm.canvas.renderAll();
-        });
-        this.canvas.on('object:scaling', function (e) {
-          if (e.target["class"]) {
-            vm.emit("".concat(e.target["class"], ":scaling"), e.target.parent);
-            return;
-          }
-
-          var group = e.target;
-          if (!group.getObjects) return;
-          var objects = group.getObjects();
-          group.removeWithUpdate();
-
-          for (var i = 0; i < objects.length; i += 1) {
-            var object = objects[i];
-            object.fire('moving');
+            object.fire('moving', object.parent);
             vm.emit("".concat(object["class"], ":moving"), object.parent);
           }
 
@@ -3351,7 +2890,7 @@
             if (object["class"]) {
               object._set('angle', -group.angle);
 
-              object.fire('moving');
+              object.fire('moving', object.parent);
               vm.emit("".concat(object["class"], ":moving"), object.parent);
             }
           }
@@ -3372,7 +2911,7 @@
             var object = objects[i];
 
             if (object["class"]) {
-              object.fire('moving');
+              object.fire('moving', object.parent);
               vm.emit("".concat(object["class"], ":moving"), object.parent);
             }
           }
@@ -3388,6 +2927,7 @@
         });
         this.canvas.on('selection:cleared', function (e) {
           var objects = e.deselected;
+          if (!objects || !objects.length) return;
 
           for (var i = 0; i < objects.length; i += 1) {
             var object = objects[i];
@@ -3399,7 +2939,24 @@
 
               object._set('scaleY', 1 / vm.zoom);
 
-              object.fire('moving');
+              if (object.parent) {
+                object.parent.selected = false;
+              }
+
+              object.fire('moving', object.parent);
+            }
+          }
+        });
+        this.canvas.on('selection:created', function (e) {
+          console.log(e);
+          var objects = e.selected;
+          if (!objects || !objects.length) return;
+
+          for (var i = 0; i < objects.length; i += 1) {
+            var object = objects[i];
+
+            if (object["class"] && object.parent) {
+              object.parent.selected = true;
             }
           }
         });
@@ -3454,6 +3011,37 @@
       value: function unregisterListeners() {
         this.canvas.off('object:moving');
         this.canvas.off('object:moved');
+      }
+    }, {
+      key: "getMarkerById",
+      value: function getMarkerById(id) {
+        var objects = this.canvas.getObjects();
+
+        for (var i = 0; i < objects.length; i += 1) {
+          var obj = objects[i];
+
+          if (obj["class"] === 'marker' && obj.id === id) {
+            return obj.parent;
+          }
+        }
+
+        return null;
+      }
+    }, {
+      key: "getMarkers",
+      value: function getMarkers() {
+        var list = [];
+        var objects = this.canvas.getObjects();
+
+        for (var i = 0; i < objects.length; i += 1) {
+          var obj = objects[i];
+
+          if (obj["class"] === 'marker') {
+            list.push(obj.parent);
+          }
+        }
+
+        return list;
       }
     }]);
 
@@ -3724,6 +3312,18 @@
           y2: this.end.position.y
         });
       }
+    }, {
+      key: "setStart",
+      value: function setStart(start) {
+        this.start = start;
+        this.redraw();
+      }
+    }, {
+      key: "setEnd",
+      value: function setEnd(end) {
+        this.end = end;
+        this.redraw();
+      }
     }]);
 
     return Connector;
@@ -3908,6 +3508,7 @@
 
         this.position = new Point(x, y);
         this.emit('update:links');
+        this.emit('moving');
       }
     }, {
       key: "onShapeMouseDown",
@@ -3917,26 +3518,26 @@
       }
     }, {
       key: "onShapeMouseMove",
-      value: function onShapeMouseMove(e) {
+      value: function onShapeMouseMove() {
         if (this.dragStart) {
-          this.emit('dragstart', this.dragStart);
+          this.emit('dragstart');
           this.dragging = true;
           this.dragStart = null;
         }
 
         if (this.dragging) {
-          this.emit('drag', e);
+          this.emit('drag');
         } else {
-          this.emit('hover', e);
+          this.emit('hover');
         }
       }
     }, {
       key: "onShapeMouseUp",
-      value: function onShapeMouseUp(e) {
+      value: function onShapeMouseUp() {
         if (!this.dragging) {
-          this.emit('click', e);
+          this.emit('click');
         } else {
-          this.emit('dragend', e);
+          this.emit('moved');
         }
 
         this.dragStart = null;
