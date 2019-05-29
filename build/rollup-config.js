@@ -28,6 +28,15 @@ const banner = `/* @preserve
  */
 `;
 
+const outro = `var oldI = window.I;
+exports.noConflict = function() {
+	window.I = oldI;
+	return this;
+}
+// Always export us to window global (see #2364)
+window.I = exports;`;
+
+
 export default {
   input: 'src/Indoor.js',
   output: [
@@ -36,10 +45,13 @@ export default {
       format: 'umd',
       name: 'Indoor',
       banner,
+      outro:outro,
       sourcemap: true,
       globals:{
         fabric:'fabric',
-        impetus:'impetus'
+        impetus:'impetus',
+        eventemitter2:'EventEmitter2',
+        EventEmitter2:'eventemitter2'
       }
     },
     {

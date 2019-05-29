@@ -1,4 +1,4 @@
-import EventEmitter from 'eventemitter2';
+import EventEmitter2 from 'eventemitter2';
 import eventOffset from './mouse-event-offset';
 
 function distance(a, b) {
@@ -11,7 +11,7 @@ export default touchPinch;
 function touchPinch (target) {
   target = target || window
 
-  var emitter = new EventEmitter()
+  var emitter = new EventEmitter2()
   var fingers = [ null, null ]
   var activeCount = 0
 

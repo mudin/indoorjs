@@ -74,10 +74,10 @@ map.on('ready', () => {
   addMarkers();
 });
 
-map.on('marker:added', (e) => {
-  console.log('marker:added', e);
-  // addMarkers();
-});
+// map.on('marker:added', (e) => {
+//   // console.log('marker:added', e);
+//   // addMarkers();
+// });
 
 map.on('marker:removed', (e) => {
   console.log('marker:removed', e);
