@@ -100,11 +100,19 @@ export class Map extends mix(Base).with(ModesMixin) {
       layer.shape._set('scaleY', 1 / this.zoom);
       this.emit(`${layer.class}scaling`, layer);
     }
+    if (layer.class) {
+      this.emit(`${layer.class}:added`, layer);
+    }
+
     // this.update();
     // this.canvas.renderAll();
   }
 
   removeLayer(layer) {
+    if (!layer || !layer.shape) return;
+    if (layer.class) {
+      this.emit(`${layer.class}:removed`, layer);
+    }
     this.canvas.remove(layer.shape);
   }
 
@@ -399,7 +407,7 @@ export class Map extends mix(Base).with(ModesMixin) {
           object._set('scaleX', 1 / vm.zoom);
           object._set('scaleY', 1 / vm.zoom);
           if (object.parent) {
-            object.parent.selected = false;
+            object.parent.inGroup = false;
           }
           object.fire('moving', object.parent);
         }
@@ -408,11 +416,22 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.canvas.on('selection:created', e => {
       console.log(e);
       const objects = e.selected;
-      if (!objects || !objects.length) return;
+      if (!objects || objects.length < 2) return;
       for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
         if (object.class && object.parent) {
-          object.parent.selected = true;
+          object.parent.inGroup = true;
+        }
+      }
+    });
+    this.canvas.on('selection:updated', e => {
+      console.log(e);
+      const objects = e.selected;
+      if (!objects || objects.length < 2) return;
+      for (let i = 0; i < objects.length; i += 1) {
+        const object = objects[i];
+        if (object.class && object.parent) {
+          object.parent.inGroup = true;
         }
       }
     });

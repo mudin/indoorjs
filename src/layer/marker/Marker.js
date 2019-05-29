@@ -17,17 +17,21 @@ export class Marker extends Layer {
 
     this.text = this.text || '';
     this.size = this.size || 10;
+    this.textColor = this.textColor || 'black';
+    this.fill = this.fill || 'white';
+    this.stroke = this.stroke || 'red';
 
     Object.assign(this.style, {
       left: this.position.x,
       top: this.position.y,
-      selectionBackgroundColor: false,
+      // selectionBackgroundColor: false,
       angle: this.rotation
     });
 
     if (this.text) {
       this.textObj = new fabric.Text(this.text, {
-        fontSize: this.size
+        fontSize: this.size,
+        fill: this.textColor
       });
     }
 
@@ -44,8 +48,8 @@ export class Marker extends Layer {
       this.circle = new fabric.Circle({
         radius: this.size,
         strokeWidth: 2,
-        stroke: 'red',
-        fill: 'white'
+        stroke: this.stroke,
+        fill: this.fill
       });
       this.init();
     }
@@ -87,31 +91,59 @@ export class Marker extends Layer {
     this.shape.on('mouseup', (e) => {
       vm.onShapeMouseUp(e);
     });
+    this.shape.on('mouseover', () => {
+      vm.emit('mouseover', vm);
+    });
+    this.shape.on('mouseout', () => {
+      vm.emit('mouseout', vm);
+    });
   }
 
   setPosition(position) {
     this.position = new Point(position);
+    if (!this.shape) return;
+
     this.shape.set({
       left: this.position.x,
       top: this.position.y
     });
+
     this.emit('update:links');
-    try {
+
+    if (this.shape.canvas) {
       this.shape.canvas.renderAll();
-    } catch (e) {
-      console.error(e);
     }
   }
 
   setRotation(rotation) {
     this.rotation = rotation;
+
+    if (!this.shape) return;
+
     this.shape.set({
       angle: this.rotation
     });
-    try {
+
+    if (this.shape.canvas) {
       this.shape.canvas.renderAll();
-    } catch (e) {
-      console.error(e);
+    }
+  }
+
+  setTextColor(color) {
+    if (this.text) {
+      this.text.setColor(color);
+    }
+  }
+
+  setStroke(color) {
+    if (this.circle) {
+      this.circle.set('stroke', color);
+    }
+  }
+
+  setColor(color) {
+    if (this.circle) {
+      this.circle.setColor(color);
     }
   }
 

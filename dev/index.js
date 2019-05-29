@@ -30,8 +30,8 @@ const addLinks = () => {
 const addMarkers = () => {
   markers = [];
   for (let i = 0; i < 20; i += 1) {
-    const x = Math.random() * 400;
-    const y = Math.random() * 800 - 200;
+    const x = Math.random() * 400 - 200;
+    const y = Math.random() * 400 - 200;
     const marker = new Indoor.Marker([x, y], {
       text: `${i + 1}`,
       draggable: true,
@@ -72,6 +72,16 @@ const addRadar = (marker) => {
 map.on('ready', () => {
   console.log('map is ready');
   addMarkers();
+});
+
+map.on('marker:added', (e) => {
+  console.log('marker:added', e);
+  // addMarkers();
+});
+
+map.on('marker:removed', (e) => {
+  console.log('marker:removed', e);
+  // addMarkers();
 });
 
 map.on('marker:click', (e) => {

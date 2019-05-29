@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.10+master.1b66ce5, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.11+master.aec6959, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -11,7 +11,7 @@
 
   EventEmitter = EventEmitter && EventEmitter.hasOwnProperty('default') ? EventEmitter['default'] : EventEmitter;
 
-  var version = "0.2.10+master.1b66ce5";
+  var version = "0.2.11+master.aec6959";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2616,6 +2616,10 @@
           layer.shape._set('scaleY', 1 / this.zoom);
 
           this.emit("".concat(layer["class"], "scaling"), layer);
+        }
+
+        if (layer["class"]) {
+          this.emit("".concat(layer["class"], ":added"), layer);
         } // this.update();
         // this.canvas.renderAll();
 
@@ -2623,6 +2627,12 @@
     }, {
       key: "removeLayer",
       value: function removeLayer(layer) {
+        if (!layer || !layer.shape) return;
+
+        if (layer["class"]) {
+          this.emit("".concat(layer["class"], ":removed"), layer);
+        }
+
         this.canvas.remove(layer.shape);
       }
     }, {
@@ -2940,7 +2950,7 @@
               object._set('scaleY', 1 / vm.zoom);
 
               if (object.parent) {
-                object.parent.selected = false;
+                object.parent.inGroup = false;
               }
 
               object.fire('moving', object.parent);
@@ -2950,13 +2960,26 @@
         this.canvas.on('selection:created', function (e) {
           console.log(e);
           var objects = e.selected;
-          if (!objects || !objects.length) return;
+          if (!objects || objects.length < 2) return;
 
           for (var i = 0; i < objects.length; i += 1) {
             var object = objects[i];
 
             if (object["class"] && object.parent) {
-              object.parent.selected = true;
+              object.parent.inGroup = true;
+            }
+          }
+        });
+        this.canvas.on('selection:updated', function (e) {
+          console.log(e);
+          var objects = e.selected;
+          if (!objects || objects.length < 2) return;
+
+          for (var i = 0; i < objects.length; i += 1) {
+            var object = objects[i];
+
+            if (object["class"] && object.parent) {
+              object.parent.inGroup = true;
             }
           }
         });
@@ -3157,54 +3180,133 @@
       _this.position = new Point(_this.position);
       _this["class"] = 'floorplan';
 
-      var vm = _assertThisInitialized(_this);
+      _this.load();
 
-      fabric.Image.fromURL(_this.url, function (image) {
+      return _this;
+    }
+
+    _createClass(Floor, [{
+      key: "load",
+      value: function load() {
+        var vm = this;
+        fabric.Image.fromURL(this.url, function (image) {
+          vm.setImage(image);
+        }, {
+          selectable: false,
+          opacity: this.opacity
+        });
+        this.handler = new fabric.Rect({
+          left: 0,
+          top: 0,
+          width: 20,
+          height: 20,
+          stroke: 'green',
+          fill: '',
+          hasControls: false,
+          hasBorders: false
+        });
+      }
+    }, {
+      key: "setImage",
+      value: function setImage(image) {
+        if (this.shape && this.image) {
+          this.shape.remove(this.image);
+        }
+
         var ratio = image.width / image.height;
 
-        if (vm.width === -1 && vm.height === -1) {
-          vm.width = image.width;
-          vm.height = image.height;
-        } else if (vm.width === -1) {
-          vm.width = vm.height / ratio;
-        } else if (vm.height === -1) {
-          vm.height = vm.width * ratio;
+        if (this.width === -1 && this.height === -1) {
+          this.width = image.width;
+          this.height = image.height;
+        } else if (this.width === -1) {
+          this.width = this.height / ratio;
+        } else if (this.height === -1) {
+          this.height = this.width * ratio;
         }
 
         image.originalWidth = image.width;
         image.originalHeight = image.height;
-        vm.image = image.scaleToWidth(vm.width);
-        vm.scaleX = image.scaleX + 0;
-        vm.scaleY = image.scaleY + 0; // vm.emit('load', vm);
+        this.image = image.scaleToWidth(this.width);
+        this.scaleX = image.scaleX + 0;
+        this.scaleY = image.scaleY + 0;
+        this.drawShape();
+      }
+    }, {
+      key: "drawShape",
+      value: function drawShape() {
+        if (this.shape) {
+          this.shape.addWithUpdate(this.image);
+          this.emit('load', this);
+          return;
+        }
 
-        vm.shape = new Group([vm.image, vm.handler], {
+        this.shape = new Group([this.image, this.handler], {
           selectable: false,
           draggable: false,
-          left: vm.position.x,
-          top: vm.position.y,
-          parent: vm,
+          left: this.position.x,
+          top: this.position.y,
+          parent: this,
           lockMovementX: true,
           lockMovementY: true,
-          "class": vm["class"],
-          zIndex: vm.zIndex
+          "class": this["class"],
+          zIndex: this.zIndex
         });
-        vm.emit('load', vm);
-      }, {
-        selectable: false,
-        opacity: _this.opacity
-      });
-      _this.handler = new fabric.Rect({
-        left: 0,
-        top: 0,
-        width: 20,
-        height: 20,
-        stroke: 'green',
-        fill: '',
-        hasControls: false,
-        hasBorders: false
-      });
-      return _this;
-    }
+        this.emit('load', this);
+      }
+    }, {
+      key: "setWidth",
+      value: function setWidth(width) {
+        this.width = width;
+        this.onResize();
+      }
+    }, {
+      key: "setHeight",
+      value: function setHeight(height) {
+        this.height = height;
+        this.onResize();
+      }
+    }, {
+      key: "setPosition",
+      value: function setPosition(position) {
+        this.position = new Point(position);
+        if (!this.shape) return;
+        this.shape.set({
+          left: this.position.x,
+          top: this.position.y
+        });
+      }
+    }, {
+      key: "setUrl",
+      value: function setUrl(url) {
+        this.url = url;
+        this.load();
+      }
+    }, {
+      key: "onResize",
+      value: function onResize(width, height) {
+        if (width !== undefined) {
+          this.width = width;
+        }
+
+        if (height !== undefined) {
+          this.height = height;
+        }
+
+        var ratio = this.image.width / this.image.height;
+
+        if (this.width === -1 && this.height === -1) {
+          this.width = this.image.width;
+          this.height = this.image.height;
+        } else if (this.width === -1) {
+          this.width = this.height / ratio;
+        } else if (this.height === -1) {
+          this.height = this.width * ratio;
+        }
+
+        this.image = this.image.scaleToWidth(this.width);
+        this.shape.addWithUpdate();
+      }
+    }]);
 
     return Floor;
   }(Layer);
@@ -3354,16 +3456,20 @@
 
       _this.text = _this.text || '';
       _this.size = _this.size || 10;
+      _this.textColor = _this.textColor || 'black';
+      _this.fill = _this.fill || 'white';
+      _this.stroke = _this.stroke || 'red';
       Object.assign(_this.style, {
         left: _this.position.x,
         top: _this.position.y,
-        selectionBackgroundColor: false,
+        // selectionBackgroundColor: false,
         angle: _this.rotation
       });
 
       if (_this.text) {
         _this.textObj = new fabric.Text(_this.text, {
-          fontSize: _this.size
+          fontSize: _this.size,
+          fill: _this.textColor
         });
       }
 
@@ -3381,8 +3487,8 @@
         _this.circle = new fabric.Circle({
           radius: _this.size,
           strokeWidth: 2,
-          stroke: 'red',
-          fill: 'white'
+          stroke: _this.stroke,
+          fill: _this.fill
         });
 
         _this.init();
@@ -3434,35 +3540,60 @@
         this.shape.on('mouseup', function (e) {
           vm.onShapeMouseUp(e);
         });
+        this.shape.on('mouseover', function () {
+          vm.emit('mouseover', vm);
+        });
+        this.shape.on('mouseout', function () {
+          vm.emit('mouseout', vm);
+        });
       }
     }, {
       key: "setPosition",
       value: function setPosition(position) {
         this.position = new Point(position);
+        if (!this.shape) return;
         this.shape.set({
           left: this.position.x,
           top: this.position.y
         });
         this.emit('update:links');
 
-        try {
+        if (this.shape.canvas) {
           this.shape.canvas.renderAll();
-        } catch (e) {
-          console.error(e);
         }
       }
     }, {
       key: "setRotation",
       value: function setRotation(rotation) {
         this.rotation = rotation;
+        if (!this.shape) return;
         this.shape.set({
           angle: this.rotation
         });
 
-        try {
+        if (this.shape.canvas) {
           this.shape.canvas.renderAll();
-        } catch (e) {
-          console.error(e);
+        }
+      }
+    }, {
+      key: "setTextColor",
+      value: function setTextColor(color) {
+        if (this.text) {
+          this.text.setColor(color);
+        }
+      }
+    }, {
+      key: "setStroke",
+      value: function setStroke(color) {
+        if (this.circle) {
+          this.circle.set('stroke', color);
+        }
+      }
+    }, {
+      key: "setColor",
+      value: function setColor(color) {
+        if (this.circle) {
+          this.circle.setColor(color);
         }
       }
     }, {

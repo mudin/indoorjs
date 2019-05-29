@@ -13,40 +13,15 @@ export class Floor extends Layer {
 
     this.class = 'floorplan';
 
+    this.load();
+  }
+
+  load() {
     const vm = this;
     fabric.Image.fromURL(
       this.url,
       image => {
-        const ratio = image.width / image.height;
-        if (vm.width === -1 && vm.height === -1) {
-          vm.width = image.width;
-          vm.height = image.height;
-        } else if (vm.width === -1) {
-          vm.width = vm.height / ratio;
-        } else if (vm.height === -1) {
-          vm.height = vm.width * ratio;
-        }
-        image.originalWidth = image.width;
-        image.originalHeight = image.height;
-        vm.image = image.scaleToWidth(vm.width);
-
-        vm.scaleX = image.scaleX + 0;
-        vm.scaleY = image.scaleY + 0;
-        // vm.emit('load', vm);
-
-        vm.shape = new Group([vm.image, vm.handler], {
-          selectable: false,
-          draggable: false,
-          left: vm.position.x,
-          top: vm.position.y,
-          parent: vm,
-          lockMovementX: true,
-          lockMovementY: true,
-          class: vm.class,
-          zIndex: vm.zIndex
-        });
-
-        vm.emit('load', vm);
+        vm.setImage(image);
       },
       {
         selectable: false,
@@ -64,6 +39,95 @@ export class Floor extends Layer {
       hasControls: false,
       hasBorders: false
     });
+  }
+
+  setImage(image) {
+    if (this.shape && this.image) {
+      this.shape.remove(this.image);
+    }
+    const ratio = image.width / image.height;
+    if (this.width === -1 && this.height === -1) {
+      this.width = image.width;
+      this.height = image.height;
+    } else if (this.width === -1) {
+      this.width = this.height / ratio;
+    } else if (this.height === -1) {
+      this.height = this.width * ratio;
+    }
+    image.originalWidth = image.width;
+    image.originalHeight = image.height;
+    this.image = image.scaleToWidth(this.width);
+
+    this.scaleX = image.scaleX + 0;
+    this.scaleY = image.scaleY + 0;
+
+    this.drawShape();
+  }
+
+  drawShape() {
+    if (this.shape) {
+      this.shape.addWithUpdate(this.image);
+      this.emit('load', this);
+      return;
+    }
+
+    this.shape = new Group([this.image, this.handler], {
+      selectable: false,
+      draggable: false,
+      left: this.position.x,
+      top: this.position.y,
+      parent: this,
+      lockMovementX: true,
+      lockMovementY: true,
+      class: this.class,
+      zIndex: this.zIndex
+    });
+    this.emit('load', this);
+  }
+
+  setWidth(width) {
+    this.width = width;
+    this.onResize();
+  }
+
+  setHeight(height) {
+    this.height = height;
+    this.onResize();
+  }
+
+  setPosition(position) {
+    this.position = new Point(position);
+    if (!this.shape) return;
+    this.shape.set({
+      left: this.position.x,
+      top: this.position.y
+    });
+  }
+
+  setUrl(url) {
+    this.url = url;
+    this.load();
+  }
+
+  onResize(width, height) {
+    if (width !== undefined) {
+      this.width = width;
+    }
+    if (height !== undefined) {
+      this.height = height;
+    }
+
+    const ratio = this.image.width / this.image.height;
+    if (this.width === -1 && this.height === -1) {
+      this.width = this.image.width;
+      this.height = this.image.height;
+    } else if (this.width === -1) {
+      this.width = this.height / ratio;
+    } else if (this.height === -1) {
+      this.height = this.width * ratio;
+    }
+    this.image = this.image.scaleToWidth(this.width);
+    this.shape.addWithUpdate();
   }
 }
 
