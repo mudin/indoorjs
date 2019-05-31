@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.13+master.19c4bc5, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.14+master.c4c9b25, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.13+master.19c4bc5";
+var version = "0.2.14+master.c4c9b25";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -1752,11 +1752,11 @@ var gridStyle = {
     var coord = state.coordinate;
     var step = scale(scale(state.step * 1.1, coord.steps) * 1.1, coord.steps); // let precision = clamp(Math.abs(Math.floor(lg(step))), 10, 20);
 
-    var eps = step / 10;
+    var eps = step / 100;
     return state.lines.map(function (v) {
       if (!isMultiple(v, step, eps)) return null;
       if (almostEqual(v, 0, eps)) return coord.orientation === 'y' ? null : '0';
-      v = Number((v / 10).toFixed(2));
+      v = Number((v / 100).toFixed(2));
       return coord.format(v);
     });
   }

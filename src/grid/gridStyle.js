@@ -52,11 +52,11 @@ const gridStyle = {
 
     const step = scale(scale(state.step * 1.1, coord.steps) * 1.1, coord.steps);
     // let precision = clamp(Math.abs(Math.floor(lg(step))), 10, 20);
-    const eps = step / 10;
+    const eps = step / 100;
     return state.lines.map(v => {
       if (!isMultiple(v, step, eps)) return null;
       if (almost(v, 0, eps)) return coord.orientation === 'y' ? null : '0';
-      v = Number((v / 10).toFixed(2));
+      v = Number((v / 100).toFixed(2));
       return coord.format(v);
     });
   }
