@@ -57,3 +57,5 @@ docs
 design
 instances
 *node_modules
+
+package-lock.json
