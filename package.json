@@ -83,7 +83,7 @@
   },
   "dependencies": {
     "eventemitter2": "^5.0.1",
-    "fabric": "^2.7.0"
+    "fabric": "^3.1.0"
   },
   "nyc": {
     "sourceMap": false,

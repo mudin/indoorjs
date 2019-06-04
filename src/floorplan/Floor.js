@@ -18,16 +18,31 @@ export class Floor extends Layer {
 
   load() {
     const vm = this;
-    fabric.Image.fromURL(
-      this.url,
-      image => {
-        vm.setImage(image);
-      },
-      {
-        selectable: false,
-        opacity: this.opacity
-      }
-    );
+    const index = this.url.lastIndexOf('.');
+    const ext = this.url.substr(index + 1, 3);
+    console.log(ext);
+
+    if (ext === 'svg') {
+      fabric.loadSVGFromURL(
+        this.url,
+        (objects, options) => {
+          objects = objects.filter((e) => e.id !== 'grid');
+          const image = fabric.util.groupSVGElements(objects, options);
+          vm.setImage(image);
+        }
+      );
+    } else {
+      fabric.Image.fromURL(
+        this.url,
+        image => {
+          vm.setImage(image);
+        },
+        {
+          selectable: false,
+          opacity: this.opacity
+        }
+      );
+    }
 
     this.handler = new fabric.Rect({
       left: 0,

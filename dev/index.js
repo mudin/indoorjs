@@ -10,7 +10,7 @@ let radar; let
 
 const map = new Indoor.Map(mapEl, {
   floorplan: new Indoor.Floor({
-    url: './fp.jpeg',
+    url: './fp.svg',
     opacity: 0.4,
     width: 400,
     zIndex: 1
