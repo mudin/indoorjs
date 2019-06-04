@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.14+master.c4c9b25, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.16+master.b73a58d, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.14+master.c4c9b25";
+var version = "0.2.16+master.b73a58d";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3184,12 +3184,27 @@ function (_Layer) {
     key: "load",
     value: function load() {
       var vm = this;
-      fabric.Image.fromURL(this.url, function (image) {
-        vm.setImage(image);
-      }, {
-        selectable: false,
-        opacity: this.opacity
-      });
+      var index = this.url.lastIndexOf('.');
+      var ext = this.url.substr(index + 1, 3);
+      console.log(ext);
+
+      if (ext === 'svg') {
+        fabric.loadSVGFromURL(this.url, function (objects, options) {
+          objects = objects.filter(function (e) {
+            return e.id !== 'grid';
+          });
+          var image = fabric.util.groupSVGElements(objects, options);
+          vm.setImage(image);
+        });
+      } else {
+        fabric.Image.fromURL(this.url, function (image) {
+          vm.setImage(image);
+        }, {
+          selectable: false,
+          opacity: this.opacity
+        });
+      }
+
       this.handler = new fabric.Rect({
         left: 0,
         top: 0,
