@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.16+master.b73a58d, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.17+master.0fb8e32, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.16+master.b73a58d";
+var version = "0.2.17+master.0fb8e32";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3115,8 +3115,8 @@ function (_Base) {
     _this.keepOnZoom = _this.keepOnZoom || false;
     _this.clickable = _this.clickable || false;
     _this.hoverCursor = _this.hoverCursor || _this.clickable ? 'pointer' : 'default';
-    _this.moveCursor = _this.moveCursor || 'move';
-    _this["class"] = _this["class"] || _this.constructor.name.toLowerCase();
+    _this.moveCursor = _this.moveCursor || 'move'; // this.class = this.class || this.constructor.name.toLowerCase();
+
     _this.style = {
       zIndex: _this.zIndex,
       "class": _this["class"],
@@ -3336,6 +3336,7 @@ function (_fabric$Line) {
 
     options = options || {};
     options.strokeWidth = options.strokeWidth || 1;
+    options["class"] = 'line';
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Line).call(this, points, options));
     _this._strokeWidth = options.strokeWidth;
     return _this;
@@ -3368,6 +3369,7 @@ function (_Layer) {
 
     options = options || {};
     options.zIndex = options.zIndex || 9;
+    options["class"] = 'connector';
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Connector).call(this, options));
 
     if (!start || !end) {
@@ -3460,6 +3462,7 @@ function (_Layer) {
     options.position = new Point(position);
     options.rotation = options.rotation || 0;
     options.clickable = options.clickable || true;
+    options["class"] = 'marker';
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Marker).call(this, options));
 
     var vm = _assertThisInitialized(_this);

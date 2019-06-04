@@ -5,6 +5,7 @@ export class Connector extends Layer {
   constructor(start, end, options) {
     options = options || {};
     options.zIndex = options.zIndex || 9;
+    options.class = 'connector';
     super(options);
 
     if (!start || !end) {

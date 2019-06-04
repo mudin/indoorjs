@@ -13,7 +13,7 @@ export class Layer extends Base {
     this.hoverCursor = this.hoverCursor || this.clickable ? 'pointer' : 'default';
     this.moveCursor = this.moveCursor || 'move';
 
-    this.class = this.class || this.constructor.name.toLowerCase();
+    // this.class = this.class || this.constructor.name.toLowerCase();
 
     this.style = {
       zIndex: this.zIndex,

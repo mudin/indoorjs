@@ -2,6 +2,7 @@ export class Line extends fabric.Line {
   constructor(points, options) {
     options = options || {};
     options.strokeWidth = options.strokeWidth || 1;
+    options.class = 'line';
     super(points, options);
     this._strokeWidth = options.strokeWidth;
   }

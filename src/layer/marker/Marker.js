@@ -11,6 +11,7 @@ export class Marker extends Layer {
     options.position = new Point(position);
     options.rotation = options.rotation || 0;
     options.clickable = options.clickable || true;
+    options.class = 'marker';
     super(options);
 
     const vm = this;
