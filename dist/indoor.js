@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.21+master.862dccc, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.22+master.b33f409, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.21+master.862dccc";
+  var version = "0.2.22+master.b33f409";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2884,7 +2884,8 @@
             if (object["class"]) {
               object._set('angle', -group.angle);
 
-              object.parent.rotation = object.parent.idleRotation + group.angle;
+              object.parent.deltaAngle = group.angle - object.orgAngle;
+              object.orgAngle = group.angle;
               object.fire('moving', object.parent);
               vm.emit("".concat(object["class"], ":moving"), object.parent);
               object.fire('rotating', object.parent);
@@ -2954,7 +2955,7 @@
 
             if (object["class"] && object.parent) {
               object.parent.inGroup = true;
-              object.parent.idleRotation = object.parent.rotation || 0 + 0;
+              object.orgAngle = 0;
             }
           }
         });
@@ -2968,7 +2969,7 @@
 
             if (object["class"] && object.parent) {
               object.parent.inGroup = true;
-              object.parent.idleRotation = object.parent.rotation || 0 + 0;
+              object.orgAngle = 0;
             }
           }
         });
