@@ -1,0 +1,92 @@
+{
+  "name": "indoorjs",
+  "version": "0.2.28",
+  "description": "Canvas based indoor maps",
+  "main": "dist/indoor.js",
+  "scripts": {
+    "docs": "node ./build/docs.js",
+    "pretest": "npm run lint && npm run lint-spec",
+    "test": "npm run test-nolint",
+    "test-nolint": "karma start ./spec/karma.conf.js",
+    "start": "webpack-dev-server --mode development --open",
+    "build": "npm run rollup && npm run uglify",
+    "release": "./build/publish.sh",
+    "lint": "eslint src",
+    "lint-spec": "eslint spec/suites",
+    "lintfix": "eslint src --fix; eslint spec/suites --fix;",
+    "rollup": "rollup -c build/rollup-config.js",
+    "lib": "webpack",
+    "watch": "rollup -w -c build/rollup-watch-config.js",
+    "uglify": "uglifyjs dist/indoor.js -c -m -o dist/indoor.min.js --source-map filename=dist/indoor.min.js.map --in-source-map dist/indoor.js.map --source-map-url indoor.js.map --comments",
+    "integrity": "node ./build/integrity.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mudin/indoorjs.git"
+  },
+  "keywords": [
+    "indoorjs",
+    "maps",
+    "indoor-map",
+    "canvas",
+    "grid",
+    "axis",
+    "polar",
+    "cartesian"
+  ],
+  "author": "mudin <imudin07@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mudin/indoorjs/issues"
+  },
+  "homepage": "https://github.com/mudin/indoorjs#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/register": "^7.4.4",
+    "acorn": "^6.1.1",
+    "babel-eslint": "^8.0.3",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-istanbul": "^5.1.0",
+    "chai": "^4.1.2",
+    "cross-env": "^5.2.0",
+    "css-loader": "^2.1.1",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^4.2.0",
+    "eslint-loader": "^2.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-prettier": "^3.1.0",
+    "git-rev-sync": "^1.12.0",
+    "html-webpack-plugin": "^3.2.0",
+    "jsdom": "11.11.0",
+    "jsdom-global": "3.0.2",
+    "mocha": "^4.0.1",
+    "nyc": "^13.1.0",
+    "prettier": "^1.17.1",
+    "rollup": "^1.12.3",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^10.0.0",
+    "rollup-plugin-git-version": "^0.2.1",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "style-loader": "^0.23.1",
+    "uglifyjs-webpack-plugin": "^1.2.7",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.1",
+    "webpack-dev-server": "^3.3.1",
+    "yargs": "^10.0.3"
+  },
+  "dependencies": {
+    "eventemitter2": "^5.0.1",
+    "fabric": "^3.1.0"
+  },
+  "nyc": {
+    "sourceMap": false,
+    "instrument": false
+  }
+}

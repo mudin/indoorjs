@@ -1,0 +1,219 @@
+import { Layer } from '../Layer';
+import { Group } from '../Group';
+import { Point } from '../../geometry/Point';
+import { Connector } from '../Connector';
+
+export class Marker extends Layer {
+  constructor(position, options) {
+    options = options || {};
+    options.zIndex = options.zIndex || 10;
+    options.keepOnZoom = true;
+    options.position = new Point(position);
+    options.rotation = options.rotation || 0;
+    options.angle = options.angle || 0;
+    options.clickable = options.clickable || true;
+    options.class = 'marker';
+    super(options);
+
+    const vm = this;
+
+    this.text = this.text || '';
+    this.size = this.size || 10;
+    this.textColor = this.textColor || 'black';
+    this.fill = this.fill || 'white';
+    this.stroke = this.stroke || 'red';
+
+    Object.assign(this.style, {
+      left: this.position.x,
+      top: this.position.y,
+      // selectionBackgroundColor: false,
+      angle: this.rotation
+    });
+
+    if (this.text) {
+      this.textObj = new fabric.Text(this.text, {
+        fontSize: this.size,
+        fill: this.textColor
+      });
+    }
+
+    if (this.icon) {
+      fabric.Image.fromURL(this.icon.url, image => {
+        vm.image = image.scaleToWidth(100);
+        this.init();
+        // vm.shape.removeWithUpdate();
+      }, {
+        selectable: true,
+        opacity: this.opacity
+      });
+    } else {
+      this.circle = new fabric.Circle({
+        radius: this.size,
+        strokeWidth: 2,
+        stroke: this.stroke,
+        fill: this.fill
+      });
+      this.init();
+    }
+  }
+
+  init() {
+    const objects = [];
+    if (this.image) {
+      objects.push(this.image);
+    }
+    if (this.circle) {
+      objects.push(this.circle);
+    }
+    if (this.textObj) {
+      objects.push(this.textObj);
+    }
+    this.shape = new Group(objects, this.style);
+    this.links = this.links || [];
+    this.addLinks();
+    this.registerListeners();
+
+    process.nextTick(() => {
+      this.emit('ready');
+    });
+  }
+
+  registerListeners() {
+    const vm = this;
+    this.shape.on('moving', () => {
+      vm.onShapeDrag();
+    });
+    this.shape.on('rotating', () => {
+      vm.emit('rotating');
+    });
+
+    this.shape.on('mousedown', (e) => {
+      vm.onShapeMouseDown(e);
+    });
+    this.shape.on('mousemove', (e) => {
+      vm.onShapeMouseMove(e);
+    });
+    this.shape.on('mouseup', (e) => {
+      vm.onShapeMouseUp(e);
+    });
+    this.shape.on('mouseover', () => {
+      vm.emit('mouseover', vm);
+    });
+    this.shape.on('mouseout', () => {
+      vm.emit('mouseout', vm);
+    });
+  }
+
+  setPosition(position) {
+    this.position = new Point(position);
+    if (!this.shape) return;
+
+    this.shape.set({
+      left: this.position.x,
+      top: this.position.y
+    });
+
+    this.emit('update:links');
+
+    if (this.shape.canvas) {
+      this.shape.canvas.renderAll();
+    }
+  }
+
+  setRotation(rotation) {
+    this.rotation = rotation;
+
+    if (!this.shape) return;
+
+    this.shape.set({
+      angle: this.rotation
+    });
+
+    if (this.shape.canvas) {
+      this.shape.canvas.renderAll();
+    }
+  }
+
+  setTextColor(color) {
+    if (this.text) {
+      this.text.setColor(color);
+    }
+  }
+
+  setStroke(color) {
+    if (this.circle) {
+      this.circle.set('stroke', color);
+    }
+  }
+
+  setColor(color) {
+    if (this.circle) {
+      this.circle.setColor(color);
+    }
+  }
+
+  setLinks(links) {
+    this.links = links;
+    this.addLinks();
+  }
+
+  addLinks() {
+    this.connectors = [];
+    this.links.forEach(link => {
+      const connector = new Connector(this, link);
+      this.connectors.push(connector);
+    });
+
+    this.addConnectors();
+  }
+
+  addConnectors() {
+    const vm = this;
+    this.connectors.forEach(connector => {
+      vm._map.addLayer(connector);
+    });
+  }
+
+  onAdded() {
+    this.addConnectors();
+  }
+
+  onShapeDrag() {
+    const matrix = this.shape.calcTransformMatrix();
+    const [,,,, x, y] = matrix;
+    this.position = new Point(x, y);
+    this.emit('update:links');
+    this.emit('moving');
+  }
+
+  onShapeMouseDown(e) {
+    console.log(e);
+    this.dragStart = e;
+  }
+
+  onShapeMouseMove() {
+    if (this.dragStart) {
+      this.emit('dragstart');
+      this.dragging = true;
+      this.dragStart = null;
+    }
+
+    if (this.dragging) {
+      this.emit('drag');
+    } else {
+      this.emit('hover');
+    }
+  }
+
+  onShapeMouseUp() {
+    if (!this.dragging) {
+      this.emit('click');
+    } else {
+      this.emit('moved');
+    }
+    this.dragStart = null;
+    this.dragging = false;
+  }
+}
+
+export const marker = (position, options) => new Marker(position, options);
