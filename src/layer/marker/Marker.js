@@ -82,6 +82,9 @@ export class Marker extends Layer {
     this.shape.on('moving', () => {
       vm.onShapeDrag();
     });
+    this.shape.on('rotating', () => {
+      vm.emit('rotating');
+    });
 
     this.shape.on('mousedown', (e) => {
       vm.onShapeMouseDown(e);
