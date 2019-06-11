@@ -10,7 +10,7 @@ export class Marker extends Layer {
     options.keepOnZoom = true;
     options.position = new Point(position);
     options.rotation = options.rotation || 0;
-    options.angle = options.angle || 0;
+    options.yaw = options.yaw || 0;
     options.clickable = options.clickable || true;
     options.class = 'marker';
     super(options);
@@ -27,7 +27,8 @@ export class Marker extends Layer {
       left: this.position.x,
       top: this.position.y,
       // selectionBackgroundColor: false,
-      angle: this.rotation
+      angle: this.rotation,
+      yaw: this.yaw
     });
 
     if (this.text) {

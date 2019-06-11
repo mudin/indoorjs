@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.28+master.9184a00, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.28+master.2ca53ce, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.28+master.9184a00";
+var version = "0.2.28+master.2ca53ce";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -2855,7 +2855,7 @@ function (_mix$with) {
 
         for (var i = 0; i < objects.length; i += 1) {
           var object = objects[i];
-          object.orgAngle = 0;
+          object.orgYaw = object.parent.yaw || 0;
           object.fire('moving', object.parent);
           vm.emit("".concat(object["class"], ":moving"), object.parent);
         }
@@ -2879,8 +2879,8 @@ function (_mix$with) {
           if (object["class"]) {
             object._set('angle', -group.angle);
 
-            object.parent.angle += group.angle - (object.orgAngle || 0);
-            object.orgAngle = group.angle;
+            object.parent.yaw = -group.angle + (object.orgYaw || 0); // object.orgYaw = object.parent.yaw;
+
             object.fire('moving', object.parent);
             vm.emit("".concat(object["class"], ":moving"), object.parent);
             object.fire('rotating', object.parent);
@@ -2950,7 +2950,7 @@ function (_mix$with) {
 
           if (object["class"] && object.parent) {
             object.parent.inGroup = true;
-            object.orgAngle = 0;
+            object.orgYaw = object.parent.yaw || 0;
           }
         }
       });
@@ -2964,7 +2964,7 @@ function (_mix$with) {
 
           if (object["class"] && object.parent) {
             object.parent.inGroup = true;
-            object.orgAngle = 0;
+            object.orgYaw = object.parent.yaw || 0;
           }
         }
       });
@@ -3451,7 +3451,7 @@ function (_Layer) {
     options.keepOnZoom = true;
     options.position = new Point(position);
     options.rotation = options.rotation || 0;
-    options.angle = options.angle || 0;
+    options.yaw = options.yaw || 0;
     options.clickable = options.clickable || true;
     options["class"] = 'marker';
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Marker).call(this, options));
@@ -3467,7 +3467,8 @@ function (_Layer) {
       left: _this.position.x,
       top: _this.position.y,
       // selectionBackgroundColor: false,
-      angle: _this.rotation
+      angle: _this.rotation,
+      yaw: _this.yaw
     });
 
     if (_this.text) {

@@ -327,7 +327,7 @@ export class Map extends mix(Base).with(ModesMixin) {
       group.removeWithUpdate();
       for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
-        object.orgAngle = 0;
+        object.orgYaw = object.parent.yaw || 0;
         object.fire('moving', object.parent);
         vm.emit(`${object.class}:moving`, object.parent);
       }
@@ -347,8 +347,8 @@ export class Map extends mix(Base).with(ModesMixin) {
         const object = objects[i];
         if (object.class) {
           object._set('angle', -group.angle);
-          object.parent.angle += group.angle - (object.orgAngle || 0);
-          object.orgAngle = group.angle;
+          object.parent.yaw = -group.angle + (object.orgYaw || 0);
+          // object.orgYaw = object.parent.yaw;
           object.fire('moving', object.parent);
           vm.emit(`${object.class}:moving`, object.parent);
           object.fire('rotating', object.parent);
@@ -407,7 +407,7 @@ export class Map extends mix(Base).with(ModesMixin) {
         const object = objects[i];
         if (object.class && object.parent) {
           object.parent.inGroup = true;
-          object.orgAngle = 0;
+          object.orgYaw = object.parent.yaw || 0;
         }
       }
     });
@@ -419,7 +419,7 @@ export class Map extends mix(Base).with(ModesMixin) {
         const object = objects[i];
         if (object.class && object.parent) {
           object.parent.inGroup = true;
-          object.orgAngle = 0;
+          object.orgYaw = object.parent.yaw || 0;
         }
       }
     });

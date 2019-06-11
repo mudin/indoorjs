@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.28+master.9184a00, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.28+master.2ca53ce, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.28+master.9184a00";
+  var version = "0.2.28+master.2ca53ce";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2861,7 +2861,7 @@
 
           for (var i = 0; i < objects.length; i += 1) {
             var object = objects[i];
-            object.orgAngle = 0;
+            object.orgYaw = object.parent.yaw || 0;
             object.fire('moving', object.parent);
             vm.emit("".concat(object["class"], ":moving"), object.parent);
           }
@@ -2885,8 +2885,8 @@
             if (object["class"]) {
               object._set('angle', -group.angle);
 
-              object.parent.angle += group.angle - (object.orgAngle || 0);
-              object.orgAngle = group.angle;
+              object.parent.yaw = -group.angle + (object.orgYaw || 0); // object.orgYaw = object.parent.yaw;
+
               object.fire('moving', object.parent);
               vm.emit("".concat(object["class"], ":moving"), object.parent);
               object.fire('rotating', object.parent);
@@ -2956,7 +2956,7 @@
 
             if (object["class"] && object.parent) {
               object.parent.inGroup = true;
-              object.orgAngle = 0;
+              object.orgYaw = object.parent.yaw || 0;
             }
           }
         });
@@ -2970,7 +2970,7 @@
 
             if (object["class"] && object.parent) {
               object.parent.inGroup = true;
-              object.orgAngle = 0;
+              object.orgYaw = object.parent.yaw || 0;
             }
           }
         });
@@ -3457,7 +3457,7 @@
       options.keepOnZoom = true;
       options.position = new Point(position);
       options.rotation = options.rotation || 0;
-      options.angle = options.angle || 0;
+      options.yaw = options.yaw || 0;
       options.clickable = options.clickable || true;
       options["class"] = 'marker';
       _this = _possibleConstructorReturn(this, _getPrototypeOf(Marker).call(this, options));
@@ -3473,7 +3473,8 @@
         left: _this.position.x,
         top: _this.position.y,
         // selectionBackgroundColor: false,
-        angle: _this.rotation
+        angle: _this.rotation,
+        yaw: _this.yaw
       });
 
       if (_this.text) {
