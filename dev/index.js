@@ -45,6 +45,9 @@ const addMarkers = () => {
   addLinks();
   // eslint-disable-next-line no-use-before-define
   addRadar(markers[0]);
+
+  const rect = Indoor.bbox([[0, 0], [100, 499]]);
+  rect.addTo(map);
 };
 
 const addRadar = (marker) => {
@@ -95,6 +98,13 @@ map.on('marker:moving', (e) => {
     // console.log(e);
     radar.setPosition(e.position);
   }
+});
+map.on('marker:rotating', (e, angle) => {
+  console.log('marker:rotating', e, angle);
+});
+
+map.on('bbox:moving', () => {
+  // console.log('bbox:moving', e);
 });
 
 map.on('object:drag', (e) => {

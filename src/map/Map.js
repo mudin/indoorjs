@@ -315,25 +315,6 @@ export class Map extends mix(Base).with(ModesMixin) {
   registerListeners() {
     const vm = this;
 
-    // this.canvas.on('object:scaling', e => {
-    //   if (e.target.class) {
-    //     vm.emit(`${e.target.class}:scaling`, e.target.parent);
-    //     return;
-    //   }
-    //   const group = e.target;
-    //   if (!group.getObjects) return;
-
-    //   const objects = group.getObjects();
-    //   group.removeWithUpdate();
-    //   for (let i = 0; i < objects.length; i += 1) {
-    //     const object = objects[i];
-    //     object.parent.fire('moving', object.parent);
-    //     vm.emit(`${object.class}:moving`, object.parent);
-    //   }
-    //   vm.update();
-    //   vm.canvas.renderAll();
-    // });
-
     this.canvas.on('object:scaling', e => {
       if (e.target.class) {
         vm.emit(`${e.target.class}:scaling`, e.target.parent);
@@ -366,7 +347,9 @@ export class Map extends mix(Base).with(ModesMixin) {
         if (object.class) {
           object._set('angle', -group.angle);
           object.fire('moving', object.parent);
+          object.parent.rotation = object.parent.idleRotation + group.angle;
           vm.emit(`${object.class}:moving`, object.parent);
+          vm.emit(`${object.class}:rotating`, object.parent);
         }
       }
       this.update();
@@ -421,6 +404,7 @@ export class Map extends mix(Base).with(ModesMixin) {
         const object = objects[i];
         if (object.class && object.parent) {
           object.parent.inGroup = true;
+          object.parent.idleRotation = object.parent.rotation || 0 + 0;
         }
       }
     });
@@ -432,6 +416,7 @@ export class Map extends mix(Base).with(ModesMixin) {
         const object = objects[i];
         if (object.class && object.parent) {
           object.parent.inGroup = true;
+          object.parent.idleRotation = object.parent.rotation || 0 + 0;
         }
       }
     });
