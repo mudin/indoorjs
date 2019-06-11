@@ -327,6 +327,7 @@ export class Map extends mix(Base).with(ModesMixin) {
       group.removeWithUpdate();
       for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
+        object.orgAngle = 0;
         object.fire('moving', object.parent);
         vm.emit(`${object.class}:moving`, object.parent);
       }
@@ -346,7 +347,7 @@ export class Map extends mix(Base).with(ModesMixin) {
         const object = objects[i];
         if (object.class) {
           object._set('angle', -group.angle);
-          object.parent.deltaAngle = group.angle - object.orgAngle;
+          object.parent.deltaAngle = group.angle - (object.orgAngle || 0);
           object.orgAngle = group.angle;
           object.fire('moving', object.parent);
           vm.emit(`${object.class}:moving`, object.parent);
