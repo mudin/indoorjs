@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.17+master.0fb8e32, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.18+master.8524df9, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.17+master.0fb8e32";
+  var version = "0.2.18+master.8524df9";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2847,24 +2847,7 @@
       value: function registerListeners() {
         var _this5 = this;
 
-        var vm = this; // this.canvas.on('object:scaling', e => {
-        //   if (e.target.class) {
-        //     vm.emit(`${e.target.class}:scaling`, e.target.parent);
-        //     return;
-        //   }
-        //   const group = e.target;
-        //   if (!group.getObjects) return;
-        //   const objects = group.getObjects();
-        //   group.removeWithUpdate();
-        //   for (let i = 0; i < objects.length; i += 1) {
-        //     const object = objects[i];
-        //     object.parent.fire('moving', object.parent);
-        //     vm.emit(`${object.class}:moving`, object.parent);
-        //   }
-        //   vm.update();
-        //   vm.canvas.renderAll();
-        // });
-
+        var vm = this;
         this.canvas.on('object:scaling', function (e) {
           if (e.target["class"]) {
             vm.emit("".concat(e.target["class"], ":scaling"), e.target.parent);
@@ -2902,7 +2885,9 @@
               object._set('angle', -group.angle);
 
               object.fire('moving', object.parent);
+              object.parent.rotation = object.parent.idleRotation + group.angle;
               vm.emit("".concat(object["class"], ":moving"), object.parent);
+              vm.emit("".concat(object["class"], ":rotating"), object.parent);
             }
           }
 
@@ -2968,6 +2953,7 @@
 
             if (object["class"] && object.parent) {
               object.parent.inGroup = true;
+              object.parent.idleRotation = object.parent.rotation || 0 + 0;
             }
           }
         });
@@ -2981,6 +2967,7 @@
 
             if (object["class"] && object.parent) {
               object.parent.inGroup = true;
+              object.parent.idleRotation = object.parent.rotation || 0 + 0;
             }
           }
         });
@@ -3724,24 +3711,6 @@
     return new Icon(options);
   };
 
-  var MarkerGroup =
-  /*#__PURE__*/
-  function (_Group) {
-    _inherits(MarkerGroup, _Group);
-
-    function MarkerGroup(options) {
-      _classCallCheck(this, MarkerGroup);
-
-      options = options || {};
-      return _possibleConstructorReturn(this, _getPrototypeOf(MarkerGroup).call(this, options));
-    }
-
-    return MarkerGroup;
-  }(Group);
-  var markerGroup = function markerGroup(options) {
-    return new MarkerGroup(options);
-  };
-
   var Polyline =
   /*#__PURE__*/
   function (_Layer) {
@@ -3848,9 +3817,107 @@
     return new Circle(options);
   };
 
+  var Rect =
+  /*#__PURE__*/
+  function (_fabric$Rect) {
+    _inherits(Rect, _fabric$Rect);
+
+    function Rect(points, options) {
+      var _this;
+
+      _classCallCheck(this, Rect);
+
+      options = options || {};
+      options.strokeWidth = options.strokeWidth || 1;
+      options["class"] = 'rect';
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Rect).call(this, points, options));
+      _this._strokeWidth = options.strokeWidth;
+      return _this;
+    }
+
+    _createClass(Rect, [{
+      key: "_renderStroke",
+      value: function _renderStroke(ctx) {
+        this.strokeWidth = this._strokeWidth / this.canvas.getZoom();
+
+        _get(_getPrototypeOf(Rect.prototype), "_renderStroke", this).call(this, ctx);
+      }
+    }]);
+
+    return Rect;
+  }(fabric.Rect);
+  var rect = function rect(points, options) {
+    return new Rect(points, options);
+  };
+
+  var Bbox =
+  /*#__PURE__*/
+  function (_Layer) {
+    _inherits(Bbox, _Layer);
+
+    function Bbox(bounds, options) {
+      var _this;
+
+      _classCallCheck(this, Bbox);
+
+      options = options || {};
+      options.bounds = bounds;
+      options["class"] = 'bbox';
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Bbox).call(this, options));
+
+      if (!_this.bounds) {
+        console.error('bounds is missing!');
+        return _possibleConstructorReturn(_this);
+      }
+
+      _this.style = {
+        strokeWidth: 1,
+        stroke: _this.color || 'black',
+        fill: _this.fill || '#88888822',
+        "class": _this["class"],
+        parent: _assertThisInitialized(_this)
+      };
+
+      _this.draw();
+
+      return _this;
+    }
+
+    _createClass(Bbox, [{
+      key: "setBounds",
+      value: function setBounds(bounds) {
+        this.bounds = bounds;
+        this.draw();
+      }
+    }, {
+      key: "draw",
+      value: function draw() {
+        this.coords = {
+          left: this.bounds[0][0],
+          top: this.bounds[0][1],
+          width: this.bounds[1][0] - this.bounds[0][0],
+          height: this.bounds[1][1] - this.bounds[0][1]
+        };
+
+        if (this.shape) {
+          this.shape.set(this.coords);
+        } else {
+          Object.assign(this.style, this.coords);
+          this.shape = new Rect(this.style);
+        }
+      }
+    }]);
+
+    return Bbox;
+  }(Layer);
+  var bbox = function bbox(bounds, options) {
+    return new Bbox(bounds, options);
+  };
+
   console.log('fabricJS ', fabric$1.version || window.fabric.version);
   console.log('IndoorJS ', version);
 
+  exports.Bbox = Bbox;
   exports.Circle = Circle;
   exports.Connector = Connector;
   exports.Floor = Floor;
@@ -3863,10 +3930,11 @@
   exports.MARKER = MARKER;
   exports.Map = Map;
   exports.Marker = Marker;
-  exports.MarkerGroup = MarkerGroup;
   exports.Modes = Modes;
   exports.Point = Point;
   exports.Polyline = Polyline;
+  exports.Rect = Rect;
+  exports.bbox = bbox;
   exports.circle = circle;
   exports.connector = connector;
   exports.floorplan = floorplan;
@@ -3876,9 +3944,9 @@
   exports.line = line;
   exports.map = map;
   exports.marker = marker;
-  exports.markerGroup = markerGroup;
   exports.point = point;
   exports.polyline = polyline;
+  exports.rect = rect;
   exports.version = version;
 
   Object.defineProperty(exports, '__esModule', { value: true });
