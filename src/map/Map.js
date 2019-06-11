@@ -346,9 +346,10 @@ export class Map extends mix(Base).with(ModesMixin) {
         const object = objects[i];
         if (object.class) {
           object._set('angle', -group.angle);
-          object.fire('moving', object.parent);
           object.parent.rotation = object.parent.idleRotation + group.angle;
+          object.fire('moving', object.parent);
           vm.emit(`${object.class}:moving`, object.parent);
+          object.fire('rotating', object.parent);
           vm.emit(`${object.class}:rotating`, object.parent);
         }
       }
