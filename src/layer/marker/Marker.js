@@ -136,8 +136,16 @@ export class Marker extends Layer {
   }
 
   setTextColor(color) {
-    if (this.text) {
-      this.text.setColor(color);
+    if (this.text && this.textObj) {
+      this.textObj.setColor(color);
+      this.textObj.canvas.renderAll();
+    }
+  }
+
+  setText(text) {
+    if (this.text && this.textObj) {
+      this.textObj.set({ text });
+      this.textObj.canvas.renderAll();
     }
   }
 
