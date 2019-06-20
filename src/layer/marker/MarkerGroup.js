@@ -17,6 +17,7 @@ export class MarkerGroup extends Layer {
       stroke: this.stroke || 'black',
       fill: this.color || '#88888822',
       class: this.class,
+      zIndex: this.zIndex,
       parent: this
     };
     this.draw();
