@@ -345,7 +345,7 @@ export class Map extends mix(Base).with(ModesMixin) {
       const objects = group.getObjects();
       for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
-        if (object.class) {
+        if (object.class === 'marker') {
           object._set('angle', -group.angle);
           object.parent.yaw = -group.angle + (object.orgYaw || 0);
           // object.orgYaw = object.parent.yaw;
@@ -388,7 +388,7 @@ export class Map extends mix(Base).with(ModesMixin) {
       if (!objects || !objects.length) return;
       for (let i = 0; i < objects.length; i += 1) {
         const object = objects[i];
-        if (object.class) {
+        if (object.class === 'marker') {
           object._set('angle', 0);
           object._set('scaleX', 1 / vm.zoom);
           object._set('scaleY', 1 / vm.zoom);
