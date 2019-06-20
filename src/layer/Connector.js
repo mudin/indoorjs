@@ -4,7 +4,7 @@ import { Line } from './vector/Line';
 export class Connector extends Layer {
   constructor(start, end, options) {
     options = options || {};
-    options.zIndex = options.zIndex || 9;
+    options.zIndex = options.zIndex || 10;
     options.class = 'connector';
     super(options);
 

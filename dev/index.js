@@ -100,6 +100,14 @@ map.on('marker:moving', (e) => {
     radar.setPosition(e.position);
   }
 });
+
+map.on('markergroup:moving', (e) => {
+  console.log('markergroup:moving', e);
+});
+map.on('markergroup:rotating', (e, angle) => {
+  console.log('markergroup:rotating', e, angle);
+});
+
 map.on('marker:rotating', (e, angle) => {
   console.log('marker:rotating', e, angle);
 });

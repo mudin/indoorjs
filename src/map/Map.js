@@ -337,7 +337,7 @@ export class Map extends mix(Base).with(ModesMixin) {
 
     this.canvas.on('object:rotating', e => {
       if (e.target.class) {
-        vm.emit(`${e.target.class}:rotating`, e.target.parent);
+        vm.emit(`${e.target.class}:rotating`, e.target.parent, e.target.angle);
         return;
       }
       const group = e.target;

@@ -5,7 +5,7 @@ export class MarkerGroup extends Layer {
   constructor(bounds, options) {
     options = options || {};
     options.bounds = bounds;
-    options.zIndex = options.zIndex || 5;
+    options.zIndex = options.zIndex || 50;
     options.class = 'markergroup';
     super(options);
     if (!this.bounds) {

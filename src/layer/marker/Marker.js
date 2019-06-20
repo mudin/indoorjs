@@ -6,7 +6,7 @@ import { Connector } from '../Connector';
 export class Marker extends Layer {
   constructor(position, options) {
     options = options || {};
-    options.zIndex = options.zIndex || 10;
+    options.zIndex = options.zIndex || 100;
     options.keepOnZoom = true;
     options.position = new Point(position);
     options.rotation = options.rotation || 0;
