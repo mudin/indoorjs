@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.33+master.8753d84, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.34+master.23e9ffa, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.33+master.8753d84";
+var version = "0.2.34+master.23e9ffa";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3668,11 +3668,18 @@ function (_Layer) {
     }
   }, {
     key: "onShapeMouseMove",
-    value: function onShapeMouseMove() {
+    value: function onShapeMouseMove(e) {
       if (this.dragStart) {
         this.emit('dragstart');
-        this.dragging = true;
-        this.dragStart = null;
+        var a = new fabric.Point(e.pointer.x, e.pointer.y);
+        var b = new fabric.Point(this.dragStart.pointer.x, this.dragStart.pointer.y); // if distance is far enough, we don't want to fire click event
+
+        console.log(a.distanceFrom(b));
+
+        if (a.distanceFrom(b) > 3) {
+          this.dragStart = null;
+          this.dragging = true;
+        }
       }
 
       if (this.dragging) {
@@ -3684,7 +3691,10 @@ function (_Layer) {
   }, {
     key: "onShapeMouseUp",
     value: function onShapeMouseUp() {
+      console.log(this.dragging);
+
       if (!this.dragging) {
+        console.log('click');
         this.emit('click');
       } else {
         this.emit('moved');
