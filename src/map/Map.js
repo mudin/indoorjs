@@ -318,6 +318,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.canvas.on('object:scaling', e => {
       if (e.target.class) {
         vm.emit(`${e.target.class}:scaling`, e.target.parent);
+        e.target.parent.emit('scaling', e.target.parent);
         return;
       }
       const group = e.target;
@@ -338,6 +339,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.canvas.on('object:rotating', e => {
       if (e.target.class) {
         vm.emit(`${e.target.class}:rotating`, e.target.parent, e.target.angle);
+        e.target.parent.emit('rotating', e.target.parent, e.target.angle);
         return;
       }
       const group = e.target;
@@ -361,6 +363,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.canvas.on('object:moving', e => {
       if (e.target.class) {
         vm.emit(`${e.target.class}:moving`, e.target.parent);
+        e.target.parent.emit('moving', e.target.parent);
         return;
       }
       const group = e.target;

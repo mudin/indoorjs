@@ -47,7 +47,9 @@ const addMarkers = () => {
   addRadar(markers[0]);
 
   const rect = Indoor.markerGroup([[0, 0], [100, 499]]);
-  // rect.on;
+  rect.on('moving', (e) => {
+    console.log('moving', e);
+  });
   rect.addTo(map);
 };
 
