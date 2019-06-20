@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.29+master.b04a31d, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.30+master.719cfc2, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.29+master.b04a31d";
+var version = "0.2.30+master.719cfc2";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3863,20 +3863,20 @@ var rect = function rect(points, options) {
   return new Rect(points, options);
 };
 
-var Bbox =
+var MarkerGroup =
 /*#__PURE__*/
 function (_Layer) {
-  _inherits(Bbox, _Layer);
+  _inherits(MarkerGroup, _Layer);
 
-  function Bbox(bounds, options) {
+  function MarkerGroup(bounds, options) {
     var _this;
 
-    _classCallCheck(this, Bbox);
+    _classCallCheck(this, MarkerGroup);
 
     options = options || {};
     options.bounds = bounds;
-    options["class"] = 'bbox';
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Bbox).call(this, options));
+    options["class"] = 'markergroup';
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(MarkerGroup).call(this, options));
 
     if (!_this.bounds) {
       console.error('bounds is missing!');
@@ -3885,8 +3885,8 @@ function (_Layer) {
 
     _this.style = {
       strokeWidth: 1,
-      stroke: _this.color || 'black',
-      fill: _this.fill || '#88888822',
+      stroke: _this.stroke || 'black',
+      fill: _this.color || '#88888822',
       "class": _this["class"],
       parent: _assertThisInitialized(_this)
     };
@@ -3896,7 +3896,7 @@ function (_Layer) {
     return _this;
   }
 
-  _createClass(Bbox, [{
+  _createClass(MarkerGroup, [{
     key: "setBounds",
     value: function setBounds(bounds) {
       this.bounds = bounds;
@@ -3921,14 +3921,14 @@ function (_Layer) {
     }
   }]);
 
-  return Bbox;
+  return MarkerGroup;
 }(Layer);
-var bbox = function bbox(bounds, options) {
-  return new Bbox(bounds, options);
+var markerGroup = function markerGroup(bounds, options) {
+  return new MarkerGroup(bounds, options);
 };
 
 console.log('fabricJS ', fabric$1.version || window.fabric.version);
 console.log('IndoorJS ', version);
 
-export { Bbox, Circle, Connector, Floor, Group, ICON, Icon, Layer, Line, MAP, MARKER, Map, Marker, Modes, Point, Polyline, Rect, bbox, circle, connector, floorplan, group, icon, layer, line, map, marker, point, polyline, rect, version };
+export { Circle, Connector, Floor, Group, ICON, Icon, Layer, Line, MAP, MARKER, Map, Marker, MarkerGroup, Modes, Point, Polyline, Rect, circle, connector, floorplan, group, icon, layer, line, map, marker, markerGroup, point, polyline, rect, version };
 //# sourceMappingURL=indoor.esm.js.map

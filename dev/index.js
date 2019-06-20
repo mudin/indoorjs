@@ -46,7 +46,7 @@ const addMarkers = () => {
   // eslint-disable-next-line no-use-before-define
   addRadar(markers[0]);
 
-  const rect = Indoor.bbox([[0, 0], [100, 499]]);
+  const rect = Indoor.markerGroup([[0, 0], [100, 499]]);
   rect.addTo(map);
 };
 

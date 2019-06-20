@@ -1,11 +1,11 @@
 import { Rect } from '../vector';
 import { Layer } from '../Layer';
 
-export class Bbox extends Layer {
+export class MarkerGroup extends Layer {
   constructor(bounds, options) {
     options = options || {};
     options.bounds = bounds;
-    options.class = 'bbox';
+    options.class = 'markergroup';
     super(options);
     if (!this.bounds) {
       console.error('bounds is missing!');
@@ -13,8 +13,8 @@ export class Bbox extends Layer {
     }
     this.style = {
       strokeWidth: 1,
-      stroke: this.color || 'black',
-      fill: this.fill || '#88888822',
+      stroke: this.stroke || 'black',
+      fill: this.color || '#88888822',
       class: this.class,
       parent: this
     };
@@ -42,5 +42,5 @@ export class Bbox extends Layer {
     }
   }
 }
-export const bbox = (bounds, options) => new Bbox(bounds, options);
-export default Bbox;
+export const markerGroup = (bounds, options) => new MarkerGroup(bounds, options);
+export default MarkerGroup;

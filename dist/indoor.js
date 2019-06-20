@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.29+master.b04a31d, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.30+master.719cfc2, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.29+master.b04a31d";
+  var version = "0.2.30+master.719cfc2";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -3869,20 +3869,20 @@
     return new Rect(points, options);
   };
 
-  var Bbox =
+  var MarkerGroup =
   /*#__PURE__*/
   function (_Layer) {
-    _inherits(Bbox, _Layer);
+    _inherits(MarkerGroup, _Layer);
 
-    function Bbox(bounds, options) {
+    function MarkerGroup(bounds, options) {
       var _this;
 
-      _classCallCheck(this, Bbox);
+      _classCallCheck(this, MarkerGroup);
 
       options = options || {};
       options.bounds = bounds;
-      options["class"] = 'bbox';
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Bbox).call(this, options));
+      options["class"] = 'markergroup';
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(MarkerGroup).call(this, options));
 
       if (!_this.bounds) {
         console.error('bounds is missing!');
@@ -3891,8 +3891,8 @@
 
       _this.style = {
         strokeWidth: 1,
-        stroke: _this.color || 'black',
-        fill: _this.fill || '#88888822',
+        stroke: _this.stroke || 'black',
+        fill: _this.color || '#88888822',
         "class": _this["class"],
         parent: _assertThisInitialized(_this)
       };
@@ -3902,7 +3902,7 @@
       return _this;
     }
 
-    _createClass(Bbox, [{
+    _createClass(MarkerGroup, [{
       key: "setBounds",
       value: function setBounds(bounds) {
         this.bounds = bounds;
@@ -3927,16 +3927,15 @@
       }
     }]);
 
-    return Bbox;
+    return MarkerGroup;
   }(Layer);
-  var bbox = function bbox(bounds, options) {
-    return new Bbox(bounds, options);
+  var markerGroup = function markerGroup(bounds, options) {
+    return new MarkerGroup(bounds, options);
   };
 
   console.log('fabricJS ', fabric$1.version || window.fabric.version);
   console.log('IndoorJS ', version);
 
-  exports.Bbox = Bbox;
   exports.Circle = Circle;
   exports.Connector = Connector;
   exports.Floor = Floor;
@@ -3949,11 +3948,11 @@
   exports.MARKER = MARKER;
   exports.Map = Map;
   exports.Marker = Marker;
+  exports.MarkerGroup = MarkerGroup;
   exports.Modes = Modes;
   exports.Point = Point;
   exports.Polyline = Polyline;
   exports.Rect = Rect;
-  exports.bbox = bbox;
   exports.circle = circle;
   exports.connector = connector;
   exports.floorplan = floorplan;
@@ -3963,6 +3962,7 @@
   exports.line = line;
   exports.map = map;
   exports.marker = marker;
+  exports.markerGroup = markerGroup;
   exports.point = point;
   exports.polyline = polyline;
   exports.rect = rect;
