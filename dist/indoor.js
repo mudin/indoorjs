@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.36+master.bf2f3ee, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.37+master.686d5ad, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.36+master.bf2f3ee";
+  var version = "0.2.37+master.686d5ad";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -3926,11 +3926,13 @@
     }, {
       key: "draw",
       value: function draw() {
+        var width = this.bounds[1][0] - this.bounds[0][0];
+        var height = this.bounds[1][1] - this.bounds[0][1];
         this.coords = {
-          left: this.bounds[0][0],
-          top: this.bounds[0][1],
-          width: this.bounds[1][0] - this.bounds[0][0],
-          height: this.bounds[1][1] - this.bounds[0][1]
+          left: this.bounds[0][0] + width / 2,
+          top: this.bounds[0][1] + height / 2,
+          width: width,
+          height: height
         };
 
         if (this.shape) {

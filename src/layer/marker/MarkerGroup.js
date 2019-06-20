@@ -29,11 +29,13 @@ export class MarkerGroup extends Layer {
   }
 
   draw() {
+    const width = this.bounds[1][0] - this.bounds[0][0];
+    const height = this.bounds[1][1] - this.bounds[0][1];
     this.coords = {
-      left: this.bounds[0][0],
-      top: this.bounds[0][1],
-      width: this.bounds[1][0] - this.bounds[0][0],
-      height: this.bounds[1][1] - this.bounds[0][1]
+      left: this.bounds[0][0] + width / 2,
+      top: this.bounds[0][1] + height / 2,
+      width,
+      height
     };
 
     if (this.shape) {

@@ -46,7 +46,7 @@ const addMarkers = () => {
   // eslint-disable-next-line no-use-before-define
   addRadar(markers[0]);
 
-  const rect = Indoor.markerGroup([[0, 0], [100, 499]]);
+  const rect = Indoor.markerGroup([[0, 0], [100, 200]]);
   rect.on('moving', (e) => {
     console.log('moving', e);
   });
