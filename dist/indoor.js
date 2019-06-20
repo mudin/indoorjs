@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.30+master.719cfc2, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.32+master.46ce9cb, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.30+master.719cfc2";
+  var version = "0.2.32+master.46ce9cb";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2882,7 +2882,7 @@
           for (var i = 0; i < objects.length; i += 1) {
             var object = objects[i];
 
-            if (object["class"]) {
+            if (object["class"] === 'marker') {
               object._set('angle', -group.angle);
 
               object.parent.yaw = -group.angle + (object.orgYaw || 0); // object.orgYaw = object.parent.yaw;
@@ -2931,7 +2931,7 @@
           for (var i = 0; i < objects.length; i += 1) {
             var object = objects[i];
 
-            if (object["class"]) {
+            if (object["class"] === 'marker') {
               object._set('angle', 0);
 
               object._set('scaleX', 1 / vm.zoom);
@@ -3881,6 +3881,7 @@
 
       options = options || {};
       options.bounds = bounds;
+      options.zIndex = options.zIndex || 5;
       options["class"] = 'markergroup';
       _this = _possibleConstructorReturn(this, _getPrototypeOf(MarkerGroup).call(this, options));
 
