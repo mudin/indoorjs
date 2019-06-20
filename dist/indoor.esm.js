@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.35+master.39873ab, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.36+master.bf2f3ee, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.35+master.39873ab";
+var version = "0.2.36+master.bf2f3ee";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -2845,6 +2845,7 @@ function (_mix$with) {
       this.canvas.on('object:scaling', function (e) {
         if (e.target["class"]) {
           vm.emit("".concat(e.target["class"], ":scaling"), e.target.parent);
+          e.target.parent.emit('scaling', e.target.parent);
           return;
         }
 
@@ -2866,6 +2867,7 @@ function (_mix$with) {
       this.canvas.on('object:rotating', function (e) {
         if (e.target["class"]) {
           vm.emit("".concat(e.target["class"], ":rotating"), e.target.parent, e.target.angle);
+          e.target.parent.emit('rotating', e.target.parent, e.target.angle);
           return;
         }
 
@@ -2893,6 +2895,7 @@ function (_mix$with) {
       this.canvas.on('object:moving', function (e) {
         if (e.target["class"]) {
           vm.emit("".concat(e.target["class"], ":moving"), e.target.parent);
+          e.target.parent.emit('moving', e.target.parent);
           return;
         }
 
