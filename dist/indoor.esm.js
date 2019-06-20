@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.34+master.23e9ffa, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.35+master.39873ab, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.34+master.23e9ffa";
+var version = "0.2.35+master.39873ab";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -2865,7 +2865,7 @@ function (_mix$with) {
       });
       this.canvas.on('object:rotating', function (e) {
         if (e.target["class"]) {
-          vm.emit("".concat(e.target["class"], ":rotating"), e.target.parent);
+          vm.emit("".concat(e.target["class"], ":rotating"), e.target.parent, e.target.angle);
           return;
         }
 
@@ -3358,7 +3358,7 @@ function (_Layer) {
     _classCallCheck(this, Connector);
 
     options = options || {};
-    options.zIndex = options.zIndex || 9;
+    options.zIndex = options.zIndex || 10;
     options["class"] = 'connector';
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Connector).call(this, options));
 
@@ -3447,7 +3447,7 @@ function (_Layer) {
     _classCallCheck(this, Marker);
 
     options = options || {};
-    options.zIndex = options.zIndex || 10;
+    options.zIndex = options.zIndex || 100;
     options.keepOnZoom = true;
     options.position = new Point(position);
     options.rotation = options.rotation || 0;
@@ -3885,7 +3885,7 @@ function (_Layer) {
 
     options = options || {};
     options.bounds = bounds;
-    options.zIndex = options.zIndex || 5;
+    options.zIndex = options.zIndex || 50;
     options["class"] = 'markergroup';
     _this = _possibleConstructorReturn(this, _getPrototypeOf(MarkerGroup).call(this, options));
 
