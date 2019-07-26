@@ -5,13 +5,13 @@ import './index.css';
 
 const mapEl = document.querySelector('.my-map');
 
-let radar; let
-  markers;
+let radar;
+let markers;
 
 const map = new Indoor.Map(mapEl, {
   floorplan: new Indoor.Floor({
-    url: './fp.svg',
-    opacity: 0.4,
+    url: './pano.jpg',
+    opacity: 0.7,
     width: 400,
     zIndex: 1
   }),
@@ -21,9 +21,7 @@ const map = new Indoor.Map(mapEl, {
 
 const addLinks = () => {
   for (let i = 1; i < markers.length; i += 1) {
-    markers[i].setLinks(
-      [markers[i - 1]]
-    );
+    markers[i].setLinks([markers[i - 1]]);
   }
 };
 
@@ -47,13 +45,13 @@ const addMarkers = () => {
   addRadar(markers[0]);
 
   const rect = Indoor.markerGroup([[0, 0], [100, 200]]);
-  rect.on('moving', (e) => {
+  rect.on('moving', e => {
     console.log('moving', e);
   });
   rect.addTo(map);
 };
 
-const addRadar = (marker) => {
+const addRadar = marker => {
   if (!radar) {
     radar = new Indoor.Marker(marker.position, {
       size: 30,
@@ -85,17 +83,17 @@ map.on('ready', () => {
 //   // addMarkers();
 // });
 
-map.on('marker:removed', (e) => {
+map.on('marker:removed', e => {
   console.log('marker:removed', e);
   // addMarkers();
 });
 
-map.on('marker:click', (e) => {
+map.on('marker:click', e => {
   console.log('marker:click', e);
   addRadar(e);
 });
 
-map.on('marker:moving', (e) => {
+map.on('marker:moving', e => {
   // console.log('marker:moving', e);
   if (radar && e.id === radar.id) {
     // console.log(e);
@@ -103,7 +101,7 @@ map.on('marker:moving', (e) => {
   }
 });
 
-map.on('markergroup:moving', (e) => {
+map.on('markergroup:moving', e => {
   console.log('markergroup:moving', e);
 });
 map.on('markergroup:rotating', (e, angle) => {
@@ -118,15 +116,15 @@ map.on('bbox:moving', () => {
   // console.log('bbox:moving', e);
 });
 
-map.on('object:drag', (e) => {
+map.on('object:drag', e => {
   console.log('object:drag', e);
 });
 
-map.on('object:scaling', (e) => {
+map.on('object:scaling', e => {
   console.log('object:scaling', e);
 });
 
-map.on('object:rotate', (e) => {
+map.on('object:rotate', e => {
   console.log('object:rotate', e);
 });
 

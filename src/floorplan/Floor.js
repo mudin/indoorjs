@@ -23,14 +23,11 @@ export class Floor extends Layer {
     console.log(ext);
 
     if (ext === 'svg') {
-      fabric.loadSVGFromURL(
-        this.url,
-        (objects, options) => {
-          objects = objects.filter((e) => e.id !== 'grid');
-          const image = fabric.util.groupSVGElements(objects, options);
-          vm.setImage(image);
-        }
-      );
+      fabric.loadSVGFromURL(this.url, (objects, options) => {
+        objects = objects.filter(e => e.id !== 'grid');
+        const image = fabric.util.groupSVGElements(objects, options);
+        vm.setImage(image);
+      });
     } else {
       fabric.Image.fromURL(
         this.url,
@@ -65,13 +62,13 @@ export class Floor extends Layer {
       this.width = image.width;
       this.height = image.height;
     } else if (this.width === -1) {
-      this.width = this.height / ratio;
+      this.width = this.height * ratio;
     } else if (this.height === -1) {
-      this.height = this.width * ratio;
+      this.height = this.width / ratio;
     }
     image.originalWidth = image.width;
     image.originalHeight = image.height;
-    this.image = image.scaleToWidth(this.width);
+    this.image = image.scaleToWidth(this.width, true);
 
     this.scaleX = image.scaleX + 0;
     this.scaleY = image.scaleY + 0;
@@ -146,4 +143,4 @@ export class Floor extends Layer {
   }
 }
 
-export const floorplan = (options) => new Floor(options);
+export const floorplan = options => new Floor(options);

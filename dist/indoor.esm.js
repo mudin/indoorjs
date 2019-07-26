@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.37+master.686d5ad, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.38+master.a166fb1, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.37+master.686d5ad";
+var version = "0.2.38+master.a166fb1";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3222,14 +3222,14 @@ function (_Layer) {
         this.width = image.width;
         this.height = image.height;
       } else if (this.width === -1) {
-        this.width = this.height / ratio;
+        this.width = this.height * ratio;
       } else if (this.height === -1) {
-        this.height = this.width * ratio;
+        this.height = this.width / ratio;
       }
 
       image.originalWidth = image.width;
       image.originalHeight = image.height;
-      this.image = image.scaleToWidth(this.width);
+      this.image = image.scaleToWidth(this.width, true);
       this.scaleX = image.scaleX + 0;
       this.scaleY = image.scaleY + 0;
       this.drawShape();
