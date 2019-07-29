@@ -1,6 +1,6 @@
 {
   "name": "indoorjs",
-  "version": "0.2.40",
+  "version": "0.2.41",
   "description": "Canvas based indoor maps",
   "main": "dist/indoor.js",
   "scripts": {
