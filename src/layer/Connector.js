@@ -46,12 +46,10 @@ export class Connector extends Layer {
   }
 
   draw() {
-    this.shape = new Line([
-      this.start.position.x,
-      this.start.position.y,
-      this.end.position.x,
-      this.end.position.y
-    ], this.style);
+    this.shape = new Line(
+      [this.start.position.x, this.start.position.y, this.end.position.x, this.end.position.y],
+      this.style
+    );
     // this.shape.setCoords();
   }
 
@@ -72,6 +70,10 @@ export class Connector extends Layer {
   setEnd(end) {
     this.end = end;
     this.redraw();
+  }
+
+  setColor(color) {
+    this.shape.setColor(color);
   }
 }
 
