@@ -73,7 +73,10 @@ export class Connector extends Layer {
   }
 
   setColor(color) {
-    this.shape.setColor(color);
+    this.shape.set('stroke', color);
+    if (this.shape.canvas) {
+      this.shape.canvas.renderAll();
+    }
   }
 }
 
