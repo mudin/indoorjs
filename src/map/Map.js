@@ -158,10 +158,10 @@ export class Map extends mix(Base).with(ModesMixin) {
     let minY = Infinity;
     let maxY = -Infinity;
 
-    this.canvas.forEachObject((obj) => {
+    this.canvas.forEachObject(obj => {
       const coords = obj.getBounds();
 
-      coords.forEach((point) => {
+      coords.forEach(point => {
         minX = Math.min(minX, point.x);
         maxX = Math.max(maxX, point.x);
         minY = Math.min(minY, point.y);
@@ -442,10 +442,14 @@ export class Map extends mix(Base).with(ModesMixin) {
     });
 
     this.canvas.on('mouse:up', e => {
+      if (!vm.dragObject || !e.target || !e.target.selectable) {
+        console.log('mouse:click');
+        vm.emit('mouse:click', e);
+      }
       if (vm.dragObject && vm.dragObject.clickable) {
         if (vm.dragObject !== e.target) return;
         if (!vm.dragObject.dragging && !vm.modeToggleByKey) {
-          console.log('click');
+          console.log('object:click');
           vm.emit(`${vm.dragObject.class}:click`, vm.dragObject.parent);
         }
         vm.dragObject.dragging = false;

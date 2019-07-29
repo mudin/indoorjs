@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.38+master.a166fb1, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.39+master.0ab30f9, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.38+master.a166fb1";
+  var version = "0.2.39+master.0ab30f9";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2990,11 +2990,16 @@
           }
         });
         this.canvas.on('mouse:up', function (e) {
+          if (!vm.dragObject || !e.target || !e.target.selectable) {
+            console.log('mouse:click');
+            vm.emit('mouse:click', e);
+          }
+
           if (vm.dragObject && vm.dragObject.clickable) {
             if (vm.dragObject !== e.target) return;
 
             if (!vm.dragObject.dragging && !vm.modeToggleByKey) {
-              console.log('click');
+              console.log('object:click');
               vm.emit("".concat(vm.dragObject["class"], ":click"), vm.dragObject.parent);
             }
 
