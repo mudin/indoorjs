@@ -439,6 +439,7 @@ export class Map extends mix(Base).with(ModesMixin) {
           vm.dragObject.dragging = false;
         }
       }
+      vm.emit('mouse:move', e);
     });
 
     this.canvas.on('mouse:up', e => {
