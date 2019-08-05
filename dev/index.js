@@ -128,4 +128,8 @@ map.on('object:rotate', e => {
   console.log('object:rotate', e);
 });
 
+map.on('mouse:move', e => {
+  console.log('mouse:move', e);
+});
+
 window.map = map;

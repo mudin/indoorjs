@@ -107,6 +107,14 @@ export class Floor extends Layer {
     this.onResize();
   }
 
+  setOpacity(opacity) {
+    this.opacity = opacity;
+    this.image.set('opacity', opacity);
+    if (this.image.canvas) {
+      this.image.canvas.renderAll();
+    }
+  }
+
   setPosition(position) {
     this.position = new Point(position);
     if (!this.shape) return;
