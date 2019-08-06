@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.44+master.e0de2c3, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.45+master.219d26e, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.44+master.e0de2c3";
+  var version = "0.2.45+master.219d26e";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -3458,6 +3458,15 @@
       key: "setColor",
       value: function setColor(color) {
         this.shape.set('stroke', color);
+
+        if (this.shape.canvas) {
+          this.shape.canvas.renderAll();
+        }
+      }
+    }, {
+      key: "setStrokeWidth",
+      value: function setStrokeWidth(strokeWidth) {
+        this.shape.set('strokeWidth', strokeWidth);
 
         if (this.shape.canvas) {
           this.shape.canvas.renderAll();

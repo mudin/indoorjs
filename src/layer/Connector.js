@@ -78,6 +78,13 @@ export class Connector extends Layer {
       this.shape.canvas.renderAll();
     }
   }
+
+  setStrokeWidth(strokeWidth) {
+    this.shape.set('strokeWidth', strokeWidth);
+    if (this.shape.canvas) {
+      this.shape.canvas.renderAll();
+    }
+  }
 }
 
 export const connector = (start, end, options) => new Connector(start, end, options);

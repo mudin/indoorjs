@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.44+master.e0de2c3, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.45+master.219d26e, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.44+master.e0de2c3";
+var version = "0.2.45+master.219d26e";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3452,6 +3452,15 @@ function (_Layer) {
     key: "setColor",
     value: function setColor(color) {
       this.shape.set('stroke', color);
+
+      if (this.shape.canvas) {
+        this.shape.canvas.renderAll();
+      }
+    }
+  }, {
+    key: "setStrokeWidth",
+    value: function setStrokeWidth(strokeWidth) {
+      this.shape.set('strokeWidth', strokeWidth);
 
       if (this.shape.canvas) {
         this.shape.canvas.renderAll();
