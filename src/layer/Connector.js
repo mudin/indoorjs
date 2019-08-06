@@ -73,6 +73,8 @@ export class Connector extends Layer {
   }
 
   setColor(color) {
+    this.color = color;
+    this.style.stroke = color;
     this.shape.set('stroke', color);
     if (this.shape.canvas) {
       this.shape.canvas.renderAll();
@@ -80,6 +82,8 @@ export class Connector extends Layer {
   }
 
   setStrokeWidth(strokeWidth) {
+    this.strokeWidth = strokeWidth;
+    this.style.strokeWidth = strokeWidth;
     this.shape.set('strokeWidth', strokeWidth);
     if (this.shape.canvas) {
       this.shape.canvas.renderAll();
