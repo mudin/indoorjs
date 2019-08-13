@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.45+master.219d26e, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.47+master.2cf3e03, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.45+master.219d26e";
+  var version = "0.2.47+master.2cf3e03";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -3457,6 +3457,8 @@
     }, {
       key: "setColor",
       value: function setColor(color) {
+        this.color = color;
+        this.style.stroke = color;
         this.shape.set('stroke', color);
 
         if (this.shape.canvas) {
@@ -3466,6 +3468,8 @@
     }, {
       key: "setStrokeWidth",
       value: function setStrokeWidth(strokeWidth) {
+        this.strokeWidth = strokeWidth;
+        this.style.strokeWidth = strokeWidth;
         this.shape.set('strokeWidth', strokeWidth);
 
         if (this.shape.canvas) {
@@ -3524,7 +3528,7 @@
 
       if (_this.icon) {
         fabric.Image.fromURL(_this.icon.url, function (image) {
-          vm.image = image.scaleToWidth(100);
+          vm.image = image.scaleToWidth(_this.size);
 
           _this.init(); // vm.shape.removeWithUpdate();
 
