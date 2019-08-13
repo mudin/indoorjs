@@ -11,7 +11,7 @@ export class Marker extends Layer {
     options.position = new Point(position);
     options.rotation = options.rotation || 0;
     options.yaw = options.yaw || 0;
-    options.clickable = options.clickable || true;
+    options.clickable = options.clickable !== undefined ? options.clickable : true;
     options.class = 'marker';
     super(options);
 
@@ -28,7 +28,8 @@ export class Marker extends Layer {
       top: this.position.y,
       // selectionBackgroundColor: false,
       angle: this.rotation,
-      yaw: this.yaw
+      yaw: this.yaw,
+      clickable: this.clickable
     });
 
     if (this.text) {
@@ -47,7 +48,7 @@ export class Marker extends Layer {
           // vm.shape.removeWithUpdate();
         },
         {
-          selectable: true,
+          selectable: false,
           opacity: this.opacity
         }
       );
