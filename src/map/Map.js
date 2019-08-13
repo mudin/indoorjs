@@ -445,6 +445,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.canvas.on('mouse:up', e => {
       if (!vm.dragObject || !e.target || !e.target.selectable) {
         console.log('mouse:click');
+        e.target = null;
         vm.emit('mouse:click', e);
       }
       if (vm.dragObject && vm.dragObject.clickable) {

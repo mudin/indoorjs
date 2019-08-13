@@ -49,6 +49,7 @@ export class Marker extends Layer {
         },
         {
           selectable: false,
+          clickable: this.clickable,
           opacity: this.opacity
         }
       );
