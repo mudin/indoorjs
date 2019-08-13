@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.47+master.2cf3e03, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.48+master.a3c1022, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.47+master.2cf3e03";
+  var version = "0.2.48+master.a3c1022";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -3500,7 +3500,7 @@
       options.position = new Point(position);
       options.rotation = options.rotation || 0;
       options.yaw = options.yaw || 0;
-      options.clickable = options.clickable || true;
+      options.clickable = options.clickable;
       options["class"] = 'marker';
       _this = _possibleConstructorReturn(this, _getPrototypeOf(Marker).call(this, options));
 
@@ -3528,7 +3528,7 @@
 
       if (_this.icon) {
         fabric.Image.fromURL(_this.icon.url, function (image) {
-          vm.image = image.scaleToWidth(_this.size);
+          vm.image = image.scaleToWidth(_this.size, true);
 
           _this.init(); // vm.shape.removeWithUpdate();
 
