@@ -11,7 +11,7 @@ export class Marker extends Layer {
     options.position = new Point(position);
     options.rotation = options.rotation || 0;
     options.yaw = options.yaw || 0;
-    options.clickable = options.clickable || true;
+    options.clickable = options.clickable;
     options.class = 'marker';
     super(options);
 
@@ -39,14 +39,18 @@ export class Marker extends Layer {
     }
 
     if (this.icon) {
-      fabric.Image.fromURL(this.icon.url, image => {
-        vm.image = image.scaleToWidth(this.size);
-        this.init();
-        // vm.shape.removeWithUpdate();
-      }, {
-        selectable: true,
-        opacity: this.opacity
-      });
+      fabric.Image.fromURL(
+        this.icon.url,
+        image => {
+          vm.image = image.scaleToWidth(this.size, true);
+          this.init();
+          // vm.shape.removeWithUpdate();
+        },
+        {
+          selectable: true,
+          opacity: this.opacity
+        }
+      );
     } else {
       this.circle = new fabric.Circle({
         radius: this.size,
@@ -88,13 +92,13 @@ export class Marker extends Layer {
       vm.emit('rotating');
     });
 
-    this.shape.on('mousedown', (e) => {
+    this.shape.on('mousedown', e => {
       vm.onShapeMouseDown(e);
     });
-    this.shape.on('mousemove', (e) => {
+    this.shape.on('mousemove', e => {
       vm.onShapeMouseMove(e);
     });
-    this.shape.on('mouseup', (e) => {
+    this.shape.on('mouseup', e => {
       vm.onShapeMouseUp(e);
     });
     this.shape.on('mouseover', () => {
@@ -189,7 +193,7 @@ export class Marker extends Layer {
 
   onShapeDrag() {
     const matrix = this.shape.calcTransformMatrix();
-    const [,,,, x, y] = matrix;
+    const [, , , , x, y] = matrix;
     this.position = new Point(x, y);
     this.emit('update:links');
     this.emit('moving');
