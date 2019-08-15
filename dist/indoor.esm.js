@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.51+master.e924a03, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.52+master.eb77098, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.51+master.e924a03";
+var version = "0.2.52+master.eb77098";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3138,6 +3138,20 @@ function (_Base) {
   }
 
   _createClass(Layer, [{
+    key: "setOptions",
+    value: function setOptions(options) {
+      var _this2 = this;
+
+      if (!this.shape) return;
+      Object.keys(options).forEach(function (key) {
+        _this2.shape.set(key, options[key]);
+      });
+
+      if (this.shape.canvas) {
+        this.shape.canvas.renderAll();
+      }
+    }
+  }, {
     key: "addTo",
     value: function addTo(map) {
       if (!map) {
@@ -3629,6 +3643,38 @@ function (_Layer) {
       }
     }
   }, {
+    key: "setOptions",
+    value: function setOptions(options) {
+      var _this3 = this;
+
+      if (!this.shape) return;
+      Object.keys(options).forEach(function (key) {
+        switch (key) {
+          case 'textColor':
+            _this3.setTextColor(options[key]);
+
+            break;
+
+          case 'stroke':
+            _this3.setStroke(options[key]);
+
+            break;
+
+          case 'fill':
+            _this3.setColor(options[key]);
+
+            break;
+
+          default:
+            break;
+        }
+      });
+
+      if (this.shape.canvas) {
+        this.shape.canvas.renderAll();
+      }
+    }
+  }, {
     key: "setTextColor",
     value: function setTextColor(color) {
       if (this.text && this.textObj) {
@@ -3669,13 +3715,13 @@ function (_Layer) {
   }, {
     key: "addLinks",
     value: function addLinks() {
-      var _this3 = this;
+      var _this4 = this;
 
       this.connectors = [];
       this.links.forEach(function (link) {
-        var connector = new Connector(_this3, link);
+        var connector = new Connector(_this4, link);
 
-        _this3.connectors.push(connector);
+        _this4.connectors.push(connector);
       });
       this.addConnectors();
     }
