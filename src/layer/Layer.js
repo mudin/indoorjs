@@ -33,6 +33,16 @@ export class Layer extends Base {
     };
   }
 
+  setOptions(options) {
+    if (!this.shape) return;
+    Object.keys(options).forEach(key => {
+      this.shape.set(key, options[key]);
+    });
+    if (this.shape.canvas) {
+      this.shape.canvas.renderAll();
+    }
+  }
+
   addTo(map) {
     if (!map) {
       if (this._map) {
@@ -45,6 +55,6 @@ export class Layer extends Base {
   }
 }
 
-export const layer = (options) => new Layer(options);
+export const layer = options => new Layer(options);
 
 export default Layer;

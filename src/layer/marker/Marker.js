@@ -141,6 +141,30 @@ export class Marker extends Layer {
     }
   }
 
+  setOptions(options) {
+    if (!this.shape) return;
+
+    Object.keys(options).forEach(key => {
+      switch (key) {
+        case 'textColor':
+          this.setTextColor(options[key]);
+          break;
+        case 'stroke':
+          this.setStroke(options[key]);
+          break;
+        case 'fill':
+          this.setColor(options[key]);
+          break;
+
+        default:
+          break;
+      }
+    });
+    if (this.shape.canvas) {
+      this.shape.canvas.renderAll();
+    }
+  }
+
   setTextColor(color) {
     if (this.text && this.textObj) {
       this.textObj.setColor(color);
