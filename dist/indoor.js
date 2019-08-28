@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.52+master.eb77098, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.53+master.44e936c, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.52+master.eb77098";
+  var version = "0.2.53+master.44e936c";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -274,16 +274,16 @@
   fabric.Object.prototype.lockUniScaling = true;
   fabric.Object.prototype.lockScalingFlip = true;
   fabric.Object.prototype.transparentCorners = false;
-  fabric.Object.prototype.centeredScaling = true;
-  fabric.Object.prototype.cornerStyle = 'circle';
+  fabric.Object.prototype.centeredScaling = true; // fabric.Object.prototype.cornerStyle = 'circle';
+
   fabric.Object.prototype.cornerColor = 'blue';
   fabric.Object.prototype.borderColor = 'blue';
   fabric.Object.prototype.borderOpacity = 0.7;
   fabric.Object.prototype.cornerOpacity = 0.7;
   fabric.Object.prototype.cornerStrokeColor = 'blue';
-  fabric.Object.prototype.borderColor = '#2dcfab';
-  fabric.Object.prototype.cornerColor = '#2dcfab';
-  fabric.Object.prototype.cornerStrokeColor = '#176957';
+  fabric.Object.prototype.borderColor = '#ff0099';
+  fabric.Object.prototype.cornerColor = '#00eaff';
+  fabric.Object.prototype.cornerStrokeColor = '#00bbff';
   fabric.Object.prototype.objectCaching = false;
   fabric.Group.prototype.objectCaching = true;
   fabric.Group.prototype.selectionBackgroundColor = 'rgba(45,207,171,0.25)';
