@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.55+master.512fe88, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.56+master.a9b2cde, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.55+master.512fe88";
+  var version = "0.2.56+master.a9b2cde";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2655,16 +2655,19 @@
         });
 
         if (layer.shape.keepOnZoom) {
-          layer.shape.set('scaleX', 1.1 / this.zoom);
-          layer.shape.set('scaleY', 1.1 / this.zoom);
+          var scale = 1.0 / this.zoom;
+          layer.shape.set('scaleX', scale);
+          layer.shape.set('scaleY', scale);
+          layer.shape.setCoords();
           this.emit("".concat(layer["class"], "scaling"), layer);
         }
 
         if (layer["class"]) {
           this.emit("".concat(layer["class"], ":added"), layer);
         } // this.update();
-        // this.canvas.renderAll();
 
+
+        this.canvas.renderAll();
       }
     }, {
       key: "removeLayer",
@@ -2830,18 +2833,21 @@
         }
 
         var objects = canvas.getObjects();
+        var hasKeepZoom = false;
 
         for (var i = 0; i < objects.length; i += 1) {
           var object = objects[i];
 
           if (object.keepOnZoom) {
-            object._set('scaleX', 1 / this.zoom);
-
-            object._set('scaleY', 1 / this.zoom);
-
+            object.set('scaleX', 1.0 / this.zoom);
+            object.set('scaleY', 1.0 / this.zoom);
+            object.setCoords();
+            hasKeepZoom = true;
             this.emit("".concat(object["class"], "scaling"), object);
           }
         }
+
+        if (hasKeepZoom) canvas.renderAll();
       }
     }, {
       key: "panzoom",
@@ -3553,7 +3559,7 @@
 
       options = options || {};
       options.zIndex = options.zIndex || 100;
-      options.keepOnZoom = true;
+      options.keepOnZoom = options.keepOnZoom === undefined ? true : options.keepOnZoom;
       options.position = new Point(position);
       options.rotation = options.rotation || 0;
       options.yaw = options.yaw || 0;

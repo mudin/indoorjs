@@ -96,8 +96,10 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.canvas._objects.sort((o1, o2) => o1.zIndex - o2.zIndex);
 
     if (layer.shape.keepOnZoom) {
-      layer.shape.set('scaleX', 1.1 / this.zoom);
-      layer.shape.set('scaleY', 1.1 / this.zoom);
+      const scale = 1.0 / this.zoom;
+      layer.shape.set('scaleX', scale);
+      layer.shape.set('scaleY', scale);
+      layer.shape.setCoords();
       this.emit(`${layer.class}scaling`, layer);
     }
     if (layer.class) {
@@ -105,7 +107,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     }
 
     // this.update();
-    // this.canvas.renderAll();
+    this.canvas.renderAll();
   }
 
   removeLayer(layer) {
@@ -266,14 +268,18 @@ export class Map extends mix(Base).with(ModesMixin) {
     }
 
     const objects = canvas.getObjects();
+    let hasKeepZoom = false;
     for (let i = 0; i < objects.length; i += 1) {
       const object = objects[i];
       if (object.keepOnZoom) {
-        object._set('scaleX', 1 / this.zoom);
-        object._set('scaleY', 1 / this.zoom);
+        object.set('scaleX', 1.0 / this.zoom);
+        object.set('scaleY', 1.0 / this.zoom);
+        object.setCoords();
+        hasKeepZoom = true;
         this.emit(`${object.class}scaling`, object);
       }
     }
+    if (hasKeepZoom) canvas.renderAll();
   }
 
   panzoom(e) {
