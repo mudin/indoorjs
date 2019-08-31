@@ -54,7 +54,7 @@ class MagicScroll {
       this.onUpdate(delta, e);
     }
     const scope = this;
-    if (Math.abs(delta) > 0.5) {
+    if (Math.abs(delta) > 1) {
       requestFrame(() => {
         scope.update();
       });

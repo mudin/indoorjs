@@ -38,6 +38,7 @@ const panzoom = (target, cb) => {
   };
 
   let impetus;
+  let magicScroll;
 
   let initX = 0;
   let initY = 0;
@@ -55,6 +56,15 @@ const panzoom = (target, cb) => {
     }
   });
   target.addEventListener('touchstart', initFn, hasPassive() ? { passive: true } : false);
+
+  target.addEventListener(
+    'contextmenu',
+    e => {
+      e.preventDefault();
+      return false;
+    },
+    false
+  );
 
   let lastY = 0;
   let lastX = 0;
@@ -76,7 +86,8 @@ const panzoom = (target, cb) => {
         x: cursor.x,
         y: cursor.y,
         x0: initX,
-        y0: initY
+        y0: initY,
+        isRight: cursor.isRight
       };
 
       lastX = x;
@@ -88,9 +99,9 @@ const panzoom = (target, cb) => {
     friction: 0.75
   });
 
-  console.log('target', target);
+  magicScroll = new MagicScroll(target, 80, 12, 0);
 
-  new MagicScroll(target, 80, 12, 0).onUpdate = (dy, e) => {
+  magicScroll.onUpdate = (dy, e) => {
     schedule({
       target,
       type: 'mouse',

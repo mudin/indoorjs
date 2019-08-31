@@ -262,7 +262,7 @@ export class Map extends mix(Base).with(ModesMixin) {
 
     canvas.zoomToPoint(new Point(this.x, this.y), this.zoom);
 
-    if (this.isGrabMode()) {
+    if (this.isGrabMode() || this.isRight) {
       canvas.relativePan(new Point(this.dx, this.dy));
       this.emit('panning');
     }
@@ -297,7 +297,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     // pan
     const oX = 0.5;
     const oY = 0.5;
-    if (this.isGrabMode()) {
+    if (this.isGrabMode() || e.isRight) {
       x -= prevZoom * e.dx;
       y += prevZoom * e.dy;
     }
@@ -315,6 +315,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.dy = e.dy;
     this.x = e.x0;
     this.y = e.y0;
+    this.isRight = e.isRight;
     this.update();
   }
 
@@ -469,21 +470,21 @@ export class Map extends mix(Base).with(ModesMixin) {
       vm.onResize();
     });
 
-    document.addEventListener('keyup', () => {
-      if (this.modeToggleByKey && this.isGrabMode()) {
-        this.setModeAsSelect();
-        this.modeToggleByKey = false;
-      }
-    });
+    // document.addEventListener('keyup', () => {
+    //   if (this.modeToggleByKey && this.isGrabMode()) {
+    //     this.setModeAsSelect();
+    //     this.modeToggleByKey = false;
+    //   }
+    // });
 
-    document.addEventListener('keydown', event => {
-      if (event.ctrlKey || event.metaKey) {
-        if (this.isSelectMode()) {
-          this.setModeAsGrab();
-        }
-        this.modeToggleByKey = true;
-      }
-    });
+    // document.addEventListener('keydown', event => {
+    //   if (event.ctrlKey || event.metaKey) {
+    //     if (this.isSelectMode()) {
+    //       this.setModeAsGrab();
+    //     }
+    //     this.modeToggleByKey = true;
+    //   }
+    // });
   }
 
   unregisterListeners() {
