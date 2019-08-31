@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.56+master.a9b2cde, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.57+master.ed228e4, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.56+master.a9b2cde";
+var version = "0.2.57+master.ed228e4";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -467,9 +467,20 @@ var evPos = (function (ev, toElement) {
     pageY = ev.currentPoint.y;
   }
 
+  var isRight = false;
+
+  if ('which' in ev) {
+    // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+    isRight = ev.which == 3;
+  } else if ('button' in ev) {
+    // IE, Opera
+    isRight = ev.button == 2;
+  }
+
   return {
     x: pageX - toElementBoundingRect.left,
-    y: pageY - toElementBoundingRect.top
+    y: pageY - toElementBoundingRect.top,
+    isRight: isRight
   };
 });
 
@@ -1056,7 +1067,7 @@ function () {
 
       var scope = this;
 
-      if (Math.abs(delta) > 0.5) {
+      if (Math.abs(delta) > 1) {
         requestFrame(function () {
           scope.update();
         });
@@ -1362,6 +1373,7 @@ var panzoom = function panzoom(target, cb) {
   };
 
   var impetus;
+  var magicScroll;
   var initX = 0;
   var initY = 0;
   var init = true;
@@ -1382,6 +1394,10 @@ var panzoom = function panzoom(target, cb) {
   target.addEventListener('touchstart', initFn, hasPassive() ? {
     passive: true
   } : false);
+  target.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+    return false;
+  }, false);
   var lastY = 0;
   var lastX = 0;
   impetus = new Impetus({
@@ -1402,7 +1418,8 @@ var panzoom = function panzoom(target, cb) {
         x: cursor.x,
         y: cursor.y,
         x0: initX,
-        y0: initY
+        y0: initY,
+        isRight: cursor.isRight
       };
       lastX = x;
       lastY = y;
@@ -1411,9 +1428,9 @@ var panzoom = function panzoom(target, cb) {
     multiplier: 1,
     friction: 0.75
   });
-  console.log('target', target);
+  magicScroll = new MagicScroll(target, 80, 12, 0);
 
-  new MagicScroll(target, 80, 12, 0).onUpdate = function (dy, e) {
+  magicScroll.onUpdate = function (dy, e) {
     schedule({
       target: target,
       type: 'mouse',
@@ -2821,7 +2838,7 @@ function (_mix$with) {
       this.grid.render();
       canvas.zoomToPoint(new Point(this.x, this.y), this.zoom);
 
-      if (this.isGrabMode()) {
+      if (this.isGrabMode() || this.isRight) {
         canvas.relativePan(new Point(this.dx, this.dy));
         this.emit('panning');
       }
@@ -2862,7 +2879,7 @@ function (_mix$with) {
       var oX = 0.5;
       var oY = 0.5;
 
-      if (this.isGrabMode()) {
+      if (this.isGrabMode() || e.isRight) {
         x -= prevZoom * e.dx;
         y += prevZoom * e.dy;
       }
@@ -2881,6 +2898,7 @@ function (_mix$with) {
       this.dy = e.dy;
       this.x = e.x0;
       this.y = e.y0;
+      this.isRight = e.isRight;
       this.update();
     }
   }, {
@@ -3054,23 +3072,20 @@ function (_mix$with) {
       });
       window.addEventListener('resize', function () {
         vm.onResize();
-      });
-      document.addEventListener('keyup', function () {
-        if (_this5.modeToggleByKey && _this5.isGrabMode()) {
-          _this5.setModeAsSelect();
-
-          _this5.modeToggleByKey = false;
-        }
-      });
-      document.addEventListener('keydown', function (event) {
-        if (event.ctrlKey || event.metaKey) {
-          if (_this5.isSelectMode()) {
-            _this5.setModeAsGrab();
-          }
-
-          _this5.modeToggleByKey = true;
-        }
-      });
+      }); // document.addEventListener('keyup', () => {
+      //   if (this.modeToggleByKey && this.isGrabMode()) {
+      //     this.setModeAsSelect();
+      //     this.modeToggleByKey = false;
+      //   }
+      // });
+      // document.addEventListener('keydown', event => {
+      //   if (event.ctrlKey || event.metaKey) {
+      //     if (this.isSelectMode()) {
+      //       this.setModeAsGrab();
+      //     }
+      //     this.modeToggleByKey = true;
+      //   }
+      // });
     }
   }, {
     key: "unregisterListeners",
