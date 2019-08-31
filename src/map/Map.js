@@ -446,6 +446,16 @@ export class Map extends mix(Base).with(ModesMixin) {
           vm.dragObject.dragging = false;
         }
       }
+      this.isRight = false;
+      if ('which' in e.e) {
+        // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+        this.isRight = e.e.which === 3;
+      } else if ('button' in e.e) {
+        // IE, Opera
+        this.isRight = e.e.button === 2;
+      }
+
+      console.log(this.isRight);
       vm.emit('mouse:move', e);
     });
 
