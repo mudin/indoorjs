@@ -3,6 +3,7 @@ import Impetus from './impetus';
 import wheel from './mouse-wheel';
 import touchPinch from './touch-pinch';
 import raf from './raf';
+import MagicScroll from './MagicScroll';
 
 const panzoom = (target, cb) => {
   if (target instanceof Function) {
@@ -87,9 +88,9 @@ const panzoom = (target, cb) => {
     friction: 0.75
   });
 
-  // enable zooming
-  wheel(target, (dy, e) => {
-    // e.preventDefault();
+  console.log('target', target);
+
+  new MagicScroll(target, 80, 12, 0).onUpdate = (dy, e) => {
     schedule({
       target,
       type: 'mouse',
@@ -101,7 +102,7 @@ const panzoom = (target, cb) => {
       x0: cursor.x,
       y0: cursor.y
     });
-  });
+  };
 
   // mobile pinch zoom
   const pinch = touchPinch(target);

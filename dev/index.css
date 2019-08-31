@@ -1,14 +1,16 @@
-
-html, body {
+html,
+body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
 }
+
 .toolbar {
 	width: 100%;
 	height: 100px;
 	background: lightblue;
 }
+
 .context {
 	width: 100%;
 	height: calc(100% - 100px);
@@ -20,6 +22,7 @@ html, body {
 	float: left;
 	background: lightcyan
 }
+
 .context .my-map {
 	display: block;
 	overflow: hidden;
@@ -29,7 +32,7 @@ html, body {
 	position: relative;
 }
 
-	
+
 :host {
 	position: relative;
 }
@@ -43,6 +46,7 @@ html, body {
 	pointer-events: none;
 	font-family: sans-serif;
 }
+
 .grid-lines {
 	position: absolute;
 	top: 0;
@@ -62,9 +66,11 @@ html, body {
 	height: .5rem;
 	opacity: .25;
 }
+
 .grid-line[hidden] {
 	display: none;
 }
+
 .grid-line:hover {
 	opacity: .5;
 }
@@ -73,9 +79,11 @@ html, body {
 	.grid {
 		--opacity: .15;
 	}
+
 	.grid-line {
 		opacity: var(--opacity);
 	}
+
 	.grid-line:hover {
 		opacity: calc(var(--opacity) * 2);
 	}
@@ -87,6 +95,7 @@ html, body {
 	border-left: 1px solid;
 	margin-left: -1px;
 }
+
 .grid-line-x:after {
 	content: '';
 	position: absolute;
@@ -95,6 +104,7 @@ html, body {
 	bottom: 0;
 	left: -.25rem;
 }
+
 .grid-line-x.grid-line-min {
 	margin-left: 0px;
 }
@@ -105,6 +115,7 @@ html, body {
 	margin-top: -1px;
 	border-top: 1px solid;
 }
+
 .grid-line-y:after {
 	content: '';
 	position: absolute;
@@ -113,6 +124,7 @@ html, body {
 	right: 0;
 	top: -.25rem;
 }
+
 .grid-line-y.grid-line-max {
 	margin-top: 0px;
 }
@@ -136,6 +148,7 @@ html, body {
 	width: 50%;
 	border-top: 1px solid;
 }
+
 .grid-line-a:after {
 	content: '';
 	position: absolute;
@@ -144,6 +157,7 @@ html, body {
 	right: 0;
 	top: -.25rem;
 }
+
 .grid-line-a:before {
 	content: '';
 	position: absolute;
@@ -158,6 +172,7 @@ html, body {
 .grid-axis {
 	position: absolute;
 }
+
 .grid-axis-x {
 	top: auto;
 	bottom: 0;
@@ -166,6 +181,7 @@ html, body {
 	border-bottom: 2px solid;
 	margin-bottom: -.5rem;
 }
+
 .grid-axis-y {
 	border-left: 2px solid;
 	right: auto;
@@ -174,6 +190,7 @@ html, body {
 	left: -1px;
 	margin-left: -.5rem;
 }
+
 .grid-axis-a {
 	height: 100%;
 	width: 100%;
@@ -182,6 +199,7 @@ html, body {
 	border-radius: 50vw;
 	box-shadow: 0 0 0 2px;
 }
+
 .grid-axis-r {
 	border-left: 2px solid;
 	right: auto;
@@ -201,6 +219,7 @@ html, body {
 	pointer-events: all;
 	white-space: nowrap;
 }
+
 .grid-label-x {
 	bottom: auto;
 	top: 100%;
@@ -209,6 +228,7 @@ html, body {
 	margin-left: -1rem;
 	text-align: center;
 }
+
 .grid-label-x:before {
 	content: '';
 	position: absolute;
@@ -226,6 +246,7 @@ html, body {
 	margin-right: 1.5rem;
 	margin-top: -.5rem;
 }
+
 .grid-label-y:before {
 	content: '';
 	position: absolute;
@@ -242,6 +263,7 @@ html, body {
 	top: calc(50% - .5rem);
 	margin-right: 1.5rem;
 }
+
 .grid-label-r:before {
 	content: '';
 	position: absolute;
