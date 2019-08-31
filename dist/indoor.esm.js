@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.53+master.44e936c, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.54+master.fd6af2b, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
-import fabric$1 from 'fabric';
+import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.53+master.44e936c";
+var version = "0.2.54+master.fd6af2b";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -989,6 +989,86 @@ function getPassiveSupported() {
   return passiveSupported;
 }
 
+var MagicScroll =
+/*#__PURE__*/
+function () {
+  function MagicScroll(target, speed, smooth) {
+    var current = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+
+    _classCallCheck(this, MagicScroll);
+
+    if (target === document) {
+      target = document.scrollingElement || document.documentElement || document.body.parentNode || document.body;
+    } // cross browser support for document scrolling
+
+
+    this.speed = speed;
+    this.smooth = smooth;
+    this.moving = false;
+    this.scrollTop = current * 3000;
+    this.pos = this.scrollTop;
+    this.frame = target === document.body && document.documentElement ? document.documentElement : target; // safari is the new IE
+
+    target.addEventListener('mousewheel', scrolled, {
+      passive: false
+    });
+    target.addEventListener('DOMMouseScroll', scrolled, {
+      passive: false
+    });
+    var scope = this;
+
+    function scrolled(e) {
+      e.preventDefault(); // disable default scrolling
+
+      var delta = scope.normalizeWheelDelta(e);
+      scope.pos += -delta * scope.speed; // scope.pos = Math.max(0, Math.min(scope.pos, 3000)); // limit scrolling
+
+      if (!scope.moving) scope.update(e);
+    }
+  }
+
+  _createClass(MagicScroll, [{
+    key: "normalizeWheelDelta",
+    value: function normalizeWheelDelta(e) {
+      if (e.detail) {
+        if (e.wheelDelta) return e.wheelDelta / e.detail / 40 * (e.detail > 0 ? 1 : -1); // Opera
+
+        return -e.detail / 3; // Firefox
+      }
+
+      return e.wheelDelta / 120; // IE,Safari,Chrome
+    }
+  }, {
+    key: "update",
+    value: function update(e) {
+      this.moving = true;
+      var delta = (this.pos - this.scrollTop) / this.smooth;
+      this.scrollTop += delta; // this.scrollTop = Math.round(this.scrollTop);
+
+      if (this.onUpdate) {
+        this.onUpdate(delta, e);
+      }
+
+      var scope = this;
+
+      if (Math.abs(delta) > 0.5) {
+        requestFrame(function () {
+          scope.update();
+        });
+      } else this.moving = false;
+    }
+  }]);
+
+  return MagicScroll;
+}();
+
+var requestFrame = function () {
+  // requestAnimationFrame cross browser
+  return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (func) {
+    window.setTimeout(func, 1000);
+  };
+}();
+
 var parseUnit = (function (str, out) {
   if (!out) out = [0, ''];
   str = String(str);
@@ -1028,45 +1108,43 @@ function toPX(str) {
 
 function mouseWheelListen(element, callback, noScroll) {
   if (typeof element === 'function') {
-    noScroll = !!callback;
     callback = element;
     element = window;
   }
 
-  var lineHeight = toPX('ex');
+  var magicScroll = new MagicScroll(document, 80, 12);
 
-  var listener = function listener(ev) {
-    if (noScroll) {
-      ev.preventDefault();
-    }
+  magicScroll.onUpdate = function (delta, ev) {
+    console.log(delta);
+    callback(delta, ev);
+  }; // const lineHeight = toPX('ex', element);
+  // const listener = function (ev) {
+  //   if (noScroll) {
+  //     ev.preventDefault();
+  //   }
+  //   let dx = ev.deltaX || 0;
+  //   let dy = ev.deltaY || 0;
+  //   let dz = ev.deltaZ || 0;
+  //   const mode = ev.deltaMode;
+  //   let scale = 1;
+  //   switch (mode) {
+  //     case 1:
+  //       scale = lineHeight;
+  //       break;
+  //     case 2:
+  //       scale = window.innerHeight;
+  //       break;
+  //   }
+  //   dx *= scale;
+  //   dy *= scale;
+  //   dz *= scale;
+  //   if (dx || dy || dz) {
+  //     return callback(dx, dy, dz, ev);
+  //   }
+  // };
+  // element.addEventListener('wheel', listener);
+  // return listener;
 
-    var dx = ev.deltaX || 0;
-    var dy = ev.deltaY || 0;
-    var dz = ev.deltaZ || 0;
-    var mode = ev.deltaMode;
-    var scale = 1;
-
-    switch (mode) {
-      case 1:
-        scale = lineHeight;
-        break;
-
-      case 2:
-        scale = window.innerHeight;
-        break;
-    }
-
-    dx *= scale;
-    dy *= scale;
-    dz *= scale;
-
-    if (dx || dy || dz) {
-      return callback(dx, dy, dz, ev);
-    }
-  };
-
-  element.addEventListener('wheel', listener);
-  return listener;
 }
 
 var rootPosition = {
@@ -1367,11 +1445,11 @@ var panzoom = function panzoom(target, cb) {
       schedule(e);
     },
     multiplier: 1,
-    friction: .75
+    friction: 0.75
   }); // enable zooming
 
-  var wheelListener = mouseWheelListen(target, function (dx, dy, dz, e) {
-    e.preventDefault();
+  mouseWheelListen(target, function (dy, e) {
+    // e.preventDefault();
     schedule({
       target: target,
       type: 'mouse',
@@ -1391,7 +1469,7 @@ var panzoom = function panzoom(target, cb) {
   pinch.on('start', function (curr) {
     var f1 = pinch.fingers[0];
     var f2 = pinch.fingers[1];
-    initialCoords = [f2.position[0] * .5 + f1.position[0] * .5, f2.position[1] * .5 + f1.position[1] * .5];
+    initialCoords = [f2.position[0] * 0.5 + f1.position[0] * 0.5, f2.position[1] * 0.5 + f1.position[1] * 0.5];
     impetus && impetus.pause();
   });
   pinch.on('end', function () {
@@ -2606,10 +2684,8 @@ function (_mix$with) {
       });
 
       if (layer.shape.keepOnZoom) {
-        layer.shape._set('scaleX', 1 / this.zoom);
-
-        layer.shape._set('scaleY', 1 / this.zoom);
-
+        layer.shape.set('scaleX', 1.1 / this.zoom);
+        layer.shape.set('scaleY', 1.1 / this.zoom);
         this.emit("".concat(layer["class"], "scaling"), layer);
       }
 
@@ -3370,7 +3446,8 @@ function (_fabric$Line) {
   _createClass(Line, [{
     key: "_renderStroke",
     value: function _renderStroke(ctx) {
-      this.strokeWidth = this._strokeWidth / this.canvas.getZoom();
+      var stroke = this._strokeWidth / this.canvas.getZoom();
+      this.strokeWidth = stroke > 0.1 ? stroke : 0.1;
 
       _get(_getPrototypeOf(Line.prototype), "_renderStroke", this).call(this, ctx);
     }
@@ -3538,7 +3615,7 @@ function (_Layer) {
 
     if (_this.icon) {
       fabric.Image.fromURL(_this.icon.url, function (image) {
-        vm.image = image.scaleToWidth(_this.size, true);
+        vm.image = image.scaleToWidth(_this.size);
 
         _this.init(); // vm.shape.removeWithUpdate();
 

@@ -1,4 +1,4 @@
-import fabric from 'fabric';
+import fabric from 'fabric-pure-browser';
 
 import { version } from '../package.json';
 

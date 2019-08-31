@@ -5,8 +5,8 @@ const env = require('yargs').argv.env; // use --env with webpack 2
 
 const libraryName = 'Indoor';
 
-let outputFile; let
-  mode;
+let outputFile;
+let mode;
 
 if (env === 'build') {
   mode = 'production';
@@ -28,7 +28,7 @@ const config = {
     globalObject: 'this'
   },
   externals: {
-    fabric: 'fabric'
+    // fabric: 'fabric'
   },
   module: {
     rules: [

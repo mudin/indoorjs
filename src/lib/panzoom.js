@@ -1,181 +1,193 @@
 import evPos from './ev-pos';
 import Impetus from './impetus';
-import wheel  from './mouse-wheel';
-import touchPinch  from './touch-pinch';
+import wheel from './mouse-wheel';
+import touchPinch from './touch-pinch';
 import raf from './raf';
 
-const panzoom = (target, cb) =>  {
-	if (target instanceof Function) {
-		cb = target
-		target = document.documentElement || document.body
-	}
+const panzoom = (target, cb) => {
+  if (target instanceof Function) {
+    cb = target;
+    target = document.documentElement || document.body;
+  }
 
-	if (typeof target === 'string') target = document.querySelector(target)
+  if (typeof target === 'string') target = document.querySelector(target);
 
-	let cursor = {
-		x:0,
-		y:0
-	}
+  let cursor = {
+    x: 0,
+    y: 0
+  };
 
-	const hasPassive = () => {
-		let supported = false
+  const hasPassive = () => {
+    let supported = false;
 
-		try {
-			const opts = Object.defineProperty({}, 'passive', {
-				get() {
-					supported = true;
-				}
-			}); 
+    try {
+      const opts = Object.defineProperty({}, 'passive', {
+        get() {
+          supported = true;
+        }
+      });
 
-			window.addEventListener('test', null, opts);
-			window.removeEventListener('test', null, opts);
-		} catch(e) {
-			supported = false;
-		}
+      window.addEventListener('test', null, opts);
+      window.removeEventListener('test', null, opts);
+    } catch (e) {
+      supported = false;
+    }
 
-		return supported;
-	}
+    return supported;
+  };
 
-	let impetus;
+  let impetus;
 
-	let initX = 0; let initY = 0; let init = true
-	const initFn = function (e) { init = true }
-	target.addEventListener('mousedown', initFn)
-	target.addEventListener('mousemove', (e)=> {
-		cursor = evPos(e);
-	});
-	target.addEventListener('wheel', (e)=> {
-		
-		if(e) {
-			cursor = evPos(e);
-		}
-	});
-	target.addEventListener('touchstart', initFn, hasPassive() ? { passive: true } : false)
+  let initX = 0;
+  let initY = 0;
+  let init = true;
+  const initFn = function (e) {
+    init = true;
+  };
+  target.addEventListener('mousedown', initFn);
+  target.addEventListener('mousemove', e => {
+    cursor = evPos(e);
+  });
+  target.addEventListener('wheel', e => {
+    if (e) {
+      cursor = evPos(e);
+    }
+  });
+  target.addEventListener('touchstart', initFn, hasPassive() ? { passive: true } : false);
 
-	let lastY = 0; let lastX = 0
-	impetus = new Impetus({
-		source: target,
-		update (x, y) {
-			if (init) {
-				init = false
-				initX = cursor.x
-				initY = cursor.y
-			}
+  let lastY = 0;
+  let lastX = 0;
+  impetus = new Impetus({
+    source: target,
+    update(x, y) {
+      if (init) {
+        init = false;
+        initX = cursor.x;
+        initY = cursor.y;
+      }
 
-			const e = {
-				target,
-				type: 'mouse',
-				dx: x - lastX, dy: y - lastY, dz: 0,
-				x: cursor.x,
-				y: cursor.y,
-				x0: initX, y0: initY
-			}
+      const e = {
+        target,
+        type: 'mouse',
+        dx: x - lastX,
+        dy: y - lastY,
+        dz: 0,
+        x: cursor.x,
+        y: cursor.y,
+        x0: initX,
+        y0: initY
+      };
 
-			lastX = x
-			lastY = y
+      lastX = x;
+      lastY = y;
 
-			schedule(e)
-		},
-		multiplier: 1,
-		friction: .75
-	})
+      schedule(e);
+    },
+    multiplier: 1,
+    friction: 0.75
+  });
 
-	// enable zooming
-	const wheelListener = wheel(target, function (dx, dy, dz, e) {
-		e.preventDefault();
-		schedule({
-			target,
-			type: 'mouse',
-			dx: 0, dy: 0, dz: dy,
-			x: cursor.x,
-			y: cursor.y,
-			x0: cursor.x,
-			y0: cursor.y
-		})
-	})
+  // enable zooming
+  wheel(target, (dy, e) => {
+    // e.preventDefault();
+    schedule({
+      target,
+      type: 'mouse',
+      dx: 0,
+      dy: 0,
+      dz: dy,
+      x: cursor.x,
+      y: cursor.y,
+      x0: cursor.x,
+      y0: cursor.y
+    });
+  });
 
-	// mobile pinch zoom
-	const pinch = touchPinch(target)
-	const mult = 2
-	let initialCoords
+  // mobile pinch zoom
+  const pinch = touchPinch(target);
+  const mult = 2;
+  let initialCoords;
 
-	pinch.on('start', function (curr) {
-		const f1 = pinch.fingers[0];
-		const f2 = pinch.fingers[1];
+  pinch.on('start', curr => {
+    const f1 = pinch.fingers[0];
+    const f2 = pinch.fingers[1];
 
-		initialCoords = [
-			f2.position[0] * .5 + f1.position[0] * .5,
-			f2.position[1] * .5 + f1.position[1] * .5
-		]
+    initialCoords = [
+      f2.position[0] * 0.5 + f1.position[0] * 0.5,
+      f2.position[1] * 0.5 + f1.position[1] * 0.5
+    ];
 
-		impetus && impetus.pause()
-	})
-	pinch.on('end', function () {
-		if (!initialCoords) return
+    impetus && impetus.pause();
+  });
+  pinch.on('end', () => {
+    if (!initialCoords) return;
 
-		initialCoords = null
+    initialCoords = null;
 
-		impetus && impetus.resume()
-	})
-	pinch.on('change', function (curr, prev) {
-		if (!pinch.pinching || !initialCoords) return
+    impetus && impetus.resume();
+  });
+  pinch.on('change', (curr, prev) => {
+    if (!pinch.pinching || !initialCoords) return;
 
-		schedule({
-			target,
-			type: 'touch',
-			dx: 0, dy: 0, dz: - (curr - prev) * mult,
-			x: initialCoords[0], y: initialCoords[1],
-			x0: initialCoords[0], y0: initialCoords[0]
-		})
-	})
+    schedule({
+      target,
+      type: 'touch',
+      dx: 0,
+      dy: 0,
+      dz: -(curr - prev) * mult,
+      x: initialCoords[0],
+      y: initialCoords[1],
+      x0: initialCoords[0],
+      y0: initialCoords[0]
+    });
+  });
 
+  // schedule function to current or next frame
+  let planned;
+  let frameId;
+  function schedule(ev) {
+    if (frameId != null) {
+      if (!planned) planned = ev;
+      else {
+        planned.dx += ev.dx;
+        planned.dy += ev.dy;
+        planned.dz += ev.dz;
 
-	// schedule function to current or next frame
-	let planned; let frameId
-	function schedule (ev) {
-		if (frameId != null) {
-			if (!planned) planned = ev
-			else {
-				planned.dx += ev.dx
-				planned.dy += ev.dy
-				planned.dz += ev.dz
+        planned.x = ev.x;
+        planned.y = ev.y;
+      }
 
-				planned.x = ev.x
-				planned.y = ev.y
-			}
+      return;
+    }
 
-			return
-		}
+    // Firefox sometimes does not clear webgl current drawing buffer
+    // so we have to schedule callback to the next frame, not the current
+    // cb(ev)
 
-		// Firefox sometimes does not clear webgl current drawing buffer
-		// so we have to schedule callback to the next frame, not the current
-		// cb(ev)
+    frameId = raf(() => {
+      cb(ev);
+      frameId = null;
+      if (planned) {
+        const arg = planned;
+        planned = null;
+        schedule(arg);
+      }
+    });
+  }
 
-		frameId = raf(function () {
-			cb(ev)
-			frameId = null
-			if (planned) {
-				const arg = planned
-				planned = null
-				schedule(arg)
-			}
-		})
-	}
+  return function unpanzoom() {
+    target.removeEventListener('mousedown', initFn);
+    target.removeEventListener('wheel');
+    target.removeEventListener('touchstart', initFn);
 
-	return function unpanzoom () {
+    impetus.destroy();
 
-		target.removeEventListener('mousedown', initFn)
-		target.removeEventListener('wheel')
-		target.removeEventListener('touchstart', initFn)
+    target.removeEventListener('wheel', wheelListener);
 
-		impetus.destroy()
+    pinch.disable();
 
-		target.removeEventListener('wheel', wheelListener)
-
-		pinch.disable()
-
-		raf.cancel(frameId)
-	}
-}
+    raf.cancel(frameId);
+  };
+};
 
 export default panzoom;

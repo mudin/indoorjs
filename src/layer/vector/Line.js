@@ -8,7 +8,8 @@ export class Line extends fabric.Line {
   }
 
   _renderStroke(ctx) {
-    this.strokeWidth = this._strokeWidth / this.canvas.getZoom();
+    const stroke = this._strokeWidth / this.canvas.getZoom();
+    this.strokeWidth = stroke > 0.1 ? stroke : 0.1;
     super._renderStroke(ctx);
   }
 }

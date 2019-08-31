@@ -43,7 +43,7 @@ export class Marker extends Layer {
       fabric.Image.fromURL(
         this.icon.url,
         image => {
-          vm.image = image.scaleToWidth(this.size, true);
+          vm.image = image.scaleToWidth(this.size);
           this.init();
           // vm.shape.removeWithUpdate();
         },

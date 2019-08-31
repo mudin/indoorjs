@@ -10,7 +10,7 @@ let markers;
 
 const map = new Indoor.Map(mapEl, {
   floorplan: new Indoor.Floor({
-    url: './pano.jpg',
+    url: './fp.jpg',
     opacity: 0.7,
     width: 400,
     zIndex: 1
@@ -27,7 +27,7 @@ const addLinks = () => {
 
 const addMarkers = () => {
   markers = [];
-  for (let i = 0; i < 20; i += 1) {
+  for (let i = 0; i < 10; i += 1) {
     const x = Math.random() * 400 - 200;
     const y = Math.random() * 400 - 200;
     const marker = new Indoor.Marker([x, y], {
@@ -36,13 +36,18 @@ const addMarkers = () => {
       zIndex: 100,
       id: i
     });
-    marker.addTo(map);
+    // eslint-disable-next-line no-loop-func
+    marker.on('ready', () => {
+      marker.addTo(map);
+    });
     markers.push(marker);
     window.markers = markers;
   }
-  addLinks();
-  // eslint-disable-next-line no-use-before-define
-  addRadar(markers[0]);
+  setTimeout(() => {
+    addLinks();
+    // eslint-disable-next-line no-use-before-define
+    addRadar(markers[0]);
+  }, 1000);
 
   const rect = Indoor.markerGroup([[0, 0], [100, 200]]);
   rect.on('moving', e => {
@@ -52,24 +57,21 @@ const addMarkers = () => {
 };
 
 const addRadar = marker => {
-  if (!radar) {
-    radar = new Indoor.Marker(marker.position, {
-      size: 30,
-      id: marker.id,
-      icon: {
-        url: './radar.png'
-      },
-      rotation: Math.random() * 360,
-      zIndex: 90
-    });
-    radar.on('ready', () => {
-      radar.addTo(map);
-    });
-  } else {
-    radar.setPosition(marker.position);
-    radar.setRotation(Math.random() * 360);
-    radar.id = marker.id;
+  if (radar) {
+    map.removeLayer(radar);
   }
+  radar = new Indoor.Marker(marker.position, {
+    size: 100,
+    id: marker.id,
+    icon: {
+      url: './radar.png'
+    },
+    rotation: Math.random() * 360,
+    zIndex: 90
+  });
+  radar.on('ready', () => {
+    radar.addTo(map);
+  });
   window.radar = radar;
 };
 

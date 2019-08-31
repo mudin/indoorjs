@@ -96,8 +96,8 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.canvas._objects.sort((o1, o2) => o1.zIndex - o2.zIndex);
 
     if (layer.shape.keepOnZoom) {
-      layer.shape._set('scaleX', 1 / this.zoom);
-      layer.shape._set('scaleY', 1 / this.zoom);
+      layer.shape.set('scaleX', 1.1 / this.zoom);
+      layer.shape.set('scaleY', 1.1 / this.zoom);
       this.emit(`${layer.class}scaling`, layer);
     }
     if (layer.class) {
