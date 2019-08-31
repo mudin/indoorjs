@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.54+master.fd6af2b, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.55+master.512fe88, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.54+master.fd6af2b";
+var version = "0.2.55+master.512fe88";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -992,8 +992,11 @@ function getPassiveSupported() {
 var MagicScroll =
 /*#__PURE__*/
 function () {
-  function MagicScroll(target, speed, smooth) {
+  function MagicScroll(target) {
+    var speed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 80;
+    var smooth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 12;
     var current = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+    var passive = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
     _classCallCheck(this, MagicScroll);
 
@@ -1009,15 +1012,17 @@ function () {
     this.pos = this.scrollTop;
     this.frame = target === document.body && document.documentElement ? document.documentElement : target; // safari is the new IE
 
-    target.addEventListener('mousewheel', scrolled, {
-      passive: false
+    console.log(target);
+    target.addEventListener('wheel', scrolled, {
+      passive: passive
     });
     target.addEventListener('DOMMouseScroll', scrolled, {
-      passive: false
+      passive: passive
     });
     var scope = this;
 
     function scrolled(e) {
+      console.log(e);
       e.preventDefault(); // disable default scrolling
 
       var delta = scope.normalizeWheelDelta(e);
@@ -1104,47 +1109,6 @@ function toPX(str) {
   }
 
   return null;
-}
-
-function mouseWheelListen(element, callback, noScroll) {
-  if (typeof element === 'function') {
-    callback = element;
-    element = window;
-  }
-
-  var magicScroll = new MagicScroll(document, 80, 12);
-
-  magicScroll.onUpdate = function (delta, ev) {
-    console.log(delta);
-    callback(delta, ev);
-  }; // const lineHeight = toPX('ex', element);
-  // const listener = function (ev) {
-  //   if (noScroll) {
-  //     ev.preventDefault();
-  //   }
-  //   let dx = ev.deltaX || 0;
-  //   let dy = ev.deltaY || 0;
-  //   let dz = ev.deltaZ || 0;
-  //   const mode = ev.deltaMode;
-  //   let scale = 1;
-  //   switch (mode) {
-  //     case 1:
-  //       scale = lineHeight;
-  //       break;
-  //     case 2:
-  //       scale = window.innerHeight;
-  //       break;
-  //   }
-  //   dx *= scale;
-  //   dy *= scale;
-  //   dz *= scale;
-  //   if (dx || dy || dz) {
-  //     return callback(dx, dy, dz, ev);
-  //   }
-  // };
-  // element.addEventListener('wheel', listener);
-  // return listener;
-
 }
 
 var rootPosition = {
@@ -1446,10 +1410,10 @@ var panzoom = function panzoom(target, cb) {
     },
     multiplier: 1,
     friction: 0.75
-  }); // enable zooming
+  });
+  console.log('target', target);
 
-  mouseWheelListen(target, function (dy, e) {
-    // e.preventDefault();
+  new MagicScroll(target, 80, 12, 0).onUpdate = function (dy, e) {
     schedule({
       target: target,
       type: 'mouse',
@@ -1461,7 +1425,8 @@ var panzoom = function panzoom(target, cb) {
       x0: cursor.x,
       y0: cursor.y
     });
-  }); // mobile pinch zoom
+  }; // mobile pinch zoom
+
 
   var pinch = touchPinch(target);
   var mult = 2;
