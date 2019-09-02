@@ -207,6 +207,10 @@ export class Map extends mix(Base).with(ModesMixin) {
     });
   }
 
+  setCursor(cursor) {
+    this.container.style.cursor = cursor;
+  }
+
   reset() {
     const { width, height } = this.canvas;
     this.zoom = this._options.zoom || 1;
@@ -265,6 +269,9 @@ export class Map extends mix(Base).with(ModesMixin) {
     if (this.isGrabMode() || this.isRight) {
       canvas.relativePan(new Point(this.dx, this.dy));
       this.emit('panning');
+      this.setCursor('grab');
+    } else {
+      this.setCursor('pointer');
     }
 
     const objects = canvas.getObjects();
@@ -300,6 +307,9 @@ export class Map extends mix(Base).with(ModesMixin) {
     if (this.isGrabMode() || e.isRight) {
       x -= prevZoom * e.dx;
       y += prevZoom * e.dy;
+      this.setCursor('grab');
+    } else {
+      this.setCursor('pointer');
     }
 
     if (this.zoomEnabled) {
@@ -389,6 +399,20 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.canvas.on('object:moved', e => {
       if (e.target.class) {
         vm.emit(`${e.target.class}dragend`, e);
+        vm.emit(`${e.target.class}:moved`, e.target.parent);
+        e.target.parent.emit('moved', e.target.parent);
+        this.update();
+        return;
+      }
+      const group = e.target;
+      if (!group.getObjects) return;
+      const objects = group.getObjects();
+      for (let i = 0; i < objects.length; i += 1) {
+        const object = objects[i];
+        if (object.class) {
+          object.fire('moved', object.parent);
+          vm.emit(`${object.class}:moved`, object.parent);
+        }
       }
       this.update();
     });

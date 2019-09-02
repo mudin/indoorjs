@@ -67,7 +67,8 @@ const addRadar = marker => {
       url: './radar.png'
     },
     rotation: Math.random() * 360,
-    zIndex: 90
+    clickable: false,
+    zIndex: 290
   });
   radar.on('ready', () => {
     radar.addTo(map);
@@ -97,6 +98,13 @@ map.on('marker:click', e => {
 
 map.on('marker:moving', e => {
   // console.log('marker:moving', e);
+  if (radar && e.id === radar.id) {
+    // console.log(e);
+    radar.setPosition(e.position);
+  }
+});
+map.on('marker:moved', e => {
+  // console.log('marker:moved', e);
   if (radar && e.id === radar.id) {
     // console.log(e);
     radar.setPosition(e.position);

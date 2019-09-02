@@ -9,8 +9,9 @@ export class Line extends fabric.Line {
 
   _renderStroke(ctx) {
     const stroke = this._strokeWidth / this.canvas.getZoom();
-    this.strokeWidth = stroke > 0.1 ? stroke : 0.1;
+    this.strokeWidth = stroke > 0.01 ? stroke : 0.01;
     super._renderStroke(ctx);
+    this.setCoords();
   }
 }
 

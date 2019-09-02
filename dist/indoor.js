@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 0.2.58+master.6e632d8, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 0.2.59+master.5c05ef9, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "0.2.58+master.6e632d8";
+  var version = "0.2.59+master.5c05ef9";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2791,6 +2791,11 @@
         });
       }
     }, {
+      key: "setCursor",
+      value: function setCursor(cursor) {
+        this.container.style.cursor = cursor;
+      }
+    }, {
       key: "reset",
       value: function reset() {
         var _this4 = this;
@@ -2847,6 +2852,9 @@
         if (this.isGrabMode() || this.isRight) {
           canvas.relativePan(new Point(this.dx, this.dy));
           this.emit('panning');
+          this.setCursor('grab');
+        } else {
+          this.setCursor('pointer');
         }
 
         var objects = canvas.getObjects();
@@ -2888,6 +2896,9 @@
         if (this.isGrabMode() || e.isRight) {
           x -= prevZoom * e.dx;
           y += prevZoom * e.dy;
+          this.setCursor('grab');
+        } else {
+          this.setCursor('pointer');
         }
 
         if (this.zoomEnabled) {
@@ -2988,6 +2999,25 @@
         this.canvas.on('object:moved', function (e) {
           if (e.target["class"]) {
             vm.emit("".concat(e.target["class"], "dragend"), e);
+            vm.emit("".concat(e.target["class"], ":moved"), e.target.parent);
+            e.target.parent.emit('moved', e.target.parent);
+
+            _this5.update();
+
+            return;
+          }
+
+          var group = e.target;
+          if (!group.getObjects) return;
+          var objects = group.getObjects();
+
+          for (var i = 0; i < objects.length; i += 1) {
+            var object = objects[i];
+
+            if (object["class"]) {
+              object.fire('moved', object.parent);
+              vm.emit("".concat(object["class"], ":moved"), object.parent);
+            }
           }
 
           _this5.update();
@@ -3450,9 +3480,11 @@
       key: "_renderStroke",
       value: function _renderStroke(ctx) {
         var stroke = this._strokeWidth / this.canvas.getZoom();
-        this.strokeWidth = stroke > 0.1 ? stroke : 0.1;
+        this.strokeWidth = stroke > 0.01 ? stroke : 0.01;
 
         _get(_getPrototypeOf(Line.prototype), "_renderStroke", this).call(this, ctx);
+
+        this.setCoords();
       }
     }]);
 
@@ -3606,6 +3638,7 @@
         // selectionBackgroundColor: false,
         angle: _this.rotation,
         yaw: _this.yaw,
+        evented: _this.clickable,
         clickable: _this.clickable
       });
 
@@ -3624,6 +3657,7 @@
 
         }, {
           selectable: false,
+          evented: _this.clickable,
           clickable: _this.clickable,
           opacity: _this.opacity
         });
