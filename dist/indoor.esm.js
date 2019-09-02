@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 0.2.59+master.5c05ef9, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.0+master.60ff2bd, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "0.2.59+master.5c05ef9";
+var version = "1.0.0+master.60ff2bd";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
