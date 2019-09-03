@@ -29,7 +29,6 @@ export class Marker extends Layer {
       // selectionBackgroundColor: false,
       angle: this.rotation,
       yaw: this.yaw,
-      evented: this.clickable,
       clickable: this.clickable
     });
 
@@ -50,7 +49,7 @@ export class Marker extends Layer {
         },
         {
           selectable: false,
-          evented: this.clickable,
+          evented: this.evented,
           clickable: this.clickable,
           opacity: this.opacity
         }

@@ -27,6 +27,7 @@ export class Layer extends Base {
       lockMovementY: !this.draggable,
       draggable: this.draggable,
       clickable: this.clickable,
+      evented: this.clickable,
       selectable: this.draggable,
       hoverCursor: this.hoverCursor,
       moveCursor: this.moveCursor
