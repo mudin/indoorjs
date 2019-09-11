@@ -13,7 +13,6 @@ function mouseWheelListen(element, callback, noScroll) {
   const magicScroll = new MagicScroll(element, 80, 12);
 
   magicScroll.onUpdate = function (delta, ev) {
-    console.log(delta);
     callback(delta, ev);
   };
 

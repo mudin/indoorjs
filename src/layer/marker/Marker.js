@@ -227,7 +227,6 @@ export class Marker extends Layer {
   }
 
   onShapeMouseDown(e) {
-    console.log(e);
     this.dragStart = e;
   }
 
@@ -238,7 +237,6 @@ export class Marker extends Layer {
       const a = new fabric.Point(e.pointer.x, e.pointer.y);
       const b = new fabric.Point(this.dragStart.pointer.x, this.dragStart.pointer.y);
       // if distance is far enough, we don't want to fire click event
-      console.log(a.distanceFrom(b));
       if (a.distanceFrom(b) > 3) {
         this.dragStart = null;
         this.dragging = true;
@@ -255,9 +253,7 @@ export class Marker extends Layer {
   }
 
   onShapeMouseUp() {
-    console.log(this.dragging);
     if (!this.dragging) {
-      console.log('click');
       this.emit('click');
     } else {
       this.emit('moved');

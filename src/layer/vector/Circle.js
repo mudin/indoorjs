@@ -1,8 +1,3 @@
-export class Circle extends fabric.Circle {
-  constructor(options) {
-    super(options);
-    console.log('circle');
-  }
-}
+export class Circle extends fabric.Circle {}
 
-export const circle = (options) => new Circle(options);
+export const circle = options => new Circle(options);

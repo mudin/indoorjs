@@ -1,14 +1,9 @@
 import { Modes } from '../core/Constants';
 
-const ModesMixin = (superclass) => class extends superclass {
-  constructor(options) {
-    super(options);
-    console.log('modesMixin');
-  }
-
+const ModesMixin = superclass => class extends superclass {
   /**
-       * MODES
-       */
+     * MODES
+     */
   setMode(mode) {
     this.mode = mode;
 
@@ -41,17 +36,14 @@ const ModesMixin = (superclass) => class extends superclass {
 
   setModeAsDraw() {
     this.setMode(Modes.DRAW);
-    console.log('MODE: DRAW');
   }
 
   setModeAsSelect() {
     this.setMode(Modes.SELECT);
-    console.log('MODE: SELECT');
   }
 
   setModeAsGrab() {
     this.setMode(Modes.GRAB);
-    console.log('MODE: GRAB');
   }
 
   isSelectMode() {

@@ -14,13 +14,10 @@ class MagicScroll {
     this.pos = this.scrollTop;
     this.frame = target === document.body && document.documentElement ? document.documentElement : target; // safari is the new IE
 
-    console.log(target);
-
     target.addEventListener('wheel', scrolled, { passive });
     target.addEventListener('DOMMouseScroll', scrolled, { passive });
     const scope = this;
     function scrolled(e) {
-      console.log(e);
       e.preventDefault(); // disable default scrolling
 
       const delta = scope.normalizeWheelDelta(e);

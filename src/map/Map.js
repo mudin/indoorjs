@@ -434,7 +434,6 @@ export class Map extends mix(Base).with(ModesMixin) {
       }
     });
     this.canvas.on('selection:created', e => {
-      console.log(e);
       const objects = e.selected;
       if (!objects || objects.length < 2) return;
       for (let i = 0; i < objects.length; i += 1) {
@@ -446,7 +445,6 @@ export class Map extends mix(Base).with(ModesMixin) {
       }
     });
     this.canvas.on('selection:updated', e => {
-      console.log(e);
       const objects = e.selected;
       if (!objects || objects.length < 2) return;
       for (let i = 0; i < objects.length; i += 1) {
@@ -479,20 +477,19 @@ export class Map extends mix(Base).with(ModesMixin) {
         this.isRight = e.e.button === 2;
       }
 
-      console.log(this.isRight);
       vm.emit('mouse:move', e);
     });
 
     this.canvas.on('mouse:up', e => {
+      this.isRight = false;
+
       if (!vm.dragObject || !e.target || !e.target.selectable) {
-        console.log('mouse:click');
         e.target = null;
         vm.emit('mouse:click', e);
       }
       if (vm.dragObject && vm.dragObject.clickable) {
         if (vm.dragObject !== e.target) return;
         if (!vm.dragObject.dragging && !vm.modeToggleByKey) {
-          console.log('object:click');
           vm.emit(`${vm.dragObject.class}:click`, vm.dragObject.parent);
         }
         vm.dragObject.dragging = false;

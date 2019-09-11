@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 1.0.0+master.e7c1a7b, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.1+master.7300fdb, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "1.0.0+master.e7c1a7b";
+var version = "1.0.1+master.7300fdb";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -1023,7 +1023,6 @@ function () {
     this.pos = this.scrollTop;
     this.frame = target === document.body && document.documentElement ? document.documentElement : target; // safari is the new IE
 
-    console.log(target);
     target.addEventListener('wheel', scrolled, {
       passive: passive
     });
@@ -1033,7 +1032,6 @@ function () {
     var scope = this;
 
     function scrolled(e) {
-      console.log(e);
       e.preventDefault(); // disable default scrolling
 
       var delta = scope.normalizeWheelDelta(e);
@@ -2415,22 +2413,18 @@ var ModesMixin = function ModesMixin(superclass) {
     function (_superclass) {
       _inherits(_class, _superclass);
 
-      function _class(options) {
-        var _this;
-
+      function _class() {
         _classCallCheck(this, _class);
 
-        _this = _possibleConstructorReturn(this, _getPrototypeOf(_class).call(this, options));
-        console.log('modesMixin');
-        return _this;
+        return _possibleConstructorReturn(this, _getPrototypeOf(_class).apply(this, arguments));
       }
-      /**
-           * MODES
-           */
-
 
       _createClass(_class, [{
         key: "setMode",
+
+        /**
+           * MODES
+           */
         value: function setMode(mode) {
           this.mode = mode;
 
@@ -2466,19 +2460,16 @@ var ModesMixin = function ModesMixin(superclass) {
         key: "setModeAsDraw",
         value: function setModeAsDraw() {
           this.setMode(Modes.DRAW);
-          console.log('MODE: DRAW');
         }
       }, {
         key: "setModeAsSelect",
         value: function setModeAsSelect() {
           this.setMode(Modes.SELECT);
-          console.log('MODE: SELECT');
         }
       }, {
         key: "setModeAsGrab",
         value: function setModeAsGrab() {
           this.setMode(Modes.GRAB);
-          console.log('MODE: GRAB');
         }
       }, {
         key: "isSelectMode",
@@ -3039,7 +3030,6 @@ function (_mix$with) {
         }
       });
       this.canvas.on('selection:created', function (e) {
-        console.log(e);
         var objects = e.selected;
         if (!objects || objects.length < 2) return;
 
@@ -3053,7 +3043,6 @@ function (_mix$with) {
         }
       });
       this.canvas.on('selection:updated', function (e) {
-        console.log(e);
         var objects = e.selected;
         if (!objects || objects.length < 2) return;
 
@@ -3088,12 +3077,12 @@ function (_mix$with) {
           _this5.isRight = e.e.button === 2;
         }
 
-        console.log(_this5.isRight);
         vm.emit('mouse:move', e);
       });
       this.canvas.on('mouse:up', function (e) {
+        _this5.isRight = false;
+
         if (!vm.dragObject || !e.target || !e.target.selectable) {
-          console.log('mouse:click');
           e.target = null;
           vm.emit('mouse:click', e);
         }
@@ -3102,7 +3091,6 @@ function (_mix$with) {
           if (vm.dragObject !== e.target) return;
 
           if (!vm.dragObject.dragging && !vm.modeToggleByKey) {
-            console.log('object:click');
             vm.emit("".concat(vm.dragObject["class"], ":click"), vm.dragObject.parent);
           }
 
@@ -3305,7 +3293,6 @@ function (_Layer) {
       var vm = this;
       var index = this.url.lastIndexOf('.');
       var ext = this.url.substr(index + 1, 3);
-      console.log(ext);
 
       if (ext === 'svg') {
         fabric.loadSVGFromURL(this.url, function (objects, options) {
@@ -3862,7 +3849,6 @@ function (_Layer) {
   }, {
     key: "onShapeMouseDown",
     value: function onShapeMouseDown(e) {
-      console.log(e);
       this.dragStart = e;
     }
   }, {
@@ -3872,8 +3858,6 @@ function (_Layer) {
         this.emit('dragstart');
         var a = new fabric.Point(e.pointer.x, e.pointer.y);
         var b = new fabric.Point(this.dragStart.pointer.x, this.dragStart.pointer.y); // if distance is far enough, we don't want to fire click event
-
-        console.log(a.distanceFrom(b));
 
         if (a.distanceFrom(b) > 3) {
           this.dragStart = null;
@@ -3890,10 +3874,7 @@ function (_Layer) {
   }, {
     key: "onShapeMouseUp",
     value: function onShapeMouseUp() {
-      console.log(this.dragging);
-
       if (!this.dragging) {
-        console.log('click');
         this.emit('click');
       } else {
         this.emit('moved');
@@ -4023,14 +4004,10 @@ var Circle =
 function (_fabric$Circle) {
   _inherits(Circle, _fabric$Circle);
 
-  function Circle(options) {
-    var _this;
-
+  function Circle() {
     _classCallCheck(this, Circle);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Circle).call(this, options));
-    console.log('circle');
-    return _this;
+    return _possibleConstructorReturn(this, _getPrototypeOf(Circle).apply(this, arguments));
   }
 
   return Circle;

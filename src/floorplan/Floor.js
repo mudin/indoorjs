@@ -20,7 +20,6 @@ export class Floor extends Layer {
     const vm = this;
     const index = this.url.lastIndexOf('.');
     const ext = this.url.substr(index + 1, 3);
-    console.log(ext);
 
     if (ext === 'svg') {
       fabric.loadSVGFromURL(this.url, (objects, options) => {
