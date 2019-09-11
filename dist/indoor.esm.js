@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 1.0.1+master.7300fdb, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.2+master.45dcea0, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "1.0.1+master.7300fdb";
+var version = "1.0.2+master.45dcea0";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3081,6 +3081,8 @@ function (_mix$with) {
       });
       this.canvas.on('mouse:up', function (e) {
         _this5.isRight = false;
+        _this5.dx = 0;
+        _this5.dy = 0;
 
         if (!vm.dragObject || !e.target || !e.target.selectable) {
           e.target = null;

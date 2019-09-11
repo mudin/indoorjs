@@ -482,6 +482,8 @@ export class Map extends mix(Base).with(ModesMixin) {
 
     this.canvas.on('mouse:up', e => {
       this.isRight = false;
+      this.dx = 0;
+      this.dy = 0;
 
       if (!vm.dragObject || !e.target || !e.target.selectable) {
         e.target = null;
