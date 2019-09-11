@@ -326,6 +326,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.x = e.x0;
     this.y = e.y0;
     this.isRight = e.isRight;
+    console.log(this.dx, this.dy);
     this.update();
   }
 

@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 1.0.2+master.45dcea0, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.3+master.f23b7cb, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "1.0.2+master.45dcea0";
+  var version = "1.0.3+master.f23b7cb";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -501,6 +501,7 @@
     var _ref$source = _ref.source,
         sourceEl = _ref$source === void 0 ? document : _ref$source,
         updateCallback = _ref.update,
+        stopCallback = _ref.stop,
         _ref$multiplier = _ref.multiplier,
         multiplier = _ref$multiplier === void 0 ? 1 : _ref$multiplier,
         _ref$friction = _ref.friction,
@@ -513,7 +514,17 @@
 
     _classCallCheck(this, Impetus);
 
-    var boundXmin, boundXmax, boundYmin, boundYmax, pointerLastX, pointerLastY, pointerCurrentX, pointerCurrentY, pointerId, decVelX, decVelY;
+    var boundXmin;
+    var boundXmax;
+    var boundYmin;
+    var boundYmax;
+    var pointerLastX;
+    var pointerLastY;
+    var pointerCurrentX;
+    var pointerCurrentY;
+    var pointerId;
+    var decVelX;
+    var decVelY;
     var targetX = 0;
     var targetY = 0;
     var stopThreshold = stopThresholdDefault * multiplier;
@@ -708,14 +719,14 @@
           y: touch.clientY,
           id: touch.identifier
         };
-      } else {
-        // mouse events
-        return {
-          x: ev.clientX,
-          y: ev.clientY,
-          id: null
-        };
-      }
+      } // mouse events
+
+
+      return {
+        x: ev.clientX,
+        y: ev.clientY,
+        id: null
+      };
     }
     /**
      * Initializes movement tracking
@@ -911,6 +922,8 @@
       if (Math.abs(decVelX) > 1 || Math.abs(decVelY) > 1 || !diff.inBounds) {
         decelerating = true;
         requestAnimFrame(stepDecelAnim);
+      } else if (stopCallback) {
+        stopCallback(sourceEl);
       }
     }
     /**
@@ -977,6 +990,10 @@
         requestAnimFrame(stepDecelAnim);
       } else {
         decelerating = false;
+
+        if (stopCallback) {
+          stopCallback(sourceEl);
+        }
       }
     }
   };
@@ -991,12 +1008,12 @@
     var passiveSupported = false;
 
     try {
-      var options = Object.defineProperty({}, "passive", {
+      var options = Object.defineProperty({}, 'passive', {
         get: function get() {
           passiveSupported = true;
         }
       });
-      window.addEventListener("test", null, options);
+      window.addEventListener('test', null, options);
     } catch (err) {}
 
     getPassiveSupported = function getPassiveSupported() {
@@ -1428,6 +1445,20 @@
         lastX = x;
         lastY = y;
         schedule(e);
+      },
+      stop: function stop() {
+        var ev = {
+          target: target,
+          type: 'mouse',
+          dx: 0,
+          dy: 0,
+          dz: 0,
+          x: cursor.x,
+          y: cursor.y,
+          x0: initX,
+          y0: initY
+        };
+        schedule(ev);
       },
       multiplier: 1,
       friction: 0.75
@@ -2907,6 +2938,7 @@
         this.x = e.x0;
         this.y = e.y0;
         this.isRight = e.isRight;
+        console.log(this.dx, this.dy);
         this.update();
       }
     }, {

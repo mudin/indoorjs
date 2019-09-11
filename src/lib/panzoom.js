@@ -95,6 +95,20 @@ const panzoom = (target, cb) => {
 
       schedule(e);
     },
+    stop() {
+      const ev = {
+        target,
+        type: 'mouse',
+        dx: 0,
+        dy: 0,
+        dz: 0,
+        x: cursor.x,
+        y: cursor.y,
+        x0: initX,
+        y0: initY
+      };
+      schedule(ev);
+    },
     multiplier: 1,
     friction: 0.75
   });
