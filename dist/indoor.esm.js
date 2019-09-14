@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 1.0.3+master.f23b7cb, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.4+master.fd63707, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "1.0.3+master.f23b7cb";
+var version = "1.0.4+master.fd63707";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -4151,8 +4151,116 @@ var markerGroup = function markerGroup(bounds, options) {
   return new MarkerGroup(bounds, options);
 };
 
+var Canvas =
+/*#__PURE__*/
+function (_Base) {
+  _inherits(Canvas, _Base);
+
+  function Canvas(container, options) {
+    var _this;
+
+    _classCallCheck(this, Canvas);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Canvas).call(this, options));
+    _this.container = container;
+    var canvas = document.createElement('canvas');
+
+    _this.container.appendChild(canvas);
+
+    canvas.setAttribute('id', 'indoorjs-canvas');
+    canvas.width = _this.width || _this.container.clientWidth;
+    canvas.height = _this.height || _this.container.clientHeight;
+    _this.canvas = new fabric.Canvas(canvas, {
+      isDrawingMode: true,
+      freeDrawingCursor: 'none',
+      freeDrawingLineWidth: _this.lineWidth
+    });
+
+    _this.setLineWidth(_this.lineWidth || 10);
+
+    _this.addCursor();
+
+    return _this;
+  }
+
+  _createClass(Canvas, [{
+    key: "addCursor",
+    value: function addCursor() {
+      var canvas = this.canvas;
+      var cursorCanvas = document.createElement('canvas');
+      this.canvas.wrapperEl.appendChild(cursorCanvas);
+      cursorCanvas.setAttribute('id', 'indoorjs-cursor-canvas');
+      cursorCanvas.style.position = 'absolute';
+      cursorCanvas.style.top = '0';
+      cursorCanvas.style.pointerEvents = 'none';
+      cursorCanvas.width = this.width || this.container.clientWidth;
+      cursorCanvas.height = this.height || this.container.clientHeight;
+      this.cursor = new fabric.StaticCanvas(cursorCanvas);
+      var cursorOpacity = 0.5;
+      var mousecursor = new fabric.Circle({
+        left: -1000,
+        top: -1000,
+        radius: canvas.freeDrawingBrush.width / 2,
+        fill: "rgba(255,0,0,".concat(cursorOpacity, ")"),
+        stroke: 'black',
+        originX: 'center',
+        originY: 'center'
+      });
+      this.cursor.add(mousecursor);
+      this.mousecursor = mousecursor;
+      canvas.on('mouse:move', function (evt) {
+        var mouse = canvas.getPointer(evt.e);
+        mousecursor.set({
+          top: mouse.y,
+          left: mouse.x
+        }).setCoords().canvas.renderAll();
+      });
+      canvas.on('mouse:out', function () {
+        // put circle off screen
+        mousecursor.set({
+          left: -1000,
+          top: -1000
+        }).setCoords().canvas.renderAll();
+      });
+    }
+  }, {
+    key: "setColor",
+    value: function setColor(color) {
+      this.canvas.freeDrawingBrush.color = color;
+      if (!this.mousecursor) return;
+      this.mousecursor.set({
+        left: 100,
+        top: 100,
+        fill: color
+      }).setCoords().canvas.renderAll();
+    }
+  }, {
+    key: "setLineWidth",
+    value: function setLineWidth(width) {
+      this.lineWidth = width;
+      this.canvas.freeDrawingBrush.width = width;
+      if (!this.mousecursor) return;
+      this.mousecursor.set({
+        left: 100,
+        top: 100,
+        radius: width / 2
+      }).setCoords().canvas.renderAll();
+    }
+  }, {
+    key: "clear",
+    value: function clear() {
+      this.canvas.clear();
+    }
+  }]);
+
+  return Canvas;
+}(Base);
+var canvas = function canvas(container, options) {
+  return new Canvas(container, options);
+};
+
 console.log('fabricJS ', fabric$1.version || window.fabric.version);
 console.log('IndoorJS ', version);
 
-export { Circle, Connector, Floor, Group, ICON, Icon, Layer, Line, MAP, MARKER, Map, Marker, MarkerGroup, Modes, Point, Polyline, Rect, circle, connector, floorplan, group, icon, layer, line, map, marker, markerGroup, point, polyline, rect, version };
+export { Canvas, Circle, Connector, Floor, Group, ICON, Icon, Layer, Line, MAP, MARKER, Map, Marker, MarkerGroup, Modes, Point, Polyline, Rect, canvas, circle, connector, floorplan, group, icon, layer, line, map, marker, markerGroup, point, polyline, rect, version };
 //# sourceMappingURL=indoor.esm.js.map
