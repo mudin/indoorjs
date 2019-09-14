@@ -21,3 +21,6 @@ export * from './floorplan/index';
 
 // layer
 export * from './layer/index';
+
+// Free Drawing Canvas
+export * from './paint/index';

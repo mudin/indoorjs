@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- <link rel="stylesheet" href="index.css"> -->
+  </head>
+  <body>
+    <div class="toolbar">
+      Indoorjs Free Draw
+    </div>
+    <div class="context">
+      <div class="sidebar">
+        <div id="drawing-mode-options">
+          <label for="drawing-line-width">Line width:</label>
+          <span class="info">30</span
+          ><input type="range" value="30" min="0" max="150" id="drawing-line-width" /><br />
+
+          <label for="drawing-color">Line color:</label>
+          <input type="color" value="#005E7A" id="drawing-color" /><br />
+
+          <button id="clear-canvas" class="btn btn-info">Clear</button>
+        </div>
+      </div>
+      <div class="my-canvas"></div>
+    </div>
+  </body>
+</html>

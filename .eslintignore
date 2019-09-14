@@ -9,5 +9,6 @@ build
 build/
 lib
 lib/
-demo/index.html
+demo/
 dev/index.html
+dev/draw.html

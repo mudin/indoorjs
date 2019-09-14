@@ -32,6 +32,15 @@ body {
 	position: relative;
 }
 
+.context .my-canvas {
+	display: block;
+	overflow: hidden;
+	height: 100%;
+	min-height: 100%;
+	width: auto;
+	position: relative;
+}
+
 
 :host {
 	position: relative;
