@@ -189,6 +189,18 @@ export class Canvas extends Base {
         this.activeArrow = null;
       }
     });
+
+    canvas.on('selection:created', event => {
+      this.emit('selected');
+    });
+
+    canvas.on('selection:cleared', event => {
+      this.emit('unselected');
+    });
+  }
+
+  removeSelected() {
+    this.canvas.remove(this.canvas.getActiveObject());
   }
 
   updateCursor() {
