@@ -24,4 +24,8 @@ clearEl.onclick = function onclick() {
   canvas.clear();
 };
 
+canvas.on('mode-changed', mode => {
+  console.log('mode-changed', mode);
+});
+
 window.canv = canvas;

@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 1.0.4+master.fd63707, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.5+master.1704903, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "1.0.4+master.fd63707";
+  var version = "1.0.5+master.1704903";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -4157,6 +4157,142 @@
     return new MarkerGroup(bounds, options);
   };
 
+  var ArrowHead =
+  /*#__PURE__*/
+  function (_fabric$Triangle) {
+    _inherits(ArrowHead, _fabric$Triangle);
+
+    function ArrowHead(points, options) {
+      _classCallCheck(this, ArrowHead);
+
+      options = options || {};
+      options.headLength = options.headLength || 10;
+      options.stroke = options.stroke || '#207cca';
+
+      var _points = _slicedToArray(points, 4),
+          x1 = _points[0],
+          y1 = _points[1],
+          x2 = _points[2],
+          y2 = _points[3];
+
+      var dx = x2 - x1;
+      var dy = y2 - y1;
+      var angle = Math.atan2(dy, dx);
+      angle *= 180 / Math.PI;
+      angle += 90;
+
+      if (options.lastAngle !== undefined) {
+        angle = options.lastAngle;
+        console.log("Angle: ".concat(angle));
+      }
+
+      return _possibleConstructorReturn(this, _getPrototypeOf(ArrowHead).call(this, {
+        angle: angle,
+        fill: options.stroke,
+        top: y2,
+        left: x2,
+        height: options.headLength,
+        width: options.headLength,
+        originX: 'center',
+        originY: 'center',
+        selectable: false
+      }));
+    }
+
+    return ArrowHead;
+  }(fabric.Triangle);
+
+  var Arrow =
+  /*#__PURE__*/
+  function (_fabric$Group) {
+    _inherits(Arrow, _fabric$Group);
+
+    function Arrow(point, options) {
+      var _this;
+
+      _classCallCheck(this, Arrow);
+
+      options = options || {};
+      options.strokeWidth = options.strokeWidth || 5;
+      options.stroke = options.stroke || '#7db9e8';
+      options["class"] = 'arrow';
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Arrow).call(this, [], Object.assign(options, {
+        evented: false
+      })));
+      _this.pointArray = [point, Object.assign({}, point)];
+      _this.options = options;
+
+      _this.draw();
+
+      return _this;
+    }
+
+    _createClass(Arrow, [{
+      key: "draw",
+      value: function draw() {
+        if (this.head) {
+          this.remove(this.head);
+        }
+
+        if (this.polyline) {
+          this.remove(this.polyline);
+        }
+
+        this.polyline = new fabric.Polyline(this.pointArray, Object.assign(this.options, {
+          strokeLineJoin: 'round',
+          fill: false
+        }));
+        this.addWithUpdate(this.polyline);
+        var lastPoints = this.getLastPoints();
+        var p1 = new fabric.Point(lastPoints[0], lastPoints[1]);
+        var p2 = new fabric.Point(lastPoints[2], lastPoints[3]);
+        var dis = p1.distanceFrom(p2);
+        console.log("dis = ".concat(dis));
+        this.head = new ArrowHead(lastPoints, Object.assign(this.options, {
+          headLength: this.strokeWidth * 2,
+          lastAngle: dis <= 10 ? this.lastAngle : undefined
+        }));
+
+        if (dis > 10) {
+          this.lastAngle = this.head.angle;
+        }
+
+        this.addWithUpdate(this.head);
+      }
+    }, {
+      key: "addPoint",
+      value: function addPoint(point) {
+        this.pointArray.push(point);
+        this.draw();
+      }
+    }, {
+      key: "addTempPoint",
+      value: function addTempPoint(point) {
+        var len = this.pointArray.length;
+        var lastPoint = this.pointArray[len - 1];
+        lastPoint.x = point.x;
+        lastPoint.y = point.y;
+        this.draw();
+      }
+    }, {
+      key: "getLastPoints",
+      value: function getLastPoints() {
+        var len = this.pointArray.length;
+        var point1 = this.pointArray[len - 2];
+        var point2 = this.pointArray[len - 1];
+        return [point1.x, point1.y, point2.x, point2.y];
+      }
+    }]);
+
+    return Arrow;
+  }(fabric.Group);
+
+  var Modes$1 = {
+    SELECT: 'select',
+    DRAWING: 'drawing',
+    ARROW: 'arrow',
+    TEXT: 'text'
+  };
   var Canvas =
   /*#__PURE__*/
   function (_Base) {
@@ -4176,20 +4312,249 @@
       canvas.setAttribute('id', 'indoorjs-canvas');
       canvas.width = _this.width || _this.container.clientWidth;
       canvas.height = _this.height || _this.container.clientHeight;
+      _this.currentColor = _this.currentColor || 'black';
       _this.canvas = new fabric.Canvas(canvas, {
-        isDrawingMode: true,
         freeDrawingCursor: 'none',
         freeDrawingLineWidth: _this.lineWidth
       });
+      _this.arrows = [];
 
       _this.setLineWidth(_this.lineWidth || 10);
 
       _this.addCursor();
 
+      _this.addListeners();
+
+      _this.setModeAsArrow();
+
       return _this;
     }
 
     _createClass(Canvas, [{
+      key: "setModeAsDrawing",
+      value: function setModeAsDrawing() {
+        this.mode = Modes$1.DRAWING;
+        this.canvas.isDrawingMode = true;
+        this.canvas.selection = false;
+        this.onModeChanged();
+      }
+    }, {
+      key: "isDrawingMode",
+      value: function isDrawingMode() {
+        return this.mode === Modes$1.DRAWING;
+      }
+    }, {
+      key: "setModeAsSelect",
+      value: function setModeAsSelect() {
+        this.mode = Modes$1.SELECT;
+        this.canvas.isDrawingMode = false;
+        this.canvas.selection = true;
+        this.onModeChanged();
+      }
+    }, {
+      key: "isSelectMode",
+      value: function isSelectMode() {
+        return this.mode === Modes$1.SELECT;
+      }
+    }, {
+      key: "setModeAsArrow",
+      value: function setModeAsArrow() {
+        this.mode = Modes$1.ARROW;
+        this.canvas.isDrawingMode = false;
+        this.canvas.selection = false;
+        this.onModeChanged();
+      }
+    }, {
+      key: "isArrowMode",
+      value: function isArrowMode() {
+        return this.mode === Modes$1.ARROW;
+      }
+    }, {
+      key: "setModeAsText",
+      value: function setModeAsText() {
+        this.mode = Modes$1.TEXT;
+        this.canvas.isDrawingMode = false;
+        this.canvas.selection = false;
+        this.onModeChanged();
+      }
+    }, {
+      key: "isTextMode",
+      value: function isTextMode() {
+        return this.mode === Modes$1.TEXT;
+      }
+    }, {
+      key: "onModeChanged",
+      value: function onModeChanged() {
+        this.updateCursor();
+        this.emit('mode-changed', this.mode);
+
+        if (this.isSelectMode()) {
+          for (var i = 0; i < this.canvas._objects.length; i += 1) {
+            this.canvas._objects[i].evented = true;
+          }
+        } else {
+          for (var _i = 0; _i < this.arrows.length; _i += 1) {
+            this.canvas._objects[_i].evented = false;
+          }
+        }
+      }
+    }, {
+      key: "addListeners",
+      value: function addListeners() {
+        var _this2 = this;
+
+        var canvas = this.canvas;
+        canvas.on('mouse:move', function (evt) {
+          var mouse = canvas.getPointer(evt.e);
+
+          if (_this2.mousecursor) {
+            _this2.mousecursor.set({
+              top: mouse.y,
+              left: mouse.x
+            }).setCoords().canvas.renderAll();
+          }
+
+          if (_this2.isTextMode()) {
+            console.log('text');
+          } else if (_this2.isArrowMode()) {
+            if (_this2.activeArrow) {
+              _this2.activeArrow.addTempPoint(mouse);
+            }
+
+            _this2.canvas.requestRenderAll();
+          }
+        });
+        canvas.on('mouse:out', function () {
+          // put circle off screen
+          if (!_this2.mousecursor) return;
+
+          _this2.mousecursor.set({
+            left: -1000,
+            top: -1000
+          }).setCoords();
+
+          _this2.cursor.renderAll();
+        });
+        canvas.on('mouse:up', function (event) {
+          if (canvas.mouseDown) {
+            canvas.fire('mouse:click', event);
+          }
+
+          canvas.mouseDown = false;
+        });
+        canvas.on('mouse:move', function (event) {
+          canvas.mouseDown = false;
+        });
+        canvas.on('mouse:down', function (event) {
+          canvas.mouseDown = true;
+        });
+        canvas.on('mouse:click', function (event) {
+          console.log('mouse click', event);
+          var mouse = canvas.getPointer(event.e);
+          if (event.target) return;
+
+          if (_this2.isTextMode()) {
+            var text = new fabric.IText('Text', {
+              left: mouse.x,
+              top: mouse.y,
+              width: 100,
+              fontSize: 20,
+              lockUniScaling: true,
+              fill: _this2.currentColor,
+              stroke: _this2.currentColor
+            });
+            canvas.add(text).setActiveObject(text).renderAll();
+
+            _this2.setModeAsSelect();
+          } else if (_this2.isArrowMode()) {
+            console.log('arrow mode');
+
+            if (_this2.activeArrow) {
+              _this2.activeArrow.addPoint(mouse);
+            } else {
+              _this2.activeArrow = new Arrow(mouse, {
+                stroke: _this2.currentColor,
+                strokeWidth: _this2.lineWidth
+              });
+
+              _this2.canvas.add(_this2.activeArrow);
+            }
+
+            _this2.canvas.requestRenderAll();
+          }
+        });
+        canvas.on('mouse:dblclick', function (event) {
+          console.log('mouse:dbclick');
+
+          if (_this2.isArrowMode() && _this2.activeArrow) {
+            _this2.arrows.push(_this2.activeArrow);
+
+            _this2.activeArrow = null;
+          }
+        });
+      }
+    }, {
+      key: "updateCursor",
+      value: function updateCursor() {
+        if (!this.cursor) return;
+        var canvas = this.canvas;
+
+        if (this.mousecursor) {
+          this.cursor.remove(this.mousecursor);
+          this.mousecursor = null;
+        }
+
+        var cursorOpacity = 0.3;
+        var mousecursor = null;
+
+        if (this.isDrawingMode()) {
+          mousecursor = new fabric.Circle({
+            left: -1000,
+            top: -1000,
+            radius: canvas.freeDrawingBrush.width / 2,
+            fill: "rgba(255,0,0,".concat(cursorOpacity, ")"),
+            stroke: 'black',
+            originX: 'center',
+            originY: 'center'
+          });
+        } else if (this.isTextMode()) {
+          mousecursor = new fabric.Path('M0,-10 V10', {
+            left: -1000,
+            top: -1000,
+            radius: canvas.freeDrawingBrush.width / 2,
+            fill: "rgba(255,0,0,".concat(cursorOpacity, ")"),
+            stroke: "rgba(0,0,0,".concat(cursorOpacity, ")"),
+            originX: 'center',
+            originY: 'center',
+            scaleX: 1,
+            scaleY: 1
+          });
+        } else {
+          mousecursor = new fabric.Path('M0,-10 V10 M-10,0 H10', {
+            left: -1000,
+            top: -1000,
+            radius: canvas.freeDrawingBrush.width / 2,
+            fill: "rgba(255,0,0,".concat(cursorOpacity, ")"),
+            stroke: "rgba(0,0,0,".concat(cursorOpacity, ")"),
+            originX: 'center',
+            originY: 'center'
+          });
+        }
+
+        if (this.isSelectMode()) {
+          mousecursor = null;
+          this.canvas.defaultCursor = 'default';
+        } else {
+          this.canvas.defaultCursor = 'none';
+        }
+
+        if (mousecursor) {
+          this.cursor.add(mousecursor);
+        }
+
+        this.mousecursor = mousecursor;
+      }
+    }, {
       key: "addCursor",
       value: function addCursor() {
         var canvas = this.canvas;
@@ -4201,37 +4566,15 @@
         cursorCanvas.style.pointerEvents = 'none';
         cursorCanvas.width = this.width || this.container.clientWidth;
         cursorCanvas.height = this.height || this.container.clientHeight;
+        this.cursorCanvas = cursorCanvas;
+        canvas.defaultCursor = 'none';
         this.cursor = new fabric.StaticCanvas(cursorCanvas);
-        var cursorOpacity = 0.5;
-        var mousecursor = new fabric.Circle({
-          left: -1000,
-          top: -1000,
-          radius: canvas.freeDrawingBrush.width / 2,
-          fill: "rgba(255,0,0,".concat(cursorOpacity, ")"),
-          stroke: 'black',
-          originX: 'center',
-          originY: 'center'
-        });
-        this.cursor.add(mousecursor);
-        this.mousecursor = mousecursor;
-        canvas.on('mouse:move', function (evt) {
-          var mouse = canvas.getPointer(evt.e);
-          mousecursor.set({
-            top: mouse.y,
-            left: mouse.x
-          }).setCoords().canvas.renderAll();
-        });
-        canvas.on('mouse:out', function () {
-          // put circle off screen
-          mousecursor.set({
-            left: -1000,
-            top: -1000
-          }).setCoords().canvas.renderAll();
-        });
+        this.updateCursor();
       }
     }, {
       key: "setColor",
       value: function setColor(color) {
+        this.currentColor = color;
         this.canvas.freeDrawingBrush.color = color;
         if (!this.mousecursor) return;
         this.mousecursor.set({
@@ -4253,8 +4596,20 @@
         }).setCoords().canvas.renderAll();
       }
     }, {
+      key: "setFontFamily",
+      value: function setFontFamily(family) {
+        this.fontFamily = family;
+        var obj = this.canvas.getActiveObject();
+
+        if (obj && obj.type === 'i-text') {
+          obj.set('fontFamily', family);
+          this.canvas.requestRenderAll();
+        }
+      }
+    }, {
       key: "clear",
       value: function clear() {
+        this.arrows = [];
         this.canvas.clear();
       }
     }]);

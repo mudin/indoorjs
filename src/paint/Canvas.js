@@ -1,4 +1,13 @@
+/* eslint-disable no-unused-vars */
 import Base from '../core/Base';
+import { Arrow } from './Arrow';
+
+const Modes = {
+  SELECT: 'select',
+  DRAWING: 'drawing',
+  ARROW: 'arrow',
+  TEXT: 'text'
+};
 
 export class Canvas extends Base {
   constructor(container, options) {
@@ -13,15 +22,231 @@ export class Canvas extends Base {
     canvas.width = this.width || this.container.clientWidth;
     canvas.height = this.height || this.container.clientHeight;
 
+    this.currentColor = this.currentColor || 'black';
+
     this.canvas = new fabric.Canvas(canvas, {
-      isDrawingMode: true,
       freeDrawingCursor: 'none',
       freeDrawingLineWidth: this.lineWidth
     });
+    this.arrows = [];
 
     this.setLineWidth(this.lineWidth || 10);
-
     this.addCursor();
+    this.addListeners();
+
+    this.setModeAsArrow();
+  }
+
+  setModeAsDrawing() {
+    this.mode = Modes.DRAWING;
+    this.canvas.isDrawingMode = true;
+    this.canvas.selection = false;
+    this.onModeChanged();
+  }
+
+  isDrawingMode() {
+    return this.mode === Modes.DRAWING;
+  }
+
+  setModeAsSelect() {
+    this.mode = Modes.SELECT;
+    this.canvas.isDrawingMode = false;
+    this.canvas.selection = true;
+    this.onModeChanged();
+  }
+
+  isSelectMode() {
+    return this.mode === Modes.SELECT;
+  }
+
+  setModeAsArrow() {
+    this.mode = Modes.ARROW;
+    this.canvas.isDrawingMode = false;
+    this.canvas.selection = false;
+    this.onModeChanged();
+  }
+
+  isArrowMode() {
+    return this.mode === Modes.ARROW;
+  }
+
+  setModeAsText() {
+    this.mode = Modes.TEXT;
+    this.canvas.isDrawingMode = false;
+    this.canvas.selection = false;
+    this.onModeChanged();
+  }
+
+  isTextMode() {
+    return this.mode === Modes.TEXT;
+  }
+
+  onModeChanged() {
+    this.updateCursor();
+    this.emit('mode-changed', this.mode);
+    if (this.isSelectMode()) {
+      for (let i = 0; i < this.canvas._objects.length; i += 1) {
+        this.canvas._objects[i].evented = true;
+      }
+    } else {
+      for (let i = 0; i < this.arrows.length; i += 1) {
+        this.canvas._objects[i].evented = false;
+      }
+    }
+  }
+
+  addListeners() {
+    const canvas = this.canvas;
+    canvas.on('mouse:move', evt => {
+      const mouse = canvas.getPointer(evt.e);
+      if (this.mousecursor) {
+        this.mousecursor
+          .set({
+            top: mouse.y,
+            left: mouse.x
+          })
+          .setCoords()
+          .canvas.renderAll();
+      }
+
+      if (this.isTextMode()) {
+        console.log('text');
+      } else if (this.isArrowMode()) {
+        if (this.activeArrow) {
+          this.activeArrow.addTempPoint(mouse);
+        }
+        this.canvas.requestRenderAll();
+      }
+    });
+
+    canvas.on('mouse:out', () => {
+      // put circle off screen
+      if (!this.mousecursor) return;
+      this.mousecursor
+        .set({
+          left: -1000,
+          top: -1000
+        })
+        .setCoords();
+
+      this.cursor.renderAll();
+    });
+
+    canvas.on('mouse:up', event => {
+      if (canvas.mouseDown) {
+        canvas.fire('mouse:click', event);
+      }
+      canvas.mouseDown = false;
+    });
+
+    canvas.on('mouse:move', event => {
+      canvas.mouseDown = false;
+    });
+
+    canvas.on('mouse:down', event => {
+      canvas.mouseDown = true;
+    });
+
+    canvas.on('mouse:click', event => {
+      console.log('mouse click', event);
+      const mouse = canvas.getPointer(event.e);
+      if (event.target) return;
+      if (this.isTextMode()) {
+        const text = new fabric.IText('Text', {
+          left: mouse.x,
+          top: mouse.y,
+          width: 100,
+          fontSize: 20,
+          lockUniScaling: true,
+          fill: this.currentColor,
+          stroke: this.currentColor
+        });
+        canvas
+          .add(text)
+          .setActiveObject(text)
+          .renderAll();
+
+        this.setModeAsSelect();
+      } else if (this.isArrowMode()) {
+        console.log('arrow mode');
+        if (this.activeArrow) {
+          this.activeArrow.addPoint(mouse);
+        } else {
+          this.activeArrow = new Arrow(mouse, {
+            stroke: this.currentColor,
+            strokeWidth: this.lineWidth
+          });
+          this.canvas.add(this.activeArrow);
+        }
+        this.canvas.requestRenderAll();
+      }
+    });
+
+    canvas.on('mouse:dblclick', event => {
+      console.log('mouse:dbclick');
+      if (this.isArrowMode() && this.activeArrow) {
+        this.arrows.push(this.activeArrow);
+        this.activeArrow = null;
+      }
+    });
+  }
+
+  updateCursor() {
+    if (!this.cursor) return;
+
+    const canvas = this.canvas;
+
+    if (this.mousecursor) {
+      this.cursor.remove(this.mousecursor);
+      this.mousecursor = null;
+    }
+
+    const cursorOpacity = 0.3;
+    let mousecursor = null;
+    if (this.isDrawingMode()) {
+      mousecursor = new fabric.Circle({
+        left: -1000,
+        top: -1000,
+        radius: canvas.freeDrawingBrush.width / 2,
+        fill: `rgba(255,0,0,${cursorOpacity})`,
+        stroke: 'black',
+        originX: 'center',
+        originY: 'center'
+      });
+    } else if (this.isTextMode()) {
+      mousecursor = new fabric.Path('M0,-10 V10', {
+        left: -1000,
+        top: -1000,
+        radius: canvas.freeDrawingBrush.width / 2,
+        fill: `rgba(255,0,0,${cursorOpacity})`,
+        stroke: `rgba(0,0,0,${cursorOpacity})`,
+        originX: 'center',
+        originY: 'center',
+        scaleX: 1,
+        scaleY: 1
+      });
+    } else {
+      mousecursor = new fabric.Path('M0,-10 V10 M-10,0 H10', {
+        left: -1000,
+        top: -1000,
+        radius: canvas.freeDrawingBrush.width / 2,
+        fill: `rgba(255,0,0,${cursorOpacity})`,
+        stroke: `rgba(0,0,0,${cursorOpacity})`,
+        originX: 'center',
+        originY: 'center'
+      });
+    }
+
+    if (this.isSelectMode()) {
+      mousecursor = null;
+      this.canvas.defaultCursor = 'default';
+    } else {
+      this.canvas.defaultCursor = 'none';
+    }
+    if (mousecursor) {
+      this.cursor.add(mousecursor);
+    }
+    this.mousecursor = mousecursor;
   }
 
   addCursor() {
@@ -34,46 +259,14 @@ export class Canvas extends Base {
     cursorCanvas.style.pointerEvents = 'none';
     cursorCanvas.width = this.width || this.container.clientWidth;
     cursorCanvas.height = this.height || this.container.clientHeight;
-
+    this.cursorCanvas = cursorCanvas;
+    canvas.defaultCursor = 'none';
     this.cursor = new fabric.StaticCanvas(cursorCanvas);
-    const cursorOpacity = 0.5;
-    const mousecursor = new fabric.Circle({
-      left: -1000,
-      top: -1000,
-      radius: canvas.freeDrawingBrush.width / 2,
-      fill: `rgba(255,0,0,${cursorOpacity})`,
-      stroke: 'black',
-      originX: 'center',
-      originY: 'center'
-    });
-
-    this.cursor.add(mousecursor);
-    this.mousecursor = mousecursor;
-
-    canvas.on('mouse:move', evt => {
-      const mouse = canvas.getPointer(evt.e);
-      mousecursor
-        .set({
-          top: mouse.y,
-          left: mouse.x
-        })
-        .setCoords()
-        .canvas.renderAll();
-    });
-
-    canvas.on('mouse:out', () => {
-      // put circle off screen
-      mousecursor
-        .set({
-          left: -1000,
-          top: -1000
-        })
-        .setCoords()
-        .canvas.renderAll();
-    });
+    this.updateCursor();
   }
 
   setColor(color) {
+    this.currentColor = color;
     this.canvas.freeDrawingBrush.color = color;
 
     if (!this.mousecursor) return;
@@ -104,7 +297,17 @@ export class Canvas extends Base {
       .canvas.renderAll();
   }
 
+  setFontFamily(family) {
+    this.fontFamily = family;
+    const obj = this.canvas.getActiveObject();
+    if (obj && obj.type === 'i-text') {
+      obj.set('fontFamily', family);
+      this.canvas.requestRenderAll();
+    }
+  }
+
   clear() {
+    this.arrows = [];
     this.canvas.clear();
   }
 }
