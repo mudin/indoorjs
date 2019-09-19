@@ -201,6 +201,10 @@ export class Canvas extends Base {
 
   removeSelected() {
     this.canvas.remove(this.canvas.getActiveObject());
+    this.canvas.getActiveObjects().forEach(obj => {
+      this.canvas.remove(obj);
+    });
+    this.canvas.discardActiveObject().renderAll();
   }
 
   updateCursor() {

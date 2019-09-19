@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 1.0.6+master.fb5660a, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.7+master.ddaa7e6, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "1.0.6+master.fb5660a";
+var version = "1.0.7+master.ddaa7e6";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -4496,7 +4496,13 @@ function (_Base) {
   }, {
     key: "removeSelected",
     value: function removeSelected() {
+      var _this3 = this;
+
       this.canvas.remove(this.canvas.getActiveObject());
+      this.canvas.getActiveObjects().forEach(function (obj) {
+        _this3.canvas.remove(obj);
+      });
+      this.canvas.discardActiveObject().renderAll();
     }
   }, {
     key: "updateCursor",
