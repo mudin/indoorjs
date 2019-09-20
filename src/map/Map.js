@@ -32,7 +32,8 @@ export class Map extends mix(Base).with(ModesMixin) {
     canvas.height = this.height || this.container.clientHeight;
 
     this.canvas = new fabric.Canvas(canvas, {
-      preserveObjectStacking: true
+      preserveObjectStacking: true,
+      renderOnAddRemove: false
     });
     this.context = this.canvas.getContext('2d');
 
@@ -88,6 +89,7 @@ export class Map extends mix(Base).with(ModesMixin) {
   }
 
   addLayer(layer) {
+    // this.canvas.renderOnAddRemove = false;
     if (!layer.shape) {
       console.error('shape is undefined');
       return;
@@ -106,8 +108,10 @@ export class Map extends mix(Base).with(ModesMixin) {
       this.emit(`${layer.class}:added`, layer);
     }
 
+    // this.canvas.renderOnAddRemove = true;
+
     // this.update();
-    this.canvas.renderAll();
+    // this.canvas.renderAll();
   }
 
   removeLayer(layer) {
@@ -286,7 +290,7 @@ export class Map extends mix(Base).with(ModesMixin) {
         this.emit(`${object.class}scaling`, object);
       }
     }
-    if (hasKeepZoom) canvas.renderAll();
+    if (hasKeepZoom) canvas.requestRenderAll();
   }
 
   panzoom(e) {

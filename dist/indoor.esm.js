@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 1.0.7+master.ddaa7e6, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.8+master.6bf01f6, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "1.0.7+master.ddaa7e6";
+var version = "1.0.8+master.6bf01f6";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -2615,7 +2615,8 @@ function (_mix$with) {
     canvas.width = _this.width || _this.container.clientWidth;
     canvas.height = _this.height || _this.container.clientHeight;
     _this.canvas = new fabric.Canvas(canvas, {
-      preserveObjectStacking: true
+      preserveObjectStacking: true,
+      renderOnAddRemove: false
     });
     _this.context = _this.canvas.getContext('2d');
 
@@ -2676,6 +2677,7 @@ function (_mix$with) {
   }, {
     key: "addLayer",
     value: function addLayer(layer) {
+      // this.canvas.renderOnAddRemove = false;
       if (!layer.shape) {
         console.error('shape is undefined');
         return;
@@ -2697,10 +2699,10 @@ function (_mix$with) {
 
       if (layer["class"]) {
         this.emit("".concat(layer["class"], ":added"), layer);
-      } // this.update();
+      } // this.canvas.renderOnAddRemove = true;
+      // this.update();
+      // this.canvas.renderAll();
 
-
-      this.canvas.renderAll();
     }
   }, {
     key: "removeLayer",
@@ -2888,7 +2890,7 @@ function (_mix$with) {
         }
       }
 
-      if (hasKeepZoom) canvas.renderAll();
+      if (hasKeepZoom) canvas.requestRenderAll();
     }
   }, {
     key: "panzoom",
