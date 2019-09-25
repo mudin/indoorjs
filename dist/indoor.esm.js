@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 1.0.8+master.6bf01f6, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.9+master.1fc6928, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "1.0.8+master.6bf01f6";
+var version = "1.0.9+master.1fc6928";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -2466,7 +2466,6 @@ var ModesMixin = function ModesMixin(superclass) {
               this.canvas.selection = true;
               this.canvas.hoverCursor = 'default';
               this.canvas.moveCursor = 'default';
-              this.canvas.setCursor('default');
               break;
 
             case Modes.GRAB:
@@ -2476,7 +2475,6 @@ var ModesMixin = function ModesMixin(superclass) {
               this.canvas.discardActiveObject();
               this.canvas.hoverCursor = 'move';
               this.canvas.moveCursor = 'move';
-              this.canvas.setCursor('move');
               break;
 
             case Modes.DRAW:
@@ -2616,7 +2614,7 @@ function (_mix$with) {
     canvas.height = _this.height || _this.container.clientHeight;
     _this.canvas = new fabric.Canvas(canvas, {
       preserveObjectStacking: true,
-      renderOnAddRemove: false
+      renderOnAddRemove: true
     });
     _this.context = _this.canvas.getContext('2d');
 
@@ -2701,8 +2699,9 @@ function (_mix$with) {
         this.emit("".concat(layer["class"], ":added"), layer);
       } // this.canvas.renderOnAddRemove = true;
       // this.update();
-      // this.canvas.renderAll();
 
+
+      this.canvas.requestRenderAll();
     }
   }, {
     key: "removeLayer",
@@ -2875,6 +2874,13 @@ function (_mix$with) {
         this.setCursor('pointer');
       }
 
+      var now = Date.now();
+
+      if (!this.lastUpdatedTime && Math.abs(this.lastUpdatedTime - now) < 100) {
+        return;
+      }
+
+      this.lastUpdatedTime = now;
       var objects = canvas.getObjects();
       var hasKeepZoom = false;
 
@@ -2963,7 +2969,7 @@ function (_mix$with) {
         }
 
         vm.update();
-        vm.canvas.renderAll();
+        vm.canvas.requestRenderAll();
       });
       this.canvas.on('object:rotating', function (e) {
         if (e.target["class"]) {
@@ -4278,6 +4284,13 @@ function (_fabric$Group) {
       var point2 = this.pointArray[len - 1];
       return [point1.x, point1.y, point2.x, point2.y];
     }
+  }, {
+    key: "setColor",
+    value: function setColor(color) {
+      this._objects.forEach(function (obj) {
+        obj.setColor(color);
+      });
+    }
   }]);
 
   return Arrow;
@@ -4309,6 +4322,7 @@ function (_Base) {
     canvas.width = _this.width || _this.container.clientWidth;
     canvas.height = _this.height || _this.container.clientHeight;
     _this.currentColor = _this.currentColor || 'black';
+    _this.fontFamily = _this.fontFamily || 'Roboto';
     _this.canvas = new fabric.Canvas(canvas, {
       freeDrawingCursor: 'none',
       freeDrawingLineWidth: _this.lineWidth
@@ -4455,6 +4469,7 @@ function (_Base) {
             top: mouse.y,
             width: 100,
             fontSize: 20,
+            fontFamily: _this2.fontFamily,
             lockUniScaling: true,
             fill: _this2.currentColor,
             stroke: _this2.currentColor
@@ -4589,6 +4604,14 @@ function (_Base) {
     value: function setColor(color) {
       this.currentColor = color;
       this.canvas.freeDrawingBrush.color = color;
+      var obj = this.canvas.getActiveObject();
+
+      if (obj) {
+        obj.set('stroke', color);
+        obj.set('fill', color);
+        this.canvas.requestRenderAll();
+      }
+
       if (!this.mousecursor) return;
       this.mousecursor.set({
         left: 100,

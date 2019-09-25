@@ -33,7 +33,7 @@ export class Map extends mix(Base).with(ModesMixin) {
 
     this.canvas = new fabric.Canvas(canvas, {
       preserveObjectStacking: true,
-      renderOnAddRemove: false
+      renderOnAddRemove: true
     });
     this.context = this.canvas.getContext('2d');
 
@@ -111,7 +111,7 @@ export class Map extends mix(Base).with(ModesMixin) {
     // this.canvas.renderOnAddRemove = true;
 
     // this.update();
-    // this.canvas.renderAll();
+    this.canvas.requestRenderAll();
   }
 
   removeLayer(layer) {
@@ -278,6 +278,12 @@ export class Map extends mix(Base).with(ModesMixin) {
       this.setCursor('pointer');
     }
 
+    const now = Date.now();
+    if (!this.lastUpdatedTime && Math.abs(this.lastUpdatedTime - now) < 100) {
+      return;
+    }
+    this.lastUpdatedTime = now;
+
     const objects = canvas.getObjects();
     let hasKeepZoom = false;
     for (let i = 0; i < objects.length; i += 1) {
@@ -355,7 +361,7 @@ export class Map extends mix(Base).with(ModesMixin) {
         vm.emit(`${object.class}:moving`, object.parent);
       }
       vm.update();
-      vm.canvas.renderAll();
+      vm.canvas.requestRenderAll();
     });
 
     this.canvas.on('object:rotating', e => {

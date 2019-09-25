@@ -14,7 +14,6 @@ const ModesMixin = superclass => class extends superclass {
         this.canvas.selection = true;
         this.canvas.hoverCursor = 'default';
         this.canvas.moveCursor = 'default';
-        this.canvas.setCursor('default');
         break;
       case Modes.GRAB:
         this.canvas.isDrawingMode = false;
@@ -23,7 +22,6 @@ const ModesMixin = superclass => class extends superclass {
         this.canvas.discardActiveObject();
         this.canvas.hoverCursor = 'move';
         this.canvas.moveCursor = 'move';
-        this.canvas.setCursor('move');
         break;
       case Modes.DRAW:
         this.canvas.isDrawingMode = true;

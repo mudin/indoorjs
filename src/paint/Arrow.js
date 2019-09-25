@@ -76,6 +76,12 @@ export class Arrow extends fabric.Group {
     const point2 = this.pointArray[len - 1];
     return [point1.x, point1.y, point2.x, point2.y];
   }
+
+  setColor(color) {
+    this._objects.forEach(obj => {
+      obj.setColor(color);
+    });
+  }
 }
 
 export const arrow = (points, options) => new Arrow(points, options);

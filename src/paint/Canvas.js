@@ -23,6 +23,7 @@ export class Canvas extends Base {
     canvas.height = this.height || this.container.clientHeight;
 
     this.currentColor = this.currentColor || 'black';
+    this.fontFamily = this.fontFamily || 'Roboto';
 
     this.canvas = new fabric.Canvas(canvas, {
       freeDrawingCursor: 'none',
@@ -157,6 +158,7 @@ export class Canvas extends Base {
           top: mouse.y,
           width: 100,
           fontSize: 20,
+          fontFamily: this.fontFamily,
           lockUniScaling: true,
           fill: this.currentColor,
           stroke: this.currentColor
@@ -284,6 +286,13 @@ export class Canvas extends Base {
   setColor(color) {
     this.currentColor = color;
     this.canvas.freeDrawingBrush.color = color;
+
+    const obj = this.canvas.getActiveObject();
+    if (obj) {
+      obj.set('stroke', color);
+      obj.set('fill', color);
+      this.canvas.requestRenderAll();
+    }
 
     if (!this.mousecursor) return;
 
