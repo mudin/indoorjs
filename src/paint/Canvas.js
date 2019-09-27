@@ -85,15 +85,9 @@ export class Canvas extends Base {
   onModeChanged() {
     this.updateCursor();
     this.emit('mode-changed', this.mode);
-    if (this.isSelectMode()) {
-      for (let i = 0; i < this.canvas._objects.length; i += 1) {
-        this.canvas._objects[i].evented = true;
-      }
-    } else {
-      for (let i = 0; i < this.arrows.length; i += 1) {
-        this.canvas._objects[i].evented = false;
-      }
-    }
+    this.canvas._objects.forEach(obj => {
+      obj.evented = this.isSelectMode();
+    });
   }
 
   addListeners() {

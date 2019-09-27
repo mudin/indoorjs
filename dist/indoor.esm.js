@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 1.0.9+master.1fc6928, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.10+master.397bb19, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "1.0.9+master.1fc6928";
+var version = "1.0.10+master.397bb19";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -4395,55 +4395,51 @@ function (_Base) {
   }, {
     key: "onModeChanged",
     value: function onModeChanged() {
+      var _this2 = this;
+
       this.updateCursor();
       this.emit('mode-changed', this.mode);
 
-      if (this.isSelectMode()) {
-        for (var i = 0; i < this.canvas._objects.length; i += 1) {
-          this.canvas._objects[i].evented = true;
-        }
-      } else {
-        for (var _i = 0; _i < this.arrows.length; _i += 1) {
-          this.canvas._objects[_i].evented = false;
-        }
-      }
+      this.canvas._objects.forEach(function (obj) {
+        obj.evented = _this2.isSelectMode();
+      });
     }
   }, {
     key: "addListeners",
     value: function addListeners() {
-      var _this2 = this;
+      var _this3 = this;
 
       var canvas = this.canvas;
       canvas.on('mouse:move', function (evt) {
         var mouse = canvas.getPointer(evt.e);
 
-        if (_this2.mousecursor) {
-          _this2.mousecursor.set({
+        if (_this3.mousecursor) {
+          _this3.mousecursor.set({
             top: mouse.y,
             left: mouse.x
           }).setCoords().canvas.renderAll();
         }
 
-        if (_this2.isTextMode()) {
+        if (_this3.isTextMode()) {
           console.log('text');
-        } else if (_this2.isArrowMode()) {
-          if (_this2.activeArrow) {
-            _this2.activeArrow.addTempPoint(mouse);
+        } else if (_this3.isArrowMode()) {
+          if (_this3.activeArrow) {
+            _this3.activeArrow.addTempPoint(mouse);
           }
 
-          _this2.canvas.requestRenderAll();
+          _this3.canvas.requestRenderAll();
         }
       });
       canvas.on('mouse:out', function () {
         // put circle off screen
-        if (!_this2.mousecursor) return;
+        if (!_this3.mousecursor) return;
 
-        _this2.mousecursor.set({
+        _this3.mousecursor.set({
           left: -1000,
           top: -1000
         }).setCoords();
 
-        _this2.cursor.renderAll();
+        _this3.cursor.renderAll();
       });
       canvas.on('mouse:up', function (event) {
         if (canvas.mouseDown) {
@@ -4463,61 +4459,61 @@ function (_Base) {
         var mouse = canvas.getPointer(event.e);
         if (event.target) return;
 
-        if (_this2.isTextMode()) {
+        if (_this3.isTextMode()) {
           var text = new fabric.IText('Text', {
             left: mouse.x,
             top: mouse.y,
             width: 100,
             fontSize: 20,
-            fontFamily: _this2.fontFamily,
+            fontFamily: _this3.fontFamily,
             lockUniScaling: true,
-            fill: _this2.currentColor,
-            stroke: _this2.currentColor
+            fill: _this3.currentColor,
+            stroke: _this3.currentColor
           });
           canvas.add(text).setActiveObject(text).renderAll();
 
-          _this2.setModeAsSelect();
-        } else if (_this2.isArrowMode()) {
+          _this3.setModeAsSelect();
+        } else if (_this3.isArrowMode()) {
           console.log('arrow mode');
 
-          if (_this2.activeArrow) {
-            _this2.activeArrow.addPoint(mouse);
+          if (_this3.activeArrow) {
+            _this3.activeArrow.addPoint(mouse);
           } else {
-            _this2.activeArrow = new Arrow(mouse, {
-              stroke: _this2.currentColor,
-              strokeWidth: _this2.lineWidth
+            _this3.activeArrow = new Arrow(mouse, {
+              stroke: _this3.currentColor,
+              strokeWidth: _this3.lineWidth
             });
 
-            _this2.canvas.add(_this2.activeArrow);
+            _this3.canvas.add(_this3.activeArrow);
           }
 
-          _this2.canvas.requestRenderAll();
+          _this3.canvas.requestRenderAll();
         }
       });
       canvas.on('mouse:dblclick', function (event) {
         console.log('mouse:dbclick');
 
-        if (_this2.isArrowMode() && _this2.activeArrow) {
-          _this2.arrows.push(_this2.activeArrow);
+        if (_this3.isArrowMode() && _this3.activeArrow) {
+          _this3.arrows.push(_this3.activeArrow);
 
-          _this2.activeArrow = null;
+          _this3.activeArrow = null;
         }
       });
       canvas.on('selection:created', function (event) {
-        _this2.emit('selected');
+        _this3.emit('selected');
       });
       canvas.on('selection:cleared', function (event) {
-        _this2.emit('unselected');
+        _this3.emit('unselected');
       });
     }
   }, {
     key: "removeSelected",
     value: function removeSelected() {
-      var _this3 = this;
+      var _this4 = this;
 
       this.canvas.remove(this.canvas.getActiveObject());
       this.canvas.getActiveObjects().forEach(function (obj) {
-        _this3.canvas.remove(obj);
+        _this4.canvas.remove(obj);
       });
       this.canvas.discardActiveObject().renderAll();
     }
