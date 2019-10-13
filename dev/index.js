@@ -142,4 +142,4 @@ map.on('mouse:move', () => {
   // console.log('mouse:move', e);
 });
 
-window.map = map;
+window.map2 = map;

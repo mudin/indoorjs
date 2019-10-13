@@ -12,7 +12,10 @@ export class Point extends fabric.Point {
     } else if (params[0].length) {
       [[x, y]] = params;
     } else {
-      console.error('Parameter for Point is not valid. Use Point(x,y) or Point({x,y}) or Point([x,y])', params);
+      console.error(
+        'Parameter for Point is not valid. Use Point(x,y) or Point({x,y}) or Point([x,y])',
+        params
+      );
     }
 
     super(x, y);
@@ -24,6 +27,11 @@ export class Point extends fabric.Point {
 
   setY(y) {
     this.y = y || 0;
+  }
+
+  copy(point) {
+    this.x = point.x;
+    this.y = point.y;
   }
 
   getArray() {

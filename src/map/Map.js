@@ -336,8 +336,30 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.x = e.x0;
     this.y = e.y0;
     this.isRight = e.isRight;
-    console.log(this.dx, this.dy);
     this.update();
+  }
+
+  setView(view) {
+    this.dx = 0;
+    this.dy = 0;
+    this.x = 0;
+    this.y = 0;
+    view.y *= -1;
+
+    const dx = this.center.x - view.x;
+    const dy = -this.center.y + view.y;
+
+    this.center.copy(view);
+
+    this.canvas.relativePan(new Point(dx * this.zoom, dy * this.zoom));
+
+    this.canvas.renderAll();
+
+    this.update();
+
+    process.nextTick(() => {
+      this.update();
+    });
   }
 
   registerListeners() {

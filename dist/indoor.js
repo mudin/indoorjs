@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 1.0.10+master.397bb19, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.11+master.91a5a3b, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "1.0.10+master.397bb19";
+  var version = "1.0.11+master.91a5a3b";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -226,6 +226,12 @@
       key: "setY",
       value: function setY(y) {
         this.y = y || 0;
+      }
+    }, {
+      key: "copy",
+      value: function copy(point) {
+        this.x = point.x;
+        this.y = point.y;
       }
     }, {
       key: "getArray",
@@ -2946,13 +2952,32 @@
         this.x = e.x0;
         this.y = e.y0;
         this.isRight = e.isRight;
-        console.log(this.dx, this.dy);
         this.update();
+      }
+    }, {
+      key: "setView",
+      value: function setView(view) {
+        var _this5 = this;
+
+        this.dx = 0;
+        this.dy = 0;
+        this.x = 0;
+        this.y = 0;
+        view.y *= -1;
+        var dx = this.center.x - view.x;
+        var dy = -this.center.y + view.y;
+        this.center.copy(view);
+        this.canvas.relativePan(new Point(dx * this.zoom, dy * this.zoom));
+        this.canvas.renderAll();
+        this.update();
+        nextTick(function () {
+          _this5.update();
+        });
       }
     }, {
       key: "registerListeners",
       value: function registerListeners() {
-        var _this5 = this;
+        var _this6 = this;
 
         var vm = this;
         this.canvas.on('object:scaling', function (e) {
@@ -3003,7 +3028,7 @@
             }
           }
 
-          _this5.update();
+          _this6.update();
         });
         this.canvas.on('object:moving', function (e) {
           if (e.target["class"]) {
@@ -3025,7 +3050,7 @@
             }
           }
 
-          _this5.update();
+          _this6.update();
         });
         this.canvas.on('object:moved', function (e) {
           if (e.target["class"]) {
@@ -3033,7 +3058,7 @@
             vm.emit("".concat(e.target["class"], ":moved"), e.target.parent);
             e.target.parent.emit('moved', e.target.parent);
 
-            _this5.update();
+            _this6.update();
 
             return;
           }
@@ -3051,7 +3076,7 @@
             }
           }
 
-          _this5.update();
+          _this6.update();
         });
         this.canvas.on('selection:cleared', function (e) {
           var objects = e.deselected;
@@ -3113,22 +3138,22 @@
             }
           }
 
-          _this5.isRight = false;
+          _this6.isRight = false;
 
           if ('which' in e.e) {
             // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
-            _this5.isRight = e.e.which === 3;
+            _this6.isRight = e.e.which === 3;
           } else if ('button' in e.e) {
             // IE, Opera
-            _this5.isRight = e.e.button === 2;
+            _this6.isRight = e.e.button === 2;
           }
 
           vm.emit('mouse:move', e);
         });
         this.canvas.on('mouse:up', function (e) {
-          _this5.isRight = false;
-          _this5.dx = 0;
-          _this5.dy = 0;
+          _this6.isRight = false;
+          _this6.dx = 0;
+          _this6.dy = 0;
 
           if (!vm.dragObject || !e.target || !e.target.selectable) {
             e.target = null;
