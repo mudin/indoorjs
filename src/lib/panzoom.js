@@ -1,6 +1,5 @@
 import evPos from './ev-pos';
 import Impetus from './impetus';
-import wheel from './mouse-wheel';
 import touchPinch from './touch-pinch';
 import raf from './raf';
 import MagicScroll from './MagicScroll';
@@ -43,18 +42,24 @@ const panzoom = (target, cb) => {
   let initX = 0;
   let initY = 0;
   let init = true;
-  const initFn = function (e) {
+  const initFn = function(e) {
     init = true;
   };
   target.addEventListener('mousedown', initFn);
-  target.addEventListener('mousemove', e => {
+
+  const onMouseMove = e => {
     cursor = evPos(e);
-  });
-  target.addEventListener('wheel', e => {
+  };
+
+  target.addEventListener('mousemove', onMouseMove);
+
+  const wheelListener = function(e) {
     if (e) {
       cursor = evPos(e);
     }
-  });
+  };
+
+  target.addEventListener('wheel', wheelListener);
   target.addEventListener('touchstart', initFn, hasPassive() ? { passive: true } : false);
 
   target.addEventListener(
@@ -203,7 +208,7 @@ const panzoom = (target, cb) => {
 
   return function unpanzoom() {
     target.removeEventListener('mousedown', initFn);
-    target.removeEventListener('wheel');
+    target.removeEventListener('mousemove', onMouseMove);
     target.removeEventListener('touchstart', initFn);
 
     impetus.destroy();
