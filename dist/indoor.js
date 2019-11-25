@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 1.0.11+master.91a5a3b, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.13+master.5391dfd, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "1.0.11+master.91a5a3b";
+  var version = "1.0.13+master.5391dfd";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -1029,126 +1029,6 @@
     return passiveSupported;
   }
 
-  var MagicScroll =
-  /*#__PURE__*/
-  function () {
-    function MagicScroll(target) {
-      var speed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 80;
-      var smooth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 12;
-      var current = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
-      var passive = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
-
-      _classCallCheck(this, MagicScroll);
-
-      if (target === document) {
-        target = document.scrollingElement || document.documentElement || document.body.parentNode || document.body;
-      } // cross browser support for document scrolling
-
-
-      this.speed = speed;
-      this.smooth = smooth;
-      this.moving = false;
-      this.scrollTop = current * 3000;
-      this.pos = this.scrollTop;
-      this.frame = target === document.body && document.documentElement ? document.documentElement : target; // safari is the new IE
-
-      target.addEventListener('wheel', scrolled, {
-        passive: passive
-      });
-      target.addEventListener('DOMMouseScroll', scrolled, {
-        passive: passive
-      });
-      var scope = this;
-
-      function scrolled(e) {
-        e.preventDefault(); // disable default scrolling
-
-        var delta = scope.normalizeWheelDelta(e);
-        scope.pos += -delta * scope.speed; // scope.pos = Math.max(0, Math.min(scope.pos, 3000)); // limit scrolling
-
-        if (!scope.moving) scope.update(e);
-      }
-    }
-
-    _createClass(MagicScroll, [{
-      key: "normalizeWheelDelta",
-      value: function normalizeWheelDelta(e) {
-        if (e.detail) {
-          if (e.wheelDelta) return e.wheelDelta / e.detail / 40 * (e.detail > 0 ? 1 : -1); // Opera
-
-          return -e.detail / 3; // Firefox
-        }
-
-        return e.wheelDelta / 120; // IE,Safari,Chrome
-      }
-    }, {
-      key: "update",
-      value: function update(e) {
-        this.moving = true;
-        var delta = (this.pos - this.scrollTop) / this.smooth;
-        this.scrollTop += delta; // this.scrollTop = Math.round(this.scrollTop);
-
-        if (this.onUpdate) {
-          this.onUpdate(delta, e);
-        }
-
-        var scope = this;
-
-        if (Math.abs(delta) > 1) {
-          requestFrame(function () {
-            scope.update();
-          });
-        } else this.moving = false;
-      }
-    }]);
-
-    return MagicScroll;
-  }();
-
-  var requestFrame = function () {
-    // requestAnimationFrame cross browser
-    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (func) {
-      window.setTimeout(func, 1000);
-    };
-  }();
-
-  var parseUnit = (function (str, out) {
-    if (!out) out = [0, ''];
-    str = String(str);
-    var num = parseFloat(str, 10);
-    out[0] = num;
-    out[1] = str.match(/[\d.\-\+]*\s*(.*)/)[1] || '';
-    return out;
-  });
-
-  // (c) 2015 Mikola Lysenko. MIT License
-  var PIXELS_PER_INCH = 96;
-  var defaults = {
-    'ch': 8,
-    'ex': 7.15625,
-    'em': 16,
-    'rem': 16,
-    'in': PIXELS_PER_INCH,
-    'cm': PIXELS_PER_INCH / 2.54,
-    'mm': PIXELS_PER_INCH / 25.4,
-    'pt': PIXELS_PER_INCH / 72,
-    'pc': PIXELS_PER_INCH / 6,
-    'px': 1
-  };
-  function toPX(str) {
-    if (!str) return null;
-    if (defaults[str]) return defaults[str]; // detect number of units
-
-    var parts = parseUnit(str);
-
-    if (!isNaN(parts[0]) && parts[1]) {
-      var px = toPX(parts[1]);
-      return typeof px === 'number' ? parts[0] * px : null;
-    }
-
-    return null;
-  }
-
   var rootPosition = {
     left: 0,
     top: 0
@@ -1369,6 +1249,89 @@
     }
   };
 
+  var MagicScroll =
+  /*#__PURE__*/
+  function () {
+    function MagicScroll(target) {
+      var speed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 80;
+      var smooth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 12;
+      var current = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+      var passive = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+
+      _classCallCheck(this, MagicScroll);
+
+      if (target === document) {
+        target = document.scrollingElement || document.documentElement || document.body.parentNode || document.body;
+      } // cross browser support for document scrolling
+
+
+      this.speed = speed;
+      this.smooth = smooth;
+      this.moving = false;
+      this.scrollTop = current * 3000;
+      this.pos = this.scrollTop;
+      this.frame = target === document.body && document.documentElement ? document.documentElement : target; // safari is the new IE
+
+      target.addEventListener('wheel', scrolled, {
+        passive: passive
+      });
+      target.addEventListener('DOMMouseScroll', scrolled, {
+        passive: passive
+      });
+      var scope = this;
+
+      function scrolled(e) {
+        e.preventDefault(); // disable default scrolling
+
+        var delta = scope.normalizeWheelDelta(e);
+        scope.pos += -delta * scope.speed; // scope.pos = Math.max(0, Math.min(scope.pos, 3000)); // limit scrolling
+
+        if (!scope.moving) scope.update(e);
+      }
+    }
+
+    _createClass(MagicScroll, [{
+      key: "normalizeWheelDelta",
+      value: function normalizeWheelDelta(e) {
+        if (e.detail) {
+          if (e.wheelDelta) return e.wheelDelta / e.detail / 40 * (e.detail > 0 ? 1 : -1); // Opera
+
+          return -e.detail / 3; // Firefox
+        }
+
+        return e.wheelDelta / 120; // IE,Safari,Chrome
+      }
+    }, {
+      key: "update",
+      value: function update(e) {
+        this.moving = true;
+        var delta = (this.pos - this.scrollTop) / this.smooth;
+        this.scrollTop += delta; // this.scrollTop = Math.round(this.scrollTop);
+
+        if (this.onUpdate) {
+          this.onUpdate(delta, e);
+        }
+
+        var scope = this;
+
+        if (Math.abs(delta) > 1) {
+          requestFrame(function () {
+            scope.update();
+          });
+        } else this.moving = false;
+      }
+    }]);
+
+    return MagicScroll;
+  }();
+
+  var requestFrame = function () {
+    // requestAnimationFrame cross browser
+    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (func) {
+      window.setTimeout(func, 1000);
+    };
+  }();
+
   var panzoom = function panzoom(target, cb) {
     if (target instanceof Function) {
       cb = target;
@@ -1410,14 +1373,20 @@
     };
 
     target.addEventListener('mousedown', initFn);
-    target.addEventListener('mousemove', function (e) {
+
+    var onMouseMove = function onMouseMove(e) {
       cursor = evPos(e);
-    });
-    target.addEventListener('wheel', function (e) {
+    };
+
+    target.addEventListener('mousemove', onMouseMove);
+
+    var wheelListener = function wheelListener(e) {
       if (e) {
         cursor = evPos(e);
       }
-    });
+    };
+
+    target.addEventListener('wheel', wheelListener);
     target.addEventListener('touchstart', initFn, hasPassive() ? {
       passive: true
     } : false);
@@ -1547,7 +1516,7 @@
 
     return function unpanzoom() {
       target.removeEventListener('mousedown', initFn);
-      target.removeEventListener('wheel');
+      target.removeEventListener('mousemove', onMouseMove);
       target.removeEventListener('touchstart', initFn);
       impetus.destroy();
       target.removeEventListener('wheel', wheelListener);
@@ -1761,6 +1730,43 @@
     }
 
     return step;
+  }
+
+  var parseUnit = (function (str, out) {
+    if (!out) out = [0, ''];
+    str = String(str);
+    var num = parseFloat(str, 10);
+    out[0] = num;
+    out[1] = str.match(/[\d.\-\+]*\s*(.*)/)[1] || '';
+    return out;
+  });
+
+  // (c) 2015 Mikola Lysenko. MIT License
+  var PIXELS_PER_INCH = 96;
+  var defaults = {
+    'ch': 8,
+    'ex': 7.15625,
+    'em': 16,
+    'rem': 16,
+    'in': PIXELS_PER_INCH,
+    'cm': PIXELS_PER_INCH / 2.54,
+    'mm': PIXELS_PER_INCH / 25.4,
+    'pt': PIXELS_PER_INCH / 72,
+    'pc': PIXELS_PER_INCH / 6,
+    'px': 1
+  };
+  function toPX(str) {
+    if (!str) return null;
+    if (defaults[str]) return defaults[str]; // detect number of units
+
+    var parts = parseUnit(str);
+
+    if (!isNaN(parts[0]) && parts[1]) {
+      var px = toPX(parts[1]);
+      return typeof px === 'number' ? parts[0] * px : null;
+    }
+
+    return null;
   }
 
   /**
