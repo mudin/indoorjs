@@ -1,5 +1,5 @@
 /* @preserve
- * IndoorJS 1.0.13+master.5391dfd, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.14+master.c50f537, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
@@ -12,7 +12,7 @@
   fabric$1 = fabric$1 && fabric$1.hasOwnProperty('default') ? fabric$1['default'] : fabric$1;
   EventEmitter2 = EventEmitter2 && EventEmitter2.hasOwnProperty('default') ? EventEmitter2['default'] : EventEmitter2;
 
-  var version = "1.0.13+master.5391dfd";
+  var version = "1.0.14+master.c50f537";
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -263,7 +263,8 @@
     gridEnabled: true,
     zoomEnabled: true,
     selectEnabled: true,
-    mode: Modes.SELECT
+    mode: Modes.SELECT,
+    showGrid: true
   };
   var MARKER = {
     position: new Point(),
@@ -2663,7 +2664,9 @@
         console.error(e);
       }
 
-      _this.addGrid();
+      if (_this.showGrid) {
+        _this.addGrid();
+      }
 
       _this.setMode(_this.mode || Modes.GRAB);
 
@@ -2862,7 +2865,11 @@
         height = height || this.container.clientHeight;
         this.canvas.setWidth(width);
         this.canvas.setHeight(height);
-        this.grid.setSize(width, height);
+
+        if (this.grid) {
+          this.grid.setSize(width, height);
+        }
+
         var dx = width / 2.0 - oldWidth / 2.0;
         var dy = height / 2.0 - oldHeight / 2.0;
         this.canvas.relativePan({
@@ -2875,13 +2882,21 @@
       key: "update",
       value: function update() {
         var canvas = this.canvas;
-        this.grid.update2({
-          x: this.center.x,
-          y: this.center.y,
-          zoom: this.zoom
-        });
+
+        if (this.grid) {
+          this.grid.update2({
+            x: this.center.x,
+            y: this.center.y,
+            zoom: this.zoom
+          });
+        }
+
         this.emit('update', this);
-        this.grid.render();
+
+        if (this.grid) {
+          this.grid.render();
+        }
+
         canvas.zoomToPoint(new Point(this.x, this.y), this.zoom);
 
         if (this.isGrabMode() || this.isRight) {

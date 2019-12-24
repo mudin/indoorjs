@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 1.0.13+master.5391dfd, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.14+master.c50f537, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "1.0.13+master.5391dfd";
+var version = "1.0.14+master.c50f537";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -257,7 +257,8 @@ var MAP = {
   gridEnabled: true,
   zoomEnabled: true,
   selectEnabled: true,
-  mode: Modes.SELECT
+  mode: Modes.SELECT,
+  showGrid: true
 };
 var MARKER = {
   position: new Point(),
@@ -2657,7 +2658,9 @@ function (_mix$with) {
       console.error(e);
     }
 
-    _this.addGrid();
+    if (_this.showGrid) {
+      _this.addGrid();
+    }
 
     _this.setMode(_this.mode || Modes.GRAB);
 
@@ -2856,7 +2859,11 @@ function (_mix$with) {
       height = height || this.container.clientHeight;
       this.canvas.setWidth(width);
       this.canvas.setHeight(height);
-      this.grid.setSize(width, height);
+
+      if (this.grid) {
+        this.grid.setSize(width, height);
+      }
+
       var dx = width / 2.0 - oldWidth / 2.0;
       var dy = height / 2.0 - oldHeight / 2.0;
       this.canvas.relativePan({
@@ -2869,13 +2876,21 @@ function (_mix$with) {
     key: "update",
     value: function update() {
       var canvas = this.canvas;
-      this.grid.update2({
-        x: this.center.x,
-        y: this.center.y,
-        zoom: this.zoom
-      });
+
+      if (this.grid) {
+        this.grid.update2({
+          x: this.center.x,
+          y: this.center.y,
+          zoom: this.zoom
+        });
+      }
+
       this.emit('update', this);
-      this.grid.render();
+
+      if (this.grid) {
+        this.grid.render();
+      }
+
       canvas.zoomToPoint(new Point(this.x, this.y), this.zoom);
 
       if (this.isGrabMode() || this.isRight) {

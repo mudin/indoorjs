@@ -14,7 +14,8 @@ export const MAP = {
   gridEnabled: true,
   zoomEnabled: true,
   selectEnabled: true,
-  mode: Modes.SELECT
+  mode: Modes.SELECT,
+  showGrid: true
 };
 
 export const MARKER = {

@@ -64,7 +64,10 @@ export class Map extends mix(Base).with(ModesMixin) {
     } catch (e) {
       console.error(e);
     }
-    this.addGrid();
+
+    if (this.showGrid) {
+      this.addGrid();
+    }
 
     this.setMode(this.mode || Modes.GRAB);
 
@@ -243,7 +246,9 @@ export class Map extends mix(Base).with(ModesMixin) {
     this.canvas.setWidth(width);
     this.canvas.setHeight(height);
 
-    this.grid.setSize(width, height);
+    if (this.grid) {
+      this.grid.setSize(width, height);
+    }
 
     const dx = width / 2.0 - oldWidth / 2.0;
     const dy = height / 2.0 - oldHeight / 2.0;
@@ -259,14 +264,17 @@ export class Map extends mix(Base).with(ModesMixin) {
   update() {
     const canvas = this.canvas;
 
-    this.grid.update2({
-      x: this.center.x,
-      y: this.center.y,
-      zoom: this.zoom
-    });
-
+    if (this.grid) {
+      this.grid.update2({
+        x: this.center.x,
+        y: this.center.y,
+        zoom: this.zoom
+      });
+    }
     this.emit('update', this);
-    this.grid.render();
+    if (this.grid) {
+      this.grid.render();
+    }
 
     canvas.zoomToPoint(new Point(this.x, this.y), this.zoom);
 
