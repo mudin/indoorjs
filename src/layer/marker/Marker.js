@@ -197,6 +197,17 @@ export class Marker extends Layer {
     this.addLinks();
   }
 
+  setSize(size) {
+    if (this.image) {
+      this.image.scaleToWidth(size);
+      if (this.image.canvas) {
+        this.image.canvas.renderAll();
+      }
+    } else if (this.circle) {
+      this.circle.setRadius(size);
+    }
+  }
+
   addLinks() {
     this.connectors = [];
     this.links.forEach(link => {
