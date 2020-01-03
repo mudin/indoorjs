@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 1.0.16+master.1317ab1, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.16+master.52a932f, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "1.0.16+master.1317ab1";
+var version = "1.0.16+master.52a932f";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3402,9 +3402,9 @@ function (_Layer) {
       this.handler = new fabric.Rect({
         left: 0,
         top: 0,
-        width: 20,
-        height: 20,
-        stroke: 'green',
+        width: 0.1,
+        height: 0.1,
+        stroke: 'black',
         fill: '',
         hasControls: false,
         hasBorders: false

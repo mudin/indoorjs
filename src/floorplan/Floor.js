@@ -43,9 +43,9 @@ export class Floor extends Layer {
     this.handler = new fabric.Rect({
       left: 0,
       top: 0,
-      width: 20,
-      height: 20,
-      stroke: 'green',
+      width: 0.1,
+      height: 0.1,
+      stroke: 'black',
       fill: '',
       hasControls: false,
       hasBorders: false
