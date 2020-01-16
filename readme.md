@@ -5,7 +5,7 @@
     <img src="http://hits.dwyl.io/mudin/indoorjs.svg" alt="HitCount">
   </a>
 
-Indoor maps based on fabricjs with zooming, panning, grid system and anotations. 
+Indoor maps based on fabricjs with grid system, zooming, panning and anotations. 
 See [demo](https://mudin.github.io/indoorjs).
 
 ![Markers and Connections demo](https://mudin.github.io/indoorjs/indoorjs.gif?raw=true)
