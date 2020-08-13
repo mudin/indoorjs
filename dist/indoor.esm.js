@@ -1,12 +1,12 @@
 /* @preserve
- * IndoorJS 1.0.16+master.52a932f, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
+ * IndoorJS 1.0.18+master.3cb5fd5, a JS library for interactive indoor maps. https://mudin.github.io/indoorjs
  * (c) 2019 Mudin Ibrahim
  */
 
 import fabric$1 from 'fabric-pure-browser';
 import EventEmitter2 from 'eventemitter2';
 
-var version = "1.0.16+master.52a932f";
+var version = "1.0.18+master.3cb5fd5";
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -28,6 +28,55 @@ function _createClass(Constructor, protoProps, staticProps) {
   if (protoProps) _defineProperties(Constructor.prototype, protoProps);
   if (staticProps) _defineProperties(Constructor, staticProps);
   return Constructor;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    });
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
 }
 
 function _inherits(subClass, superClass) {
@@ -61,7 +110,7 @@ function _setPrototypeOf(o, p) {
   return _setPrototypeOf(o, p);
 }
 
-function isNativeReflectConstruct() {
+function _isNativeReflectConstruct() {
   if (typeof Reflect === "undefined" || !Reflect.construct) return false;
   if (Reflect.construct.sham) return false;
   if (typeof Proxy === "function") return true;
@@ -75,7 +124,7 @@ function isNativeReflectConstruct() {
 }
 
 function _construct(Parent, args, Class) {
-  if (isNativeReflectConstruct()) {
+  if (_isNativeReflectConstruct()) {
     _construct = Reflect.construct;
   } else {
     _construct = function _construct(Parent, args, Class) {
@@ -105,6 +154,25 @@ function _possibleConstructorReturn(self, call) {
   }
 
   return _assertThisInitialized(self);
+}
+
+function _createSuper(Derived) {
+  var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+  return function _createSuperInternal() {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (hasNativeReflectConstruct) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
 }
 
 function _superPropBase(object, property) {
@@ -138,7 +206,7 @@ function _get(target, property, receiver) {
 }
 
 function _slicedToArray(arr, i) {
-  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
 }
 
 function _arrayWithHoles(arr) {
@@ -146,6 +214,7 @@ function _arrayWithHoles(arr) {
 }
 
 function _iterableToArrayLimit(arr, i) {
+  if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
   var _arr = [];
   var _n = true;
   var _d = false;
@@ -171,14 +240,31 @@ function _iterableToArrayLimit(arr, i) {
   return _arr;
 }
 
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance");
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
 }
 
-var Point =
-/*#__PURE__*/
-function (_fabric$Point) {
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
+}
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+var Point = /*#__PURE__*/function (_fabric$Point) {
   _inherits(Point, _fabric$Point);
+
+  var _super = _createSuper(Point);
 
   function Point() {
     _classCallCheck(this, Point);
@@ -208,7 +294,7 @@ function (_fabric$Point) {
       console.error('Parameter for Point is not valid. Use Point(x,y) or Point({x,y}) or Point([x,y])', params);
     }
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Point).call(this, x, y));
+    return _super.call(this, x, y);
   }
 
   _createClass(Point, [{
@@ -247,6 +333,7 @@ var point = function point() {
 var Modes = {
   SELECT: 'SELECT',
   GRAB: 'GRAB',
+  MEASURE: 'MEASURE',
   DRAW: 'DRAW'
 };
 var MAP = {
@@ -1244,9 +1331,7 @@ raf.cancel = function (id) {
   }
 };
 
-var MagicScroll =
-/*#__PURE__*/
-function () {
+var MagicScroll = /*#__PURE__*/function () {
   function MagicScroll(target) {
     var speed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 80;
     var smooth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 12;
@@ -1544,18 +1629,6 @@ function len(a, b) {
   return Math.sqrt(a * a + b * b);
 }
 
-/**
- * @module mumath/lerp
- */
-
-/**
- * Looping function for any framesize.
- * Like fmod.
- *
- * @module  mumath/loop
- *
- */
-
 // Type definitions for almost-equal 1.1
 // Project: https://github.com/mikolalysenko/almost-equal#readme
 // Definitions by: Curtis Maddalozzo <https://github.com/cmaddalozzo>
@@ -1583,39 +1656,6 @@ var FLT_EPSILON = 1.19209290e-7;
 var DBL_EPSILON = 2.2204460492503131e-16;
 almostEqual.FLT_EPSILON = FLT_EPSILON;
 almostEqual.DBL_EPSILON = DBL_EPSILON;
-
-/**
- * Get rid of float remainder
- *
- * @module mumath/normalize
- */
-
-/**
- * @module  mumath/precision
- *
- * Get precision from float:
- *
- * @example
- * 1.1 → 1, 1234 → 0, .1234 → 4
- *
- * @param {number} n
- *
- * @return {number} decimap places
- */
-
-/**
- * Precision round
- *
- * @param {number} value
- * @param {number} step Minimal discrete to round
- *
- * @return {number}
- *
- * @example
- * toPrecision(213.34, 1) == 213
- * toPrecision(213.34, .1) == 213.3
- * toPrecision(213.34, 10) == 210
- */
 
 // The MIT License (MIT)
 // Copyright (c) 2016 angus croll
@@ -1673,10 +1713,6 @@ function range(start, stop, step) {
 
   return toReturn;
 }
-
-/**
- * @module mumath/order
- */
 
 /**
  * Base 10 logarithm
@@ -1777,23 +1813,17 @@ var isObj = (function (value) {
   return prototype === null || prototype === Object.getPrototypeOf({});
 });
 
-/**
- * Composed set of all math utils, wrapped
- *
- * @module  mumath
- */
-
-var Base =
-/*#__PURE__*/
-function (_EventEmitter) {
+var Base = /*#__PURE__*/function (_EventEmitter) {
   _inherits(Base, _EventEmitter);
+
+  var _super = _createSuper(Base);
 
   function Base(options) {
     var _this;
 
     _classCallCheck(this, Base);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Base).call(this, options));
+    _this = _super.call(this, options);
     _this._options = options || {};
     Object.assign(_assertThisInitialized(_this), options);
     return _this;
@@ -1864,9 +1894,7 @@ var gridStyle = {
   }
 };
 
-var Axis =
-/*#__PURE__*/
-function () {
+var Axis = /*#__PURE__*/function () {
   function Axis(orientation, options) {
     _classCallCheck(this, Axis);
 
@@ -1919,17 +1947,17 @@ function () {
   return Axis;
 }();
 
-var Grid =
-/*#__PURE__*/
-function (_Base) {
+var Grid = /*#__PURE__*/function (_Base) {
   _inherits(Grid, _Base);
+
+  var _super = _createSuper(Grid);
 
   function Grid(canvas, opts) {
     var _this;
 
     _classCallCheck(this, Grid);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Grid).call(this, opts));
+    _this = _super.call(this, opts);
     _this.canvas = canvas;
     _this.context = _this.canvas.getContext('2d');
     _this.state = {};
@@ -2452,88 +2480,296 @@ function (_Base) {
 }(Base);
 
 var ModesMixin = function ModesMixin(superclass) {
-  return (
-    /*#__PURE__*/
-    function (_superclass) {
-      _inherits(_class, _superclass);
+  return /*#__PURE__*/function (_superclass) {
+    _inherits(_class, _superclass);
 
-      function _class() {
-        _classCallCheck(this, _class);
+    var _super = _createSuper(_class);
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(_class).apply(this, arguments));
+    function _class() {
+      _classCallCheck(this, _class);
+
+      return _super.apply(this, arguments);
+    }
+
+    _createClass(_class, [{
+      key: "setMode",
+
+      /**
+       * MODES
+       */
+      value: function setMode(mode) {
+        this.mode = mode;
+
+        switch (mode) {
+          case Modes.SELECT:
+            this.canvas.isDrawingMode = false;
+            this.canvas.interactive = true;
+            this.canvas.selection = true;
+            this.canvas.hoverCursor = 'default';
+            this.canvas.moveCursor = 'default';
+            break;
+
+          case Modes.GRAB:
+            this.canvas.isDrawingMode = false;
+            this.canvas.interactive = false;
+            this.canvas.selection = false;
+            this.canvas.discardActiveObject();
+            this.canvas.hoverCursor = 'move';
+            this.canvas.moveCursor = 'move';
+            break;
+
+          case Modes.MEASURE:
+            this.canvas.isDrawingMode = true;
+            this.canvas.freeDrawingBrush.color = 'transparent';
+            this.canvas.discardActiveObject();
+            break;
+
+          case Modes.DRAW:
+            this.canvas.isDrawingMode = true;
+            break;
+        }
       }
+    }, {
+      key: "setModeAsDraw",
+      value: function setModeAsDraw() {
+        this.setMode(Modes.DRAW);
+      }
+    }, {
+      key: "setModeAsSelect",
+      value: function setModeAsSelect() {
+        this.setMode(Modes.SELECT);
+      }
+    }, {
+      key: "setModeAsMeasure",
+      value: function setModeAsMeasure() {
+        this.setMode(Modes.MEASURE);
+      }
+    }, {
+      key: "setModeAsGrab",
+      value: function setModeAsGrab() {
+        this.setMode(Modes.GRAB);
+      }
+    }, {
+      key: "isSelectMode",
+      value: function isSelectMode() {
+        return this.mode === Modes.SELECT;
+      }
+    }, {
+      key: "isGrabMode",
+      value: function isGrabMode() {
+        return this.mode === Modes.GRAB;
+      }
+    }, {
+      key: "isMeasureMode",
+      value: function isMeasureMode() {
+        return this.mode === Modes.MEASURE;
+      }
+    }, {
+      key: "isDrawMode",
+      value: function isDrawMode() {
+        return this.mode === Modes.DRAW;
+      }
+    }]);
 
-      _createClass(_class, [{
-        key: "setMode",
-
-        /**
-           * MODES
-           */
-        value: function setMode(mode) {
-          this.mode = mode;
-
-          switch (mode) {
-            case Modes.SELECT:
-              this.canvas.isDrawingMode = false;
-              this.canvas.interactive = true;
-              this.canvas.selection = true;
-              this.canvas.hoverCursor = 'default';
-              this.canvas.moveCursor = 'default';
-              break;
-
-            case Modes.GRAB:
-              this.canvas.isDrawingMode = false;
-              this.canvas.interactive = false;
-              this.canvas.selection = false;
-              this.canvas.discardActiveObject();
-              this.canvas.hoverCursor = 'move';
-              this.canvas.moveCursor = 'move';
-              break;
-
-            case Modes.DRAW:
-              this.canvas.isDrawingMode = true;
-              break;
-
-            default:
-              break;
-          }
-        }
-      }, {
-        key: "setModeAsDraw",
-        value: function setModeAsDraw() {
-          this.setMode(Modes.DRAW);
-        }
-      }, {
-        key: "setModeAsSelect",
-        value: function setModeAsSelect() {
-          this.setMode(Modes.SELECT);
-        }
-      }, {
-        key: "setModeAsGrab",
-        value: function setModeAsGrab() {
-          this.setMode(Modes.GRAB);
-        }
-      }, {
-        key: "isSelectMode",
-        value: function isSelectMode() {
-          return this.mode === Modes.SELECT;
-        }
-      }, {
-        key: "isGrabMode",
-        value: function isGrabMode() {
-          return this.mode === Modes.GRAB;
-        }
-      }, {
-        key: "isDrawMode",
-        value: function isDrawMode() {
-          return this.mode === Modes.DRAW;
-        }
-      }]);
-
-      return _class;
-    }(superclass)
-  );
+    return _class;
+  }(superclass);
 };
+
+var Measurer = /*#__PURE__*/function () {
+  function Measurer(options) {
+    _classCallCheck(this, Measurer);
+
+    options = options || {};
+    options.hasBorders = false;
+    options.selectable = false;
+    options.hasControls = false; // options.evented = false;
+
+    options["class"] = 'measurer';
+    options.scale = options.scale || 1; // super([], options);
+
+    this.options = options || {};
+    this.start = this.options.start;
+    this.end = this.options.end;
+    this.canvas = this.options.map.canvas;
+    this.completed = false;
+
+    if (!this.start || !this.end) {
+      throw new Error('start must be defined');
+    }
+
+    this.draw();
+  }
+
+  _createClass(Measurer, [{
+    key: "clear",
+    value: function clear() {
+      var _this = this;
+
+      if (this.objects) {
+        this.objects.forEach(function (object) {
+          _this.canvas.remove(object);
+        });
+      }
+    }
+  }, {
+    key: "draw",
+    value: function draw() {
+      var _this2 = this;
+
+      this.clear();
+      var start = this.start,
+          end = this.end;
+      start = new Point(start);
+      end = new Point(end);
+      var center = start.add(end).multiply(0.5);
+      this.line = new fabric.Line([start.x, start.y, end.x, end.y], {
+        stroke: this.options.stroke || '#3e82ff',
+        hasControls: false,
+        hasBorders: false,
+        selectable: false,
+        evented: false,
+        strokeDashArray: [5, 5]
+      });
+      var lineEndOptions = {
+        left: start.x,
+        top: start.y,
+        strokeWidth: 1,
+        radius: this.options.radius || 1,
+        fill: this.options.fill || '#3e82ff',
+        stroke: this.options.stroke || '#3e82ff',
+        hasControls: false,
+        hasBorders: false
+      };
+      var lineEndOptions2 = {
+        left: start.x,
+        top: start.y,
+        strokeWidth: 1,
+        radius: this.options.radius || 5,
+        fill: this.options.fill || '#3e82ff33',
+        stroke: this.options.stroke || '#3e82ff',
+        hasControls: false,
+        hasBorders: false
+      };
+      this.circle1 = new fabric.Circle(lineEndOptions2);
+      this.circle2 = new fabric.Circle(_objectSpread2(_objectSpread2({}, lineEndOptions2), {}, {
+        left: end.x,
+        top: end.y
+      }));
+      this.circle11 = new fabric.Circle(lineEndOptions);
+      this.circle22 = new fabric.Circle(_objectSpread2(_objectSpread2({}, lineEndOptions), {}, {
+        left: end.x,
+        top: end.y
+      }));
+      var text = Math.round(start.distanceFrom(end));
+      text = "".concat(text / 100, " m");
+      this.text = new fabric.Text(text, {
+        textBackgroundColor: 'black',
+        fill: 'white',
+        left: center.x,
+        top: center.y - 10,
+        fontSize: 12,
+        hasControls: false,
+        hasBorders: false,
+        selectable: false,
+        evented: false
+      });
+      this.objects = [this.line, this.text, this.circle11, this.circle22, this.circle1, this.circle2];
+      this.objects.forEach(function (object) {
+        _this2.canvas.add(object);
+      });
+      this.line.hasControls = false;
+      this.line.hasBorders = false;
+      this.line.selectable = false;
+      this.line.evented = false;
+      this.registerListeners();
+    }
+  }, {
+    key: "setStart",
+    value: function setStart(start) {
+      this.start = start;
+      this.draw();
+    }
+  }, {
+    key: "setEnd",
+    value: function setEnd(end) {
+      this.end = end;
+      this.draw();
+    }
+  }, {
+    key: "complete",
+    value: function complete() {
+      this.completed = true;
+    }
+  }, {
+    key: "registerListeners",
+    value: function registerListeners() {
+      var _this3 = this;
+
+      this.circle2.on('moving', function (e) {
+        _this3.setEnd(e.pointer);
+      });
+      this.circle1.on('moving', function (e) {
+        _this3.setStart(e.pointer);
+      });
+    }
+  }, {
+    key: "applyScale",
+    value: function applyScale(scale) {
+      this.start.x *= scale;
+      this.start.y *= scale;
+      this.end.x *= scale;
+      this.end.y *= scale;
+      this.draw();
+    }
+  }]);
+
+  return Measurer;
+}();
+
+var Measurement = /*#__PURE__*/function () {
+  function Measurement(map) {
+    _classCallCheck(this, Measurement);
+
+    this.map = map;
+    this.measurer = null;
+  }
+
+  _createClass(Measurement, [{
+    key: "onMouseMove",
+    value: function onMouseMove(e) {
+      var point = {
+        x: e.absolutePointer.x,
+        y: e.absolutePointer.y
+      };
+
+      if (this.measurer && !this.measurer.completed) {
+        this.measurer.setEnd(point);
+        this.map.canvas.requestRenderAll();
+      }
+    }
+  }, {
+    key: "onClick",
+    value: function onClick(e) {
+      var point = {
+        x: e.absolutePointer.x,
+        y: e.absolutePointer.y
+      };
+
+      if (!this.measurer) {
+        this.measurer = new Measurer({
+          start: point,
+          end: point,
+          map: this.map
+        }); // this.map.canvas.add(this.measurer);
+      } else if (!this.measurer.completed) {
+        this.measurer.setEnd(point);
+        this.measurer.complete();
+      }
+    }
+  }]);
+
+  return Measurement;
+}();
 
 /**
  * A fluent interface to apply a list of mixins to a superclass.
@@ -2560,15 +2796,11 @@ var mix = function mix(superclass) {
   return new MixinBuilder(superclass);
 };
 
-var MixinBuilder =
-/*#__PURE__*/
-function () {
+var MixinBuilder = /*#__PURE__*/function () {
   function MixinBuilder(superclass) {
     _classCallCheck(this, MixinBuilder);
 
-    this.superclass = superclass ||
-    /*#__PURE__*/
-    function () {
+    this.superclass = superclass || /*#__PURE__*/function () {
       function _class() {
         _classCallCheck(this, _class);
       }
@@ -2600,17 +2832,17 @@ function () {
   return MixinBuilder;
 }();
 
-var Map =
-/*#__PURE__*/
-function (_mix$with) {
+var Map = /*#__PURE__*/function (_mix$with) {
   _inherits(Map, _mix$with);
+
+  var _super = _createSuper(Map);
 
   function Map(container, options) {
     var _this;
 
     _classCallCheck(this, Map);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Map).call(this, options));
+    _this = _super.call(this, options);
     _this.defaults = Object.assign({}, MAP); // set defaults
 
     Object.assign(_assertThisInitialized(_this), _this.defaults); // overwrite options
@@ -2675,6 +2907,7 @@ function (_mix$with) {
     setTimeout(function () {
       _this.emit('ready', _assertThisInitialized(_this));
     }, 300);
+    _this.measurement = new Measurement(_assertThisInitialized(_this));
     return _this;
   }
 
@@ -3145,6 +3378,10 @@ function (_mix$with) {
         vm.dragObject = e.target;
       });
       this.canvas.on('mouse:move', function (e) {
+        if (_this6.isMeasureMode()) {
+          _this6.measurement.onMouseMove(e);
+        }
+
         if (vm.dragObject && vm.dragObject.clickable) {
           if (vm.dragObject === e.target) {
             vm.dragObject.dragging = true;
@@ -3166,6 +3403,10 @@ function (_mix$with) {
         vm.emit('mouse:move', e);
       });
       this.canvas.on('mouse:up', function (e) {
+        if (_this6.isMeasureMode()) {
+          _this6.measurement.onClick(e);
+        }
+
         _this6.isRight = false;
         _this6.dx = 0;
         _this6.dy = 0;
@@ -3249,16 +3490,16 @@ var map = function map(container, options) {
   return new Map(container, options);
 };
 
-var Group =
-/*#__PURE__*/
-function (_fabric$Group) {
+var Group = /*#__PURE__*/function (_fabric$Group) {
   _inherits(Group, _fabric$Group);
+
+  var _super = _createSuper(Group);
 
   function Group(objects, options) {
     _classCallCheck(this, Group);
 
     options = options || {};
-    return _possibleConstructorReturn(this, _getPrototypeOf(Group).call(this, objects, options));
+    return _super.call(this, objects, options);
   }
 
   _createClass(Group, [{
@@ -3277,17 +3518,17 @@ var group = function group(objects, options) {
   return new Group(objects, options);
 };
 
-var Layer =
-/*#__PURE__*/
-function (_Base) {
+var Layer = /*#__PURE__*/function (_Base) {
   _inherits(Layer, _Base);
+
+  var _super = _createSuper(Layer);
 
   function Layer(options) {
     var _this;
 
     _classCallCheck(this, Layer);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Layer).call(this, options));
+    _this = _super.call(this, options);
     _this.label = _this.label !== undefined ? _this.label : null;
     _this.draggable = _this.draggable || false;
     _this.zIndex = _this.zIndex || 1;
@@ -3354,17 +3595,17 @@ var layer = function layer(options) {
   return new Layer(options);
 };
 
-var Floor =
-/*#__PURE__*/
-function (_Layer) {
+var Floor = /*#__PURE__*/function (_Layer) {
   _inherits(Floor, _Layer);
+
+  var _super = _createSuper(Floor);
 
   function Floor(options) {
     var _this;
 
     _classCallCheck(this, Floor);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Floor).call(this, options));
+    _this = _super.call(this, options);
     _this.width = _this.width || -1;
     _this.height = _this.height || -1;
     _this.position = new Point(_this.position);
@@ -3528,10 +3769,10 @@ var floorplan = function floorplan(options) {
   return new Floor(options);
 };
 
-var Line =
-/*#__PURE__*/
-function (_fabric$Line) {
+var Line = /*#__PURE__*/function (_fabric$Line) {
   _inherits(Line, _fabric$Line);
+
+  var _super = _createSuper(Line);
 
   function Line(points, options) {
     var _this;
@@ -3541,7 +3782,7 @@ function (_fabric$Line) {
     options = options || {};
     options.strokeWidth = options.strokeWidth || 1;
     options["class"] = 'line';
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Line).call(this, points, options));
+    _this = _super.call(this, points, options);
     _this._strokeWidth = options.strokeWidth;
     return _this;
   }
@@ -3564,10 +3805,10 @@ var line = function line(points, options) {
   return new Line(points, options);
 };
 
-var Connector =
-/*#__PURE__*/
-function (_Layer) {
+var Connector = /*#__PURE__*/function (_Layer) {
   _inherits(Connector, _Layer);
+
+  var _super = _createSuper(Connector);
 
   function Connector(start, end, options) {
     var _this;
@@ -3577,7 +3818,7 @@ function (_Layer) {
     options = options || {};
     options.zIndex = options.zIndex || 10;
     options["class"] = 'connector';
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Connector).call(this, options));
+    _this = _super.call(this, options);
 
     if (!start || !end) {
       console.error('start or end is missing');
@@ -3675,10 +3916,10 @@ var connector = function connector(start, end, options) {
   return new Connector(start, end, options);
 };
 
-var Marker =
-/*#__PURE__*/
-function (_Layer) {
+var Marker = /*#__PURE__*/function (_Layer) {
   _inherits(Marker, _Layer);
+
+  var _super = _createSuper(Marker);
 
   function Marker(position, options) {
     var _this;
@@ -3693,7 +3934,7 @@ function (_Layer) {
     options.yaw = options.yaw || 0;
     options.clickable = options.clickable !== undefined ? options.clickable : true;
     options["class"] = 'marker';
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Marker).call(this, options));
+    _this = _super.call(this, options);
 
     var vm = _assertThisInitialized(_this);
 
@@ -3847,9 +4088,6 @@ function (_Layer) {
             _this3.setColor(options[key]);
 
             break;
-
-          default:
-            break;
         }
       });
 
@@ -3992,17 +4230,17 @@ var marker = function marker(position, options) {
   return new Marker(position, options);
 };
 
-var Icon =
-/*#__PURE__*/
-function (_fabric$Image) {
+var Icon = /*#__PURE__*/function (_fabric$Image) {
   _inherits(Icon, _fabric$Image);
+
+  var _super = _createSuper(Icon);
 
   function Icon(options) {
     var _this;
 
     _classCallCheck(this, Icon);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Icon).call(this, options));
+    _this = _super.call(this, options);
     _this.defaults = Object.assign({}, ICON);
     Object.assign({}, _this.defaults);
     Object.assign({}, _this._options);
@@ -4015,10 +4253,10 @@ var icon = function icon(options) {
   return new Icon(options);
 };
 
-var Polyline =
-/*#__PURE__*/
-function (_Layer) {
+var Polyline = /*#__PURE__*/function (_Layer) {
   _inherits(Polyline, _Layer);
+
+  var _super = _createSuper(Polyline);
 
   function Polyline(_points, options) {
     var _this;
@@ -4027,7 +4265,7 @@ function (_Layer) {
 
     options = options || {};
     options.points = _points || [];
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Polyline).call(this, options));
+    _this = _super.call(this, options);
     _this.lines = [];
     _this["class"] = 'polyline';
     _this.strokeWidth = 1;
@@ -4100,15 +4338,15 @@ var polyline = function polyline(points, options) {
   return new Polyline(points, options);
 };
 
-var Circle =
-/*#__PURE__*/
-function (_fabric$Circle) {
+var Circle = /*#__PURE__*/function (_fabric$Circle) {
   _inherits(Circle, _fabric$Circle);
+
+  var _super = _createSuper(Circle);
 
   function Circle() {
     _classCallCheck(this, Circle);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Circle).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
 
   return Circle;
@@ -4117,10 +4355,10 @@ var circle = function circle(options) {
   return new Circle(options);
 };
 
-var Rect =
-/*#__PURE__*/
-function (_fabric$Rect) {
+var Rect = /*#__PURE__*/function (_fabric$Rect) {
   _inherits(Rect, _fabric$Rect);
+
+  var _super = _createSuper(Rect);
 
   function Rect(points, options) {
     var _this;
@@ -4130,7 +4368,7 @@ function (_fabric$Rect) {
     options = options || {};
     options.strokeWidth = options.strokeWidth || 1;
     options["class"] = 'rect';
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Rect).call(this, points, options));
+    _this = _super.call(this, points, options);
     _this._strokeWidth = options.strokeWidth;
     return _this;
   }
@@ -4150,10 +4388,10 @@ var rect = function rect(points, options) {
   return new Rect(points, options);
 };
 
-var MarkerGroup =
-/*#__PURE__*/
-function (_Layer) {
+var MarkerGroup = /*#__PURE__*/function (_Layer) {
   _inherits(MarkerGroup, _Layer);
+
+  var _super = _createSuper(MarkerGroup);
 
   function MarkerGroup(bounds, options) {
     var _this;
@@ -4164,7 +4402,7 @@ function (_Layer) {
     options.bounds = bounds;
     options.zIndex = options.zIndex || 50;
     options["class"] = 'markergroup';
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(MarkerGroup).call(this, options));
+    _this = _super.call(this, options);
 
     if (!_this.bounds) {
       console.error('bounds is missing!');
@@ -4218,10 +4456,10 @@ var markerGroup = function markerGroup(bounds, options) {
   return new MarkerGroup(bounds, options);
 };
 
-var ArrowHead =
-/*#__PURE__*/
-function (_fabric$Triangle) {
+var ArrowHead = /*#__PURE__*/function (_fabric$Triangle) {
   _inherits(ArrowHead, _fabric$Triangle);
+
+  var _super = _createSuper(ArrowHead);
 
   function ArrowHead(points, options) {
     _classCallCheck(this, ArrowHead);
@@ -4247,7 +4485,7 @@ function (_fabric$Triangle) {
       console.log("Angle: ".concat(angle));
     }
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(ArrowHead).call(this, {
+    return _super.call(this, {
       angle: angle,
       fill: options.stroke,
       top: y2,
@@ -4257,16 +4495,16 @@ function (_fabric$Triangle) {
       originX: 'center',
       originY: 'center',
       selectable: false
-    }));
+    });
   }
 
   return ArrowHead;
 }(fabric.Triangle);
 
-var Arrow =
-/*#__PURE__*/
-function (_fabric$Group) {
+var Arrow = /*#__PURE__*/function (_fabric$Group) {
   _inherits(Arrow, _fabric$Group);
+
+  var _super = _createSuper(Arrow);
 
   function Arrow(point, options) {
     var _this;
@@ -4277,9 +4515,9 @@ function (_fabric$Group) {
     options.strokeWidth = options.strokeWidth || 5;
     options.stroke = options.stroke || '#7db9e8';
     options["class"] = 'arrow';
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Arrow).call(this, [], Object.assign(options, {
+    _this = _super.call(this, [], Object.assign(options, {
       evented: false
-    })));
+    }));
     _this.pointArray = [point, Object.assign({}, point)];
     _this.options = options;
 
@@ -4361,17 +4599,17 @@ var Modes$1 = {
   ARROW: 'arrow',
   TEXT: 'text'
 };
-var Canvas =
-/*#__PURE__*/
-function (_Base) {
+var Canvas = /*#__PURE__*/function (_Base) {
   _inherits(Canvas, _Base);
+
+  var _super = _createSuper(Canvas);
 
   function Canvas(container, options) {
     var _this;
 
     _classCallCheck(this, Canvas);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Canvas).call(this, options));
+    _this = _super.call(this, options);
     _this.container = container;
     var canvas = document.createElement('canvas');
 
