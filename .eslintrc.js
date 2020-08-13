@@ -33,6 +33,7 @@ module.exports = {
       }
     ],
     'arrow-parens': 'off',
+    'implicit-arrow-linebreak': 'off',
     'no-underscore-dangle': 'off',
     'no-param-reassign': 'off',
     'function-paren-newline': 'off',

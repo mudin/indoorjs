@@ -3,6 +3,7 @@ import { Point } from '../geometry/Point.js';
 export const Modes = {
   SELECT: 'SELECT',
   GRAB: 'GRAB',
+  MEASURE: 'MEASURE',
   DRAW: 'DRAW'
 };
 

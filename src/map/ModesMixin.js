@@ -1,60 +1,74 @@
 import { Modes } from '../core/Constants';
 
-const ModesMixin = superclass => class extends superclass {
-  /**
+const ModesMixin = superclass =>
+  class extends superclass {
+    /**
      * MODES
      */
-  setMode(mode) {
-    this.mode = mode;
+    setMode(mode) {
+      this.mode = mode;
 
-    switch (mode) {
-      case Modes.SELECT:
-        this.canvas.isDrawingMode = false;
-        this.canvas.interactive = true;
-        this.canvas.selection = true;
-        this.canvas.hoverCursor = 'default';
-        this.canvas.moveCursor = 'default';
-        break;
-      case Modes.GRAB:
-        this.canvas.isDrawingMode = false;
-        this.canvas.interactive = false;
-        this.canvas.selection = false;
-        this.canvas.discardActiveObject();
-        this.canvas.hoverCursor = 'move';
-        this.canvas.moveCursor = 'move';
-        break;
-      case Modes.DRAW:
-        this.canvas.isDrawingMode = true;
-        break;
+      switch (mode) {
+        case Modes.SELECT:
+          this.canvas.isDrawingMode = false;
+          this.canvas.interactive = true;
+          this.canvas.selection = true;
+          this.canvas.hoverCursor = 'default';
+          this.canvas.moveCursor = 'default';
+          break;
+        case Modes.GRAB:
+          this.canvas.isDrawingMode = false;
+          this.canvas.interactive = false;
+          this.canvas.selection = false;
+          this.canvas.discardActiveObject();
+          this.canvas.hoverCursor = 'move';
+          this.canvas.moveCursor = 'move';
+          break;
+        case Modes.MEASURE:
+          this.canvas.isDrawingMode = true;
+          this.canvas.freeDrawingBrush.color = 'transparent';
+          this.canvas.discardActiveObject();
+          break;
+        case Modes.DRAW:
+          this.canvas.isDrawingMode = true;
+          break;
 
-      default:
-        break;
+        default:
+          break;
+      }
     }
-  }
 
-  setModeAsDraw() {
-    this.setMode(Modes.DRAW);
-  }
+    setModeAsDraw() {
+      this.setMode(Modes.DRAW);
+    }
 
-  setModeAsSelect() {
-    this.setMode(Modes.SELECT);
-  }
+    setModeAsSelect() {
+      this.setMode(Modes.SELECT);
+    }
 
-  setModeAsGrab() {
-    this.setMode(Modes.GRAB);
-  }
+    setModeAsMeasure() {
+      this.setMode(Modes.MEASURE);
+    }
 
-  isSelectMode() {
-    return this.mode === Modes.SELECT;
-  }
+    setModeAsGrab() {
+      this.setMode(Modes.GRAB);
+    }
 
-  isGrabMode() {
-    return this.mode === Modes.GRAB;
-  }
+    isSelectMode() {
+      return this.mode === Modes.SELECT;
+    }
 
-  isDrawMode() {
-    return this.mode === Modes.DRAW;
-  }
-};
+    isGrabMode() {
+      return this.mode === Modes.GRAB;
+    }
+
+    isMeasureMode() {
+      return this.mode === Modes.MEASURE;
+    }
+
+    isDrawMode() {
+      return this.mode === Modes.DRAW;
+    }
+  };
 
 export default ModesMixin;

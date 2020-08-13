@@ -6,6 +6,7 @@ import { MAP, Modes } from '../core/Constants';
 import Grid from '../grid/Grid';
 import { Point } from '../geometry/Point';
 import ModesMixin from './ModesMixin';
+import Measurement from '../measurement/Measurement';
 import { mix } from '../lib/mix';
 
 export class Map extends mix(Base).with(ModesMixin) {
@@ -81,6 +82,8 @@ export class Map extends mix(Base).with(ModesMixin) {
     setTimeout(() => {
       this.emit('ready', this);
     }, 300);
+
+    this.measurement = new Measurement(this);
   }
 
   addFloorPlan() {
@@ -502,6 +505,9 @@ export class Map extends mix(Base).with(ModesMixin) {
     });
 
     this.canvas.on('mouse:move', e => {
+      if (this.isMeasureMode()) {
+        this.measurement.onMouseMove(e);
+      }
       if (vm.dragObject && vm.dragObject.clickable) {
         if (vm.dragObject === e.target) {
           vm.dragObject.dragging = true;
@@ -522,6 +528,10 @@ export class Map extends mix(Base).with(ModesMixin) {
     });
 
     this.canvas.on('mouse:up', e => {
+      if (this.isMeasureMode()) {
+        this.measurement.onClick(e);
+      }
+
       this.isRight = false;
       this.dx = 0;
       this.dy = 0;
